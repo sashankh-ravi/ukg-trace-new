@@ -1,0 +1,286 @@
+
+  >>> ENTER GraphExtractionStage._execute_core   (application/ingestion/pipeline_stages.py)
+              context = PipelineContext(text_units: 5, translated_units: 0, entities: 0)
+    line 773          logger.info("=" * 60)
+    line 774          logger.info("GRAPH EXTRACTION STAGE - STARTED")
+    line 775          logger.info("=" * 60)
+    line 777          text_units = context.translated_units or context.text_units
+              text_units = list of 5 TextUnit
+    line 779          entities, relationships, stats = self.extractor.extract_from_text_units(
+    line 780              text_units
+    line 779          entities, relationships, stats = self.extractor.extract_from_text_units(
+
+  >>> ENTER GraphExtractor.extract_from_text_units   (adapters/ingestion/graph_extractor.py)
+              text_units = list of 5 TextUnit
+    line 146          start_time = time.time()
+              start_time = 1791821093.201 (clock time, seconds)
+    line 148          if not text_units:
+    line 152          self.stats = ExtractionStats(num_total_units=len(text_units))
+    line 153          logger.info("Starting graph extraction from %s text units", len(text_units))
+    line 155          try:
+    line 156              extraction_results = self.batch_processor.execute_with_fallback(
+    line 157                  items_to_process=text_units,
+    line 158                  prepare_inputs_func=self._prepare_extraction_inputs,
+    line 159                  batch_func=self.graph_extractor.batch,
+    line 160                  sequential_func=self.graph_extractor.invoke,
+    line 162                  run_config=self.config.processing.model_dump(),
+    line 163                  show_progress=self.show_progress,
+    line 156              extraction_results = self.batch_processor.execute_with_fallback(
+
+  ========== HAND-OVER TO THE BATCH PROCESSOR: step 3 starts here; tracing stops ==========
+      items_to_process = list of 5 TextUnit
+      prepare_inputs_func = GraphExtractor._prepare_extraction_inputs
+      batch_func = RunnableBindingBase.batch
+      sequential_func = RunnableBindingBase.invoke
+      run_config = dict with 15 keys
+      show_progress = True
+
+(stage 5 finished untraced; status: completed )
+
+======================================================================
+_prepare_extraction_inputs, traced on its own with the same 5 chunks.
+(In the run it is not called by extract_from_text_units; it is passed to the batch processor, which calls it: step 3.)
+
+  >>> ENTER GraphExtractor._prepare_extraction_inputs   (adapters/ingestion/graph_extractor.py)
+              text_units = list of 5 TextUnit
+    line 207          inputs = []
+              inputs = list of 0: []
+    line 208          graph_extraction_config = self.extraction_config
+              graph_extraction_config = GraphExtractionConfig(max_entities_per_chunk=50, max_relationships_per_chunk=50, entity_types: 7 items, ...)
+    line 209          failed_preparations = 0
+              failed_preparations = 0
+    line 210          entity_types_block = self._format_entity_types(
+    line 211              graph_extraction_config.entity_types
+    line 210          entity_types_block = self._format_entity_types(
+
+  >>> ENTER GraphExtractor._format_entity_types   (adapters/ingestion/graph_extractor.py)
+              entity_types = list of 7: ['PERSON: Names, individuals, roles, titles', 'ORGANIZATION: Companies, institutions, departments, groups', 'LOCATION: Places, addresses, geographic areas, facilities', ...]
+    line 193          if not entity_types:
+    line 195          lines = []
+              lines = list of 0: []
+    line 196          for item in entity_types:
+              item = 'PERSON: Names, individuals, roles, titles'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'PERSON'
+              sep = ':'
+              desc = ' Names, individuals, roles, titles'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 1: ['- **PERSON**: Names, individuals, roles, titles']
+    line 196          for item in entity_types:
+              item = 'ORGANIZATION: Companies, institutions, departments, groups'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'ORGANIZATION'
+              desc = ' Companies, institutions, departments, groups'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 2: ['- **PERSON**: Names, individuals, roles, titles', '- **ORGANIZATION**: Companies, institutions, departments, groups']
+    line 196          for item in entity_types:
+              item = 'LOCATION: Places, addresses, geographic areas, facilities'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'LOCATION'
+              desc = ' Places, addresses, geographic areas, facilities'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 3: ['- **PERSON**: Names, individuals, roles, titles', '- **ORGANIZATION**: Companies, institutions, departments, groups', '- **LOCATION**: Places, addresses, geographic areas, facilities']
+    line 196          for item in entity_types:
+              item = 'CONCEPT: Ideas, theories, methodologies, frameworks, principles'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'CONCEPT'
+              desc = ' Ideas, theories, methodologies, frameworks, principles'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 4: ['- **PERSON**: Names, individuals, roles, titles', '- **ORGANIZATION**: Companies, institutions, departments, groups', '- **LOCATION**: Places, addresses, geographic areas, facilities', ...]
+    line 196          for item in entity_types:
+              item = 'OBJECT: Documents, tools, products, systems, technologies'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'OBJECT'
+              desc = ' Documents, tools, products, systems, technologies'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 5: ['- **PERSON**: Names, individuals, roles, titles', '- **ORGANIZATION**: Companies, institutions, departments, groups', '- **LOCATION**: Places, addresses, geographic areas, facilities', ...]
+    line 196          for item in entity_types:
+              item = 'EVENT: Meetings, projects, activities, processes, incidents'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'EVENT'
+              desc = ' Meetings, projects, activities, processes, incidents'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 6: ['- **PERSON**: Names, individuals, roles, titles', '- **ORGANIZATION**: Companies, institutions, departments, groups', '- **LOCATION**: Places, addresses, geographic areas, facilities', ...]
+    line 196          for item in entity_types:
+              item = 'TEMPORAL: Dates, time periods, schedules, deadlines'
+    line 197              label, sep, desc = item.partition(":")
+              label = 'TEMPORAL'
+              desc = ' Dates, time periods, schedules, deadlines'
+    line 198              label = label.strip()
+    line 199              if not label:
+    line 201              lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+              lines = list of 7: ['- **PERSON**: Names, individuals, roles, titles', '- **ORGANIZATION**: Companies, institutions, departments, groups', '- **LOCATION**: Places, addresses, geographic areas, facilities', ...]
+    line 196          for item in entity_types:
+    line 202          return "\n".join(lines)
+  <<< GraphExtractor._format_entity_types RETURNS '- **PERSON**: Names, individuals, roles, titles\n- **ORGANIZATION**: Companies, institutions, de...
+
+              entity_types_block = '- **PERSON**: Names, individuals, roles, titles\n- **ORGANIZATION**: Companies, institutions, de...
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=7625b4ab.., file=01_acme.txt, text='Acme Robotics is a company based in Pune'..., translated_texts=None)
+    line 215              try:
+    line 216                  inputs.append(
+    line 218                          "input_text": self.get_text_for_processing(text_unit),
+
+  >>> ENTER BaseProcessor.get_text_for_processing   (domain/ingestion/base_processor.py)
+              text_unit = TextUnit(id=7625b4ab.., file=01_acme.txt, text='Acme Robotics is a company based in Pune'..., translated_texts=None)
+    line 46           if text_unit.translated_texts:
+    line 49           return text_unit.text
+  <<< BaseProcessor.get_text_for_processing RETURNS 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds ware...
+
+    line 219                          "max_entities_per_chunk": str(
+    line 220                              graph_extraction_config.max_entities_per_chunk
+    line 219                          "max_entities_per_chunk": str(
+    line 222                          "max_relationships_per_chunk": str(
+    line 223                              graph_extraction_config.max_relationships_per_chunk
+    line 222                          "max_relationships_per_chunk": str(
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 1 prompt-input dicts
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=6fde1112.., file=02_meera.txt, text='Meera Shah studied engineering at IIT Bo'..., translated_texts=None)
+    line 215              try:
+    line 216                  inputs.append(
+    line 218                          "input_text": self.get_text_for_processing(text_unit),
+
+  >>> ENTER BaseProcessor.get_text_for_processing   (domain/ingestion/base_processor.py)
+              text_unit = TextUnit(id=6fde1112.., file=02_meera.txt, text='Meera Shah studied engineering at IIT Bo'..., translated_texts=None)
+    line 46           if text_unit.translated_texts:
+    line 49           return text_unit.text
+  <<< BaseProcessor.get_text_for_processing RETURNS 'Meera Shah studied engineering at IIT Bombay. Before Acme Robotics she worked at Orbit Logistics...
+
+    line 219                          "max_entities_per_chunk": str(
+    line 220                              graph_extraction_config.max_entities_per_chunk
+    line 219                          "max_entities_per_chunk": str(
+    line 222                          "max_relationships_per_chunk": str(
+    line 223                              graph_extraction_config.max_relationships_per_chunk
+    line 222                          "max_relationships_per_chunk": str(
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 2 prompt-input dicts
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=85b2d41d.., file=03_orbit.txt, text='Orbit Logistics runs warehouses in Mumba'..., translated_texts=None)
+    line 215              try:
+    line 216                  inputs.append(
+    line 218                          "input_text": self.get_text_for_processing(text_unit),
+
+  >>> ENTER BaseProcessor.get_text_for_processing   (domain/ingestion/base_processor.py)
+              text_unit = TextUnit(id=85b2d41d.., file=03_orbit.txt, text='Orbit Logistics runs warehouses in Mumba'..., translated_texts=None)
+    line 46           if text_unit.translated_texts:
+    line 49           return text_unit.text
+  <<< BaseProcessor.get_text_for_processing RETURNS 'Orbit Logistics runs warehouses in Mumbai and Chennai. In 2022 Orbit Logistics signed a supply c...
+
+    line 219                          "max_entities_per_chunk": str(
+    line 220                              graph_extraction_config.max_entities_per_chunk
+    line 219                          "max_entities_per_chunk": str(
+    line 222                          "max_relationships_per_chunk": str(
+    line 223                              graph_extraction_config.max_relationships_per_chunk
+    line 222                          "max_relationships_per_chunk": str(
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 3 prompt-input dicts
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=e242d857.., file=04_product.txt, text='The Acme Picker X2 is a warehouse robot '..., translated_texts=None)
+    line 215              try:
+    line 216                  inputs.append(
+    line 218                          "input_text": self.get_text_for_processing(text_unit),
+
+  >>> ENTER BaseProcessor.get_text_for_processing   (domain/ingestion/base_processor.py)
+              text_unit = TextUnit(id=e242d857.., file=04_product.txt, text='The Acme Picker X2 is a warehouse robot '..., translated_texts=None)
+    line 46           if text_unit.translated_texts:
+    line 49           return text_unit.text
+  <<< BaseProcessor.get_text_for_processing RETURNS 'The Acme Picker X2 is a warehouse robot that lifts up to 40 kg. Orbit Logistics uses the Picker ...
+
+    line 219                          "max_entities_per_chunk": str(
+    line 220                              graph_extraction_config.max_entities_per_chunk
+    line 219                          "max_entities_per_chunk": str(
+    line 222                          "max_relationships_per_chunk": str(
+    line 223                              graph_extraction_config.max_relationships_per_chunk
+    line 222                          "max_relationships_per_chunk": str(
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 4 prompt-input dicts
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=9fa25aaf.., file=05_investor.txt, text='Banyan Capital invested in Acme Robotics'..., translated_texts=None)
+    line 215              try:
+    line 216                  inputs.append(
+    line 218                          "input_text": self.get_text_for_processing(text_unit),
+
+  >>> ENTER BaseProcessor.get_text_for_processing   (domain/ingestion/base_processor.py)
+              text_unit = TextUnit(id=9fa25aaf.., file=05_investor.txt, text='Banyan Capital invested in Acme Robotics'..., translated_texts=None)
+    line 46           if text_unit.translated_texts:
+    line 49           return text_unit.text
+  <<< BaseProcessor.get_text_for_processing RETURNS 'Banyan Capital invested in Acme Robotics in 2019. Ravi Menon, a partner at Banyan Capital, sits ...
+
+    line 219                          "max_entities_per_chunk": str(
+    line 220                              graph_extraction_config.max_entities_per_chunk
+    line 219                          "max_entities_per_chunk": str(
+    line 222                          "max_relationships_per_chunk": str(
+    line 223                              graph_extraction_config.max_relationships_per_chunk
+    line 222                          "max_relationships_per_chunk": str(
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 5 prompt-input dicts
+    line 214          for text_unit in text_units:
+    line 256          if failed_preparations > 0:
+    line 261          return inputs
+  <<< GraphExtractor._prepare_extraction_inputs RETURNS list of 5 prompt-input dicts
+
+
+======================================================================
+THE PROMPT AS FILLED IN FOR THE FIRST CHUNK
+--- system message: 4946 characters; the part where {entity_types} was filled in:
+## Entity Categories (STRICT - use only these types):
+- **PERSON**: Names, individuals, roles, titles
+- **ORGANIZATION**: Companies, institutions, departments, groups
+- **LOCATION**: Places, addresses, geographic areas, facilities
+- **CONCEPT**: Ideas, theories, methodologies, frameworks, principles
+- **OBJECT**: Documents, tools, products, systems, technologies
+- **EVENT**: Meetings, projects, activities, processes, incidents
+- **TEMPORAL**: Dates, time periods, schedules, deadlines
+--- human message: 1157 characters, in full:
+Extract entities and relationships from the following text using the exact specifications
+provided.
+
+## SOURCE TEXT:
+Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.
+Acme has 120 employees.
+
+## EXTRACTION LIMITS:
+- Maximum Entities: 50
+- Maximum Relationships: 50
+
+## STEP-BY-STEP PROCESS:
+1. Read the text carefully and identify all significant entities
+2. Classify each entity using the specified types
+3. Create clear descriptions for each entity
+4. Assign confidence scores based on extraction certainty (1-10 scale)
+5. Identify meaningful relationships between entities
+6. Assign appropriate relationship types and strength scores
+7. Verify entity name consistency between sections
+8. Format output using the exact XML structure
+
+## CRITICAL REMINDERS:
+- Use ONLY the entity types specified in the system prompt
+- Ensure entity names are IDENTICAL in both entities and relationships sections
+- All relationships must connect entities that exist in your entities list
+- Stay within the specified limits for entities and relationships
+- Use the exact XML format provided
+
+Begin extraction now:
