@@ -1,0 +1,105 @@
+{
+  "pipeline_id": "demo-ttl",
+  "config": {
+    "stages_enabled": {
+      "document_parsing": true,
+      "document_loading": true,
+      "text_chunking": false,
+      "translation": false,
+      "graph_extraction": false,
+      "gleaning": false,
+      "graph_resolution": false,
+      "claim_extraction": false,
+      "claim_resolution": false,
+      "graph_analysis": false,
+      "community_detection": false,
+      "indexing": false
+    },
+    "cache_enabled": true,
+    "local_directory": "cache",
+    "s3_sync_enabled": false,
+    "s3_prefix": "pipeline-runs",
+    "continue_on_error": false,
+    "force_rebuild": false,
+    "pipeline_id": "demo-ttl"
+  },
+  "status": "completed",
+  "start_time": "2026-10-09T14:11:08.824406",
+  "end_time": "2026-10-09T14:11:40.887184",
+  "duration_seconds": 0.011397600173950195,
+  "source_directory": "/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/demo/docs",
+  "stage_results": [
+    {
+      "stage_name": "document_parsing",
+      "status": "completed",
+      "start_time": "2026-10-09T14:11:40.876957",
+      "end_time": "2026-10-09T14:11:40.879328",
+      "duration_seconds": 0.002371,
+      "input_count": 5,
+      "output_count": 5,
+      "metrics": {
+        "input_files": 5,
+        "parsed_files": [
+          "01_acme.txt",
+          "02_meera.txt",
+          "03_orbit.txt",
+          "04_product.txt",
+          "05_investor.txt"
+        ],
+        "failed_files": [],
+        "success_rate": 100.0
+      }
+    },
+    {
+      "stage_name": "document_loading",
+      "status": "completed",
+      "start_time": "2026-10-09T14:11:40.883375",
+      "end_time": "2026-10-09T14:11:40.883871",
+      "duration_seconds": 0.000496,
+      "input_count": 5,
+      "output_count": 5,
+      "metrics": {
+        "file_count": 5,
+        "success_count": 5,
+        "delta_skipped": 0,
+        "failed_files": []
+      }
+    }
+  ],
+  "global_metrics": {
+    "pipeline_id": "demo-ttl",
+    "total_duration_seconds": 0.011397600173950195,
+    "total_documents_processed": 5,
+    "total_text_units_created": 0,
+    "total_translated_units": 0,
+    "total_entities_extracted": 0,
+    "total_relationships_extracted": 0,
+    "total_claims_extracted": 0,
+    "total_communities_detected": 0,
+    "total_community_reports_generated": 0,
+    "total_items_indexed": 0,
+    "total_items_index_failed": 0,
+    "relationships_indexed": 0,
+    "total_extraction_failures": 0,
+    "total_gleaning_failures": 0,
+    "total_claim_extraction_failures": 0,
+    "gleaning_improvement_rate": 0.0,
+    "entity_resolution_merge_rate": 0.0,
+    "relationship_resolution_merge_rate": 0.0,
+    "claim_resolution_merge_rate": 0.0,
+    "community_modularity_score": 0.0,
+    "stage_durations": {
+      "document_parsing": 0.002371,
+      "document_loading": 0.000496
+    },
+    "stage_throughput": {
+      "document_parsing": 2108.814846056516,
+      "document_loading": 10080.645161290322
+    },
+    "cache_hit_rate": 0.0,
+    "cache_size_mb": 0.01071929931640625
+  },
+  "incremental_fingerprints": {},
+  "failed_source_files": [],
+  "failed_text_unit_ids": {}
+}

@@ -1,0 +1,127 @@
+╭───────────────────────────────────────────────────────────────────────────╮
+│                                                                           │
+│                                                                           │
+│    ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗     ██████╗  █████╗  ██████╗  │
+│   ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║     ██╔══██╗██╔══██╗██╔════╝  │
+│   ██║  ███╗██████╔╝███████║██████╔╝███████║     ██████╔╝███████║██║  ███╗ │
+│   ██║   ██║██╔══██╗██╔══██║██╔══██╗██╔══██║     ██╔══██╗██╔══██║██║   ██║ │
+│   ╚██████╔╝██║  ██║██║  ██║██║  ██║██║  ██║     ██║  ██║██║  ██║╚██████╔╝ │
+│    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  │
+│                                                                           │
+│                                                                           │
+│ Built by AWS Professional Services | Version 0.2.3                        │
+│                                                                           │
+╰───────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Graph RAG Document Processing Pipeline                                       │
+│ Source Directory:                                                            │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ demo/docs'                                                                   │
+│ Timestamp: '2026-10-09 13:51:01'                                             │
+│ Cache Directory:                                                             │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ demo/cache'                                                                  │
+│ Force Rebuild: False                                                         │
+│ S3 Sync: False                                                               │
+│ Continue on Error: False                                                     │
+│ Pipeline ID: 'pipeline-46b42b42-20261009_132047'                             │
+│ Resume Mode: 'Auto-detect Failed/Incomplete Stage'                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Initializing pipeline...
+{"event": "Initialized Cache Manager at 'cache' with strategy='content_hash', TTL=86400s, chunk_size=1000, max_file_size=50MB, chunking_enabled=True", "logger": "unified_kg_rag.shared.cache_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.697646Z"}
+{"event": "Disabled stages: ['text_chunking', 'translation', 'graph_extraction', 'gleaning', 'graph_resolution', 'claim_extraction', 'claim_resolution', 'graph_analysis', 'community_detection', 'indexing']", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.710546Z"}
+{"event": "Successfully initialized pipeline with 2 stages: 'document_parsing, document_loading'", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.710839Z"}
+{"event": "Validating pipeline integrity for 'pipeline-46b42b42-20261009_132047'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.711109Z"}
+{"event": "Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T13:51:01.711655Z"}
+{"event": "Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T13:51:01.711946Z"}
+{"event": "Pipeline integrity validation failed for 'pipeline-46b42b42-20261009_132047' with 2 errors", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.712033Z"}
+
+Pipeline integrity check failed for 'pipeline-46b42b42-20261009_132047':
+  • Missing cache for completed stage 'document_parsing', key: 
+'documents-1035b7a62512'
+  • Missing cache for completed stage 'document_loading', key: 
+'documents-ac616352a4e7'
+Continue despite integrity issues? [y/n]: 
+Starting pipeline execution...
+{"event": "Starting pipeline run - source: '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/demo/docs', pipeline_id: 'pipeline-46b42b42-20261009_132047', resume_from: 'auto-detect'", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.714703Z"}
+{"event": "Resolved pipeline ID: 'pipeline-46b42b42-20261009_132047'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.714867Z"}
+{"event": "Corpus manifest fingerprint: '11e583bd8e55'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.717340Z"}
+{"event": "Resuming existing pipeline 'pipeline-46b42b42-20261009_132047' from stage: 'auto-detect'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.717504Z"}
+{"event": "Preparing pipeline resume for 'pipeline-46b42b42-20261009_132047' from stage: 'auto-detect'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.717585Z"}
+{"event": "Determining resume strategy for pipeline 'pipeline-46b42b42-20261009_132047'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.717651Z"}
+{"event": "Resume strategy determined - Start from: 'document_loading', Load 2 completed stages", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.718285Z"}
+{"event": "Restoring pipeline context for 'pipeline-46b42b42-20261009_132047' with 2 completed stages", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.718394Z"}
+{"event": "Created context from metadata for pipeline 'pipeline-46b42b42-20261009_132047' (status: PipelineStageStatus.COMPLETED -> running)", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.718645Z"}
+{"event": "Context restoration completed for 'pipeline-46b42b42-20261009_132047': 2/2 stages loaded", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.719863Z"}
+{"event": "Context prepared for resume from 'document_loading' - keeping 1 previous stage results", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.720008Z"}
+{"event": "Pipeline resume prepared successfully - will start from stage: 'document_loading'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.720125Z"}
+{"event": "Found 1 previously completed stages: 'document_parsing'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.720208Z"}
+{"event": "Executing 1 stages: 'document_loading'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.720273Z"}
+{"event": "Executing stage: 'document_loading'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.720339Z"}
+{"event": "Pipeline metadata saved for 'pipeline-46b42b42-20261009_132047' (status: running)", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.722695Z"}
+{"event": "Starting stage: 'document_loading'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.722848Z"}
+{"event": "============================================================", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.722926Z"}
+{"event": "DOCUMENT LOADING STAGE - STARTED", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.722993Z"}
+{"event": "============================================================", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.723051Z"}
+{"event": "Using 5 documents from the 'document_parsing' stage", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.723162Z"}
+{"event": "============================================================", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.723232Z"}
+{"event": "DOCUMENT LOADING STAGE - COMPLETED (5 documents loaded)", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.723294Z"}
+{"event": "============================================================", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.723357Z"}
+{"event": "Stage 'document_loading' completed successfully in 0.00 seconds. Inputs: 5, Outputs: 5", "pipeline_id": "pipeline-46b42b42-20261009_132047", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T13:51:01.723427Z"}
+{"event": "Pipeline status updated: 'running' -> 'completed'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.723657Z"}
+{"event": "Pipeline metadata saved for 'pipeline-46b42b42-20261009_132047' (status: completed)", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.724628Z"}
+{"event": "Saving 5 documents to cache", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.724746Z"}
+{"event": "Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.cache_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.726672Z"}
+{"event": "Successfully cached documents", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.726798Z"}
+{"event": "Stage 'document_loading' outputs cached: 5 documents", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.726874Z"}
+{"event": "Finalizing pipeline execution - ID: 'pipeline-46b42b42-20261009_132047'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.726943Z"}
+{"event": "Pipeline completed successfully with all stages passed", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.727308Z"}
+{"event": "Pipeline metadata saved for 'pipeline-46b42b42-20261009_132047' (status: completed)", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:51:01.728344Z"}
+{"event": "============================================================", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.728461Z"}
+{"event": "PIPELINE SUMMARY", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.728571Z"}
+{"event": "============================================================", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.728668Z"}
+{"event": "Pipeline ID: pipeline-46b42b42-20261009_132047\nStatus: completed\nDuration: 0.01s\nStages: 2 completed, 0 failed, 0 running\nData processed: 5 documents -> 0 entities, 0 relationships, 0 claims -> 0 communities", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.728767Z"}
+{"event": "Pipeline execution completed successfully - ID: 'pipeline-46b42b42-20261009_132047', Status: 'PipelineStageStatus.COMPLETED'", "pipeline_id": "pipeline-46b42b42-20261009_132047", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:51:01.728852Z"}
+
+================================================================================
+╭──────────────────────────╮
+│ Pipeline Results Summary │
+╰──────────────────────────╯
+                           Processing Summary                            
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric              ┃ Count ┃ Details                                 ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Documents Processed │     5 │ Source documents loaded into the system │
+│ Text Units Created  │     0 │ Text segments created through chunking  │
+└─────────────────────┴───────┴─────────────────────────────────────────┘
+
+================================================================================
+╭──────────────────────────────────╮
+│ Pipeline Stage Execution Details │
+╰──────────────────────────────────╯
+                              Stage Execution Summary                           
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━
+┃ Stage                ┃     Status      ┃     Duration ┃      Input ┃     Outpu
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━
+│ Document Parsing     │   ✓ COMPLETED   │        0.00s │          5 │          
+│ Document Loading     │   ✓ COMPLETED   │        0.00s │          5 │          
+└──────────────────────┴─────────────────┴──────────────┴────────────┴──────────
+
+================================================================================
+╭─────────────────────╮
+│ Performance Summary │
+╰─────────────────────╯
+ Total Pipeline Duration         0.00 seconds 
+ Stages Executed                            2 
+ Stages from Cache                          0 
+ Cache Hit Rate                         0.00% 
+ Gleaning Improvement Rate              0.00% 
+ Entity Merge Rate                      0.00% 
+ Relationship Merge Rate                0.00% 
+ Claim Merge Rate                       0.00% 
+ Community Modularity                    0.00 
+ Avg. Throughput            6776.31 items/sec 
+╭────────────────────────────────────╮
+│ ✓ Pipeline completed successfully! │
+╰────────────────────────────────────╯

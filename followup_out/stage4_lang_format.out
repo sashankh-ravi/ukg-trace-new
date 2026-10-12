@@ -1,0 +1,5 @@
+repo venv, python 3.11.17
+  LanguageCode.ES.value           -> 'es'
+  '{x}'.format(x=LanguageCode.ES) -> 'LanguageCode.ES'
+stand-alone enum, python 3.10.20 -> 'es'
+stand-alone enum, python 3.12.3 -> 'L.ES'

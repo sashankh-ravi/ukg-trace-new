@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "pipeline-46b42b42-20261009_132047",
+  "created_at": "2026-10-09T13:20:47.129319",
+  "updated_at": "2026-10-09T13:51:01.726238",
+  "entries": {
+    "documents-2e1fc5080839": {
+      "key": "documents-2e1fc5080839",
+      "stage_name": "document_parsing",
+      "pipeline_id": "pipeline-46b42b42-20261009_132047",
+      "created_at": "2026-10-09T13:20:47.129262",
+      "expires_at": "2026-10-10T13:20:47.129265",
+      "local_path": "cache/pipeline-46b42b42-20261009_132047/document_parsing/documents-2e1fc5080839.json",
+      "file_size": 5545,
+      "content_hash": "897b6359d7c0c573",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_parsing",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    },
+    "documents-76101e2dcda9": {
+      "key": "documents-76101e2dcda9",
+      "stage_name": "document_loading",
+      "pipeline_id": "pipeline-46b42b42-20261009_132047",
+      "created_at": "2026-10-09T13:38:10.883623",
+      "expires_at": "2026-10-10T13:38:10.883625",
+      "local_path": "cache/pipeline-46b42b42-20261009_132047/document_loading/documents-76101e2dcda9.json",
+      "file_size": 5545,
+      "content_hash": "897b6359d7c0c573",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_loading",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    },
+    "documents-54cf4641e850": {
+      "key": "documents-54cf4641e850",
+      "stage_name": "document_parsing",
+      "pipeline_id": "pipeline-46b42b42-20261009_132047",
+      "created_at": "2026-10-09T13:38:10.936737",
+      "expires_at": "2026-10-10T13:38:10.936739",
+      "local_path": "cache/pipeline-46b42b42-20261009_132047/document_parsing/documents-54cf4641e850.json",
+      "file_size": 5620,
+      "content_hash": "b339eddbb05e6c87",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_parsing",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    },
+    "documents-0842cedc0821": {
+      "key": "documents-0842cedc0821",
+      "stage_name": "document_loading",
+      "pipeline_id": "pipeline-46b42b42-20261009_132047",
+      "created_at": "2026-10-09T13:51:01.726113",
+      "expires_at": "2026-10-10T13:51:01.726115",
+      "local_path": "cache/pipeline-46b42b42-20261009_132047/document_loading/documents-0842cedc0821.json",
+      "file_size": 5620,
+      "content_hash": "b339eddbb05e6c87",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_loading",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    }
+  }
+}

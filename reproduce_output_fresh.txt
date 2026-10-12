@@ -1,0 +1,915 @@
+
+=====SECTION 00 environment=====
+37ef4a7df28bdd19a5f277d30aff026ddf8cbd50
+Python 3.11.17
+10:__version__ = "0.2.3"
+110 docs/01_acme.txt
+117 docs/02_meera.txt
+124 docs/03_orbit.txt
+125 docs/04_product.txt
+115 docs/05_investor.txt
+591 total
+
+=====SECTION 01 repo map (scripts/graph.py: imports, classes and functions read with Python's ast module)=====
+LAYER EDGES (importer -> imported: count)
+  adapters       -> domain         70
+  adapters       -> evaluation     2
+  adapters       -> ports          8
+  adapters       -> shared         68
+  application    -> adapters       33
+  application    -> domain         24
+  application    -> evaluation     1
+  application    -> ports          6
+  application    -> shared         26
+  application    -> visualization  1
+  domain         -> adapters       1
+  domain         -> ports          1
+  domain         -> shared         17
+  evaluation     -> adapters       6
+  evaluation     -> application    1
+  evaluation     -> domain         6
+  evaluation     -> shared         5
+  ports          -> domain         2
+  ports          -> shared         3
+  shared         -> domain         9
+  shared         -> ports          1
+  visualization  -> adapters       6
+  visualization  -> domain         5
+  visualization  -> ports          1
+  visualization  -> shared         5
+
+LINES PER LAYER
+  adapters       19698
+  domain         9540
+  application    7226
+  shared         3941
+  evaluation     2012
+  visualization  803
+  ports          582
+  root           10
+
+MODULES (lines | classes | top-level funcs)
+unified_kg_rag | 10 |  | 
+adapters.aws | 25 |  | 
+adapters.aws.bedrock | 987 | BaseBedrockWrapper,BaseBedrockModelFactory,BedrockCrossRegionModelHelper,BedrockEmbeddingsWrapper,BedrockEmbeddingModelFactory,GuardrailInterventionHandler,BedrockLanguageModelFactory,BedrockRerankWrapper,BedrockRerankModelFactory | _message_guardrail_intervened,get_assumed_role_boto_session
+adapters.aws.bedrock_models | 785 | EmbeddingModelInfo,LanguageModelInfo,RerankModelInfo | base_model_id,_family_default,_warn_uncurated,get_language_model_info,effective_max_output_tokens
+adapters.aws.bedrock_retry | 159 |  | is_transient_bedrock_error,_error_code,backoff_delay,next_transient_retry_delay,call_with_transient_retry,acall_with_transient_retry
+adapters.aws.chain_factory | 316 | TransientRetryRunnable | _prompt_cache_marker,_build_chat_prompt,with_transient_retry,create_robust_xml_output_parser,setup_chain
+adapters.aws.dynamodb | 282 | DynamoDBDocStatusStore | 
+adapters.aws.embedding_cache | 130 | S3EmbeddingCache | 
+adapters.aws.neptune | 216 | NeptuneClient | is_permanent_neptune_error,_handle_neptune_errors
+adapters.aws.opensearch | 533 | OpenSearchClient | _handle_opensearch_errors,_handle_async_opensearch_errors,_running_loop,_finish_without_loop
+adapters.aws.s3_cache | 261 | S3CacheManager | 
+adapters.aws.token_counter | 251 | BedrockTokenCounter | is_count_tokens_unsupported_error,is_count_tokens_known_unsupported,mark_count_tokens_unsupported,_is_dense_script_char,estimate_token_count
+adapters.evaluators | 8 |  | 
+adapters.evaluators.langchain_evaluator | 390 | UnscoredJudgeOutputError,LangChainEvaluator | 
+adapters.evaluators.ragas_evaluator | 412 | RagasEvaluator | 
+adapters.ingestion.chunker | 992 | ChunkingStats,ChunkQualityValidator,LineBasedBoundaryProcessor,ChunkProcessor,BaseChunker,SimpleTextChunker,IntelligentTextChunker,ChunkerFactory | 
+adapters.ingestion.claim_extractor | 451 | ClaimExtractionStats,ClaimExtractor | format_entities_with_limit_task,_prepare_claim_input_task
+adapters.ingestion.community_detector | 1293 | HierarchicalCommunity,CommunityDetector | community_content_id,_canonical_graph
+adapters.ingestion.description_summarizer | 196 | DescriptionSummarizer | 
+adapters.ingestion.gleaner | 983 | GleaningRound,GleaningStats,GraphGleaner | format_entities_with_limit_task,format_relationships_with_limit_task,prepare_input_task
+adapters.ingestion.graph_extractor | 721 | ExtractionStats,GraphExtractor | 
+adapters.ingestion.json_loader | 84 | JsonTextLoader | _iter_strings
+adapters.ingestion.loader | 378 | DirectoryLoader | compute_minhash,compute_jaccard_similarity
+adapters.ingestion.parser | 260 | ParsingStats,BaseParser,FileParser,ParserFactory | 
+adapters.ingestion.translator | 216 | TranslationStats,TextUnitTranslator | 
+adapters.providers | 163 | Providers | 
+adapters.renderers | 25 |  | 
+adapters.renderers.adapters | 93 | InteractiveRendererAdapter,StaticRendererAdapter | _render_file
+adapters.renderers.base | 79 | RenderContext,BaseRenderer | register_renderer,registered_renderers,get_renderer_class
+adapters.renderers.interactive | 381 | InteractiveRenderer | 
+adapters.renderers.static | 290 | StaticRenderer | 
+adapters.retrieval.base | 449 | BaseGraphRAGRetriever,BaseSearchStrategy | is_fatal_retrieval_error
+adapters.retrieval.hybrid_scorer | 605 | HybridScorer | _with_top_n
+adapters.retrieval.memory_manager | 419 | GraphRAGChatMessageHistory,GraphRAGConversationBufferMemory,MemoryManager | build_entity_extractor,_memory_fingerprint,get_memory_manager
+adapters.retrieval.token_manager | 535 | SectionType,ContextSection,OptimizedContext,TokenManager | 
+adapters.retrievers | 6 |  | 
+adapters.retrievers.neptune_retriever | 672 | NeptuneRetriever | 
+adapters.retrievers.opensearch_retriever | 715 | OpenSearchRetriever | _is_index_not_found
+adapters.search_strategies | 15 |  | 
+adapters.search_strategies.drift_search | 637 | DriftSearchStrategy | 
+adapters.search_strategies.global_search | 751 | _MapPoint,GlobalSearchStrategy | 
+adapters.search_strategies.lightrag_search | 707 | LightRAGSearchStrategy | _pick_by_weighted_polling
+adapters.search_strategies.local_search | 475 | LocalSearchStrategy | 
+adapters.search_strategies.simple_search | 106 | SimpleSearchStrategy | 
+adapters.storage | 8 |  | 
+adapters.storage.filter_schema | 166 | FilterFields | union_filter_fields,opensearch_filter_fields
+adapters.storage.neptune_codec | 204 |  | property_value,item_properties,entity_properties,relationship_properties,relationship_label,_values,_single,_vertex_list,_edge_list,_attribute_value,_attributes,entity_from_vertex,relationship_from_edge
+adapters.storage.neptune_indexer | 838 | NeptuneIndexer | 
+adapters.storage.opensearch_indexer | 1021 | OpenSearchIndexer | 
+application.cli.run_evaluation | 345 | CommandLineInterface,EvaluationRunner | _failure_rate,failure_budget_breaches,exceeds_failure_budget,main
+application.cli.run_ingestion_pipeline | 443 | CommandLineInterface,IngestionPipelineRunner | main
+application.cli.run_prompt_tuning | 123 |  | load_corpus_texts,_build_parser,main
+application.cli.run_rag_chain | 555 | CommandLineInterface,RAGChainRunner | async_main,main
+application.cli.run_visualization | 198 |  | _hierarchy_entries,_to_hierarchical_communities,_to_communities,load_render_context,run_visualization,_build_parser,main
+application.ingestion.incremental | 484 | _SuffixRemoval,IncrementalIndexer | build_document_lineage,_artifact_ids,_remap_lineage
+application.ingestion.pipeline | 996 | DataIngestionPipeline | 
+application.ingestion.pipeline_stages | 1639 | PipelineStage,DocumentLoadingStage,DocumentParsingStage,TextChunkingStage,TranslationStage,GraphExtractionStage,GleaningStage,GraphResolutionStage,ClaimExtractionStage,ClaimResolutionStage,GraphAnalysisStage,CommunityDetectionStage,IndexingStage | 
+application.prompts.tuner | 312 | CorpusProfile,PromptTuner | 
+application.retrieval.rag_chain | 1464 | ChainMode,ProcessedQuery,RAGInput,RAGOutput,GraphRAGChain,_LoopRunner | _aclose_retrievers,_iterate_async_generator,create_rag_chain
+application.storage.indexing_manager | 647 | CrossRunMergeResult,IndexingTask,IndexingManager | 
+domain.ingestion.base_processor | 380 | BaseProcessor | coerce_llm_text,check_entity_relevance_task,check_relationship_relevance_task
+domain.ingestion.base_resolver | 527 | FuzzyMatcher,BaseResolver | discriminator_tokens,normalize_entity_type,entity_types_compatible
+domain.ingestion.claim_resolver | 333 | ClaimResolutionStats,ClaimResolver | claim_date_key,claim_identity_suffix,resolve_entity_reference_task,resolve_single_claim_task
+domain.ingestion.delta_detector | 193 |  | compute_content_hash,_document_suffix,assign_document_identity,document_doc_id,registry_scope,fingerprint_documents,detect_delta,filter_documents_to_process
+domain.ingestion.entity_grounding | 95 |  | normalize_for_grounding,_tokens,token_overlap_ratio,is_grounded
+domain.ingestion.graph_analyzer | 363 | CentralityMetrics,GraphStatistics,GraphAnalyzer | 
+domain.ingestion.graph_builder | 147 | GraphBuilder | 
+domain.ingestion.graph_resolver | 548 | _TypeAwareUnionFind,EntityResolutionStats,RelationshipResolutionStats,GraphResolutionStats,EntityResolver,RelationshipResolver,GraphResolver | _init_worker_fuzzy_matcher,find_all_matches_for_entity_task
+domain.ingestion.merge | 38 |  | 
+domain.ingestion.merge.merger | 479 | DeltaMergeResult | _dedupe_preserve_order,_merge_descriptions,_merge_attributes,_merge_entity_fields,merge_entities,_find_fuzzy_old_match,_relationship_weight,_remapped_endpoints,_relationship_key,merge_relationships,relationship_id_remap,remove_text_units,_community_content_key,_report_content_key,_placed_id,merge_communities,merge_community_reports
+domain.models | 130 |  | 
+domain.models.base | 27 | Identified,Named | 
+domain.models.cache | 125 | CacheStrategy,CacheEntry,CacheIndex,CacheStats | 
+domain.models.community | 51 | CommunityMetrics,Community | 
+domain.models.community_report | 108 | CommunityFinding,CommunityReport | 
+domain.models.config | 2702 | PipelineStageType,ChunkingStrategy,Constants,LanguageCode,ResolutionMethod,S3EncryptionType,EmbeddingModelId,LanguageModelId,ModelPurpose,RerankModelId,GuardrailConfig,TransientRetryConfig,BedrockConfig,NeptuneConfig,OpenSearchConfig,S3EncryptionConfig,S3Config,DynamoDBConfig,AWSConfig,FixingConfig,DocumentParsingConfig,ChunkingConfig,TranslationConfig,DescriptionSummarizationConfig,EntityGroundingConfig,GraphExtractionConfig,GleaningConfig,ClaimExtractionConfig,ProcessingConfig,CentralityConfig,StatisticsConfig,GraphAnalysisConfig,ReportGenerationConfig,CommunityDetectionConfig,VisualizationConfig,GraphConfig,NeptuneIndexingConfig,OpenSearchIndexingConfig,IndexingConfig,HybridConfig,FusionConfig,RerankingConfig,GlobalSearchConfig,LocalSearchQuotaConfig,LocalSearchConfig,DriftSearchConfig,ContextTypeBudgetConfig,TokenManagerConfig,LightRAGSearchConfig,SearchConfig,MemoryConfig,CacheChunkingConfig,CacheConfig,LoggingConfig,CustomPromptConfig,EvaluationConfig,Config,PipelineConfig | _coerce_model_id,role_model_field,_apply_model_tiers,_coerce_visualization_embeddings,_get_path,_with_path,_retries_to_attempts,_migrate_legacy_key
+domain.models.conversation | 27 | MessageRole,ConversationContext | 
+domain.models.covariate | 43 | Covariate,Claim | 
+domain.models.document | 433 | ElementContent,ElementType,DocumentElement,DocumentContent,Page,DocStatus,DocStatusRecord,DocumentLineage,DocumentDelta,Document | _read_text_autodetect
+domain.models.entity | 33 | Entity | 
+domain.models.evaluation | 277 | EvaluationMetricType,EvaluatorType,EvaluationQuery,EvaluationGroundTruth,EvaluationResult,EvaluationMetric,EvaluationReport,EvaluationSummary | 
+domain.models.pipeline | 245 | PipelineStageStatus,PipelineMetrics,PipelineStageResult,PipelineContext | 
+domain.models.relationship | 27 | Relationship | 
+domain.models.retrieval | 139 | FusionMethod,RetrieverRole,SearchStrategy,SearchType,RetrievalResult,SearchQuery,SearchResult | 
+domain.models.text_unit | 25 | TextUnit | 
+domain.prompts | 57 |  | 
+domain.prompts.base | 138 | ResolvedPrompt,BasePrompt | 
+domain.prompts.data_processing | 272 | TextChunkingPrompt,DescriptionSummarizationPrompt,TextTranslationPrompt | 
+domain.prompts.graph_extraction | 582 | GraphExtractionPrompt,ClaimExtractionPrompt,GraphRefinementPrompt,CommunityReportPrompt | 
+domain.prompts.retrieval | 750 | AnswerGenerationPrompt,CommunityRelevancePrompt,ContextBuildingPrompt,ConvergenceAssessmentPrompt,EntityExtractionPrompt,GlobalMapPrompt,KeywordsExtractionPrompt,KeywordExpansionPrompt,MapReduceSummaryPrompt,DriftPrimerPrompt,QueryRefinementPrompt,StrategySelectionPrompt,TranslationPrompt | 
+domain.prompts.tuning | 50 | CorpusProfilePrompt | 
+domain.retrieval.index_prefixes | 50 |  | all_index_prefixes,configured_index_prefixes
+domain.retrieval.mixins | 18 | MetricsMixin | 
+domain.retrieval.strategy_registry | 125 | QueryInput,StrategySpec | register_strategy,get_strategy_spec,registered_strategies
+evaluation | 46 |  | __getattr__
+evaluation.answer_match_evaluator | 158 | AnswerMatchEvaluator | exact_match,answer_contains,token_f1
+evaluation.base | 178 | BaseEvaluator,BaseGraphRAGEvaluator | judge_model_kwargs
+evaluation.evaluation_manager | 1036 | EvaluationManager | 
+evaluation.graph_aware_evaluator | 180 | GraphAwareEvaluator | 
+evaluation.retrieval_evaluator | 198 | RetrievalEvaluator | _is_path_like,source_keys
+evaluation.source_resolver | 109 | SourceFileResolver,_DocumentRetriever,TextUnitFileResolver | file_name_of
+evaluation.text_matching | 107 |  | _is_punctuation,normalize_answer,tokenize,_is_hangul,is_spaceless_script,_token_matches,phrase_in_text
+ports | 61 |  | 
+ports.cache | 68 | CachePort | 
+ports.doc_status | 53 | DocStatusPort | 
+ports.indexer | 324 | IndexingStats,BaseIndexer,GraphIndexer,VectorIndexer | 
+ports.model_factory | 76 | ModelFactoryPort,TokenCounterPort | 
+shared | 61 |  | get_cache_manager
+shared.cache_manager | 467 | CacheManager | 
+shared.config | 192 | ConfigLoader | _nested_model,warn_unknown_keys,get_config,reload_config
+shared.exceptions | 65 | GraphRAGException,AWSServiceError,CacheSyncError,DataProcessingError,EvaluationException,GraphError,ModelError,EmbeddingModelError,InvalidFilterError,LanguageModelError,PipelineExecutionError,PipelineResumeError,PipelineStageError,PipelineStateError,RerankModelError | 
+shared.logging | 170 | LoggingSetup | _configure_structlog,get_logger,setup_logging,warn_if_langsmith_tracing
+shared.metrics | 132 | MetricsSink,NullMetricsSink,CloudWatchEMFSink | 
+shared.pipeline_manager | 702 | PipelineStateManager,PipelineResumeManager | _canonical_index
+shared.utils | 52 |  | 
+shared.utils.cache_keys | 306 |  | _resolve_path,_canonicalize,_input_paths_through,_file_digest,corpus_manifest_fingerprint,stage_input_fingerprint,stage_cache_key
+shared.utils.common | 247 |  | _available_cpu_count,_cgroup_cpu_quota,default_max_workers,compute_hash,ensure_list,generate_stable_id,normalize_name,clean_display_name,entity_key,safe_float_parse,parse_llm_json,strip_embedding_fields
+shared.utils.concurrency | 35 | ContextThreadPoolExecutor | 
+shared.utils.display | 406 |  | display_ascii_art,display_pipeline_results,_get_resolved_data,display_pipeline_summary,display_stage_results,display_sample_entities,_truncate_text,display_sample_relationships,display_sample_claims,display_communities,_create_entity_and_claim_lookup,_create_reports_lookup,display_performance_summary,_create_performance_metrics_table,_add_pipeline_metrics
+shared.utils.document_converter | 72 |  | convert_langchain_to_document
+shared.utils.document_identity | 84 |  | normalize_source_path,relative_source_path,compute_text_hash,compute_document_id,registry_namespace,compute_doc_id
+shared.utils.event_loop | 38 |  | configure_event_loop,run
+shared.utils.langchain | 873 | _BatchItemFailed,ProgressLogger,BatchProcessor,RobustXMLOutputParser | 
+shared.utils.store_names | 39 |  | store_name,graph_label
+visualization | 16 |  | 
+visualization.base | 232 | GraphVisualizationManager | _strip_heavy_attributes
+visualization.embeddings | 6 |  | 
+visualization.embeddings.dimensionality | 140 | ReducerConfig,UMAPConfig,TSNEConfig,DimensionalityReducer | 
+visualization.embeddings.node2vec | 131 | NodeEmbeddings,BedrockNodeEmbedder | 
+visualization.exporters.html_exporter | 273 | HTMLExporter | 
+
+=====SECTION 02 constructor, all 12 stages enabled, no AWS (step2.py)=====
+exit code: 1
+--- about to call DataIngestionPipeline(...) ---
+CHECKPOINT  1: entering DataIngestionPipeline.__init__
+CHECKPOINT  2: entering DataIngestionPipeline._initialize_managers
+CHECKPOINT  3: entering DataIngestionPipeline._initialize_stages
+CHECKPOINT  4: entering DataIngestionPipeline._build_doc_status_store
+CHECKPOINT  5: entering DocumentParsingStage.__init__
+CHECKPOINT  6: entering DocumentLoadingStage.__init__
+CHECKPOINT  7: entering TextChunkingStage.__init__
+unified_kg_rag.shared.exceptions.GraphRAGException: Failed to create OutputFixingParser: Model 'anthropic.claude-sonnet-5-5' is only available through a cross-region inference profile, but none resolved in region 'us-west-2'. Enable aws.bedrock.enable_global_profile, grant bedrock:ListInferenceProfiles, or choose a region where a profile for this model exists.
+
+=====SECTION 03 constructor, only parsing + loading enabled (step2b.py)=====
+--- about to call DataIngestionPipeline(...) ---
+CHECKPOINT  1: entering DataIngestionPipeline.__init__
+CHECKPOINT  2: entering DataIngestionPipeline._initialize_managers
+CHECKPOINT  3: entering DataIngestionPipeline._initialize_stages
+CHECKPOINT  4: entering DataIngestionPipeline._build_doc_status_store
+CHECKPOINT  5: entering DocumentParsingStage.__init__
+CHECKPOINT  6: entering DocumentLoadingStage.__init__
+--- constructor returned. What does the object hold now? ---
+source_directory : docs
+target_directory : None
+providers        : Providers
+cache_manager    : CacheManager | strategy = CacheStrategy.CONTENT_HASH
+state_manager    : PipelineStateManager
+resume_manager   : PipelineResumeManager
+s3_cache_manager : None
+stages built     : 2
+    1. document_parsing       (DocumentParsingStage)
+    2. document_loading       (DocumentLoadingStage)
+stages skipped   : ['text_chunking', 'translation', 'graph_extraction', 'gleaning', 'graph_resolution', 'claim_extraction', 'claim_resolution', 'graph_analysis', 'community_detection', 'indexing']
+gleaning.enabled = True | claim_extraction.enabled = False | community_detection.enabled = True | dynamodb.enabled = False
+files on disk in cache/: []
+
+=====SECTION 04 file filter demo (scripts/filter_demo.py)=====
+supported: ['.csv', '.json', '.pdf', '.txt']
+owned_dirs: [<abs>/src/cache]
+path                            is_file  ext ok  excluded  in owned  KEPT
+src/.secret.txt                 True     True    True      False     False
+src/__pycache__                 False    False   True      False     False
+src/__pycache__/x.pyc           True     False   True      False     False
+src/__pycache__/y.txt           True     True    False     False     True
+src/a.txt                       True     True    False     False     True
+src/cache                       False    False   False     True      False
+src/cache/run1                  False    False   False     True      False
+src/cache/run1/documents.json   True     True    False     True      False
+src/notes.docx                  True     False   False     False     False
+src/real.json                   True     True    False     False     True
+src/sub                         False    False   False     False     False
+src/sub/b.txt                   True     True    False     False     True
+
+is_relative_to demo:
+  Path('/data/src/cache/run1/documents.json').is_relative_to('/data/src/cache') -> True
+  Path('/data/src/real.json').is_relative_to('/data/src/cache') -> False
+  Path('/data/src/cache2/x.json').is_relative_to('/data/src/cache') -> False
+
+=====SECTION 05 first run with checkpoints (step3.py)=====
+--- calling p.run('docs') ---
+CHECKPOINT  1: -> DataIngestionPipeline.run
+CHECKPOINT  2: -> DataIngestionPipeline._resolve_pipeline_id
+              returned: 'pipeline-46b42b42-20261011_052246'
+CHECKPOINT  3: -> DataIngestionPipeline._compute_corpus_fingerprint
+              returned: '70f976b347ba'
+CHECKPOINT  4: -> DataIngestionPipeline._prepare_new_run
+              returned: ('start stage =', 'document_parsing', '| context.documents =', [])
+CHECKPOINT  5: -> DataIngestionPipeline._execute_pipeline_stages
+CHECKPOINT  6: -> DataIngestionPipeline._execute_stage
+CHECKPOINT  7: -> DocumentParsingStage._execute_core
+CHECKPOINT  8: -> DocumentParsingStage._discover_files
+              returned: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
+              returned: (5, 5, {'input_files': 5, 'parsed_files': ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt',...
+CHECKPOINT  9: -> DataIngestionPipeline._save_stage_outputs_to_cache
+              returned: ('document_parsing', 'completed', 'in', 5, 'out', 5)
+CHECKPOINT 10: -> DataIngestionPipeline._execute_stage
+CHECKPOINT 11: -> DocumentLoadingStage._execute_core
+              returned: (5, 5, {'file_count': 5, 'success_count': 5, 'delta_skipped': 0, 'failed_files': []})
+CHECKPOINT 12: -> DataIngestionPipeline._save_stage_outputs_to_cache
+              returned: ('document_loading', 'completed', 'in', 5, 'out', 5)
+CHECKPOINT 13: -> DataIngestionPipeline._finalize_pipeline_execution
+--- run() returned ---
+pipeline_id : pipeline-46b42b42-20261011_052246
+status      : completed
+documents   : 5
+
+FIRST DOCUMENT, field by field:
+  page_content     = 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robo...
+  document_id      = '794e7e5b-edab-54aa-89e4-d0c34407471e'
+  file_name        = '01_acme.txt'
+  file_path        = 'docs/01_acme.txt'
+  file_type        = 'txt'
+  detected_language = 'Unknown'
+  total_pages      = 1
+  pages            = [{'page_number': 1, 'height': None, 'width': None, 'text_content': 'Acme Robotics is a company based in Pun...
+  elements         = []
+  content          = {'text': 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds wareh...
+  metadata         = {'source': 'docs/01_acme.txt', 'relative_path': '01_acme.txt', 'registry_namespace': 'default'}
+  error_info       = None
+
+FILES NOW ON DISK under cache/:
+  cache/pipeline-46b42b42-20261011_052246/cache_index.json  (1453 bytes)
+  cache/pipeline-46b42b42-20261011_052246/document_loading/documents-76101e2dcda9.json  (5545 bytes)
+  cache/pipeline-46b42b42-20261011_052246/document_parsing/documents-2e1fc5080839.json  (5545 bytes)
+  cache/pipeline-46b42b42-20261011_052246/pipeline_metadata.json  (3134 bytes)
+RUN1=pipeline-46b42b42-20261011_052246
+
+=====SECTION 06 pipeline_metadata.json of the first run=====
+{
+  "pipeline_id": "pipeline-46b42b42-20261011_052246",
+  "config": {
+    "stages_enabled": {
+      "document_parsing": true,
+      "document_loading": true,
+      "text_chunking": false,
+      "translation": false,
+      "graph_extraction": false,
+      "gleaning": false,
+      "graph_resolution": false,
+      "claim_extraction": false,
+      "claim_resolution": false,
+      "graph_analysis": false,
+      "community_detection": false,
+      "indexing": false
+    },
+    "cache_enabled": true,
+    "local_directory": "cache",
+    "s3_sync_enabled": false,
+    "s3_prefix": "pipeline-runs",
+    "continue_on_error": false,
+    "force_rebuild": false
+  },
+  "status": "completed",
+  "start_time": "2026-10-11T05:22:46.125979",
+  "end_time": "2026-10-11T05:22:46.135074",
+  "duration_seconds": 0.008718252182006836,
+  "source_directory": "/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/handoff_run/docs",
+  "stage_results": [
+    {
+      "stage_name": "document_parsing",
+      "status": "completed",
+      "start_time": "2026-10-11T05:22:46.127510",
+      "end_time": "2026-10-11T05:22:46.129119",
+      "duration_seconds": 0.001609,
+      "input_count": 5,
+      "output_count": 5,
+      "metrics": {
+        "input_files": 5,
+        "parsed_files": [
+          "01_acme.txt",
+          "02_meera.txt",
+          "03_orbit.txt",
+          "04_product.txt",
+          "05_investor.txt"
+        ],
+        "failed_files": [],
+        "success_rate": 100.0
+      }
+    },
+    {
+      "stage_name": "document_loading",
+      "status": "completed",
+      "start_time": "2026-10-11T05:22:46.132175",
+      "end_time": "2026-10-11T05:22:46.132299",
+      "duration_seconds": 0.000124,
+      "input_count": 5,
+      "output_count": 5,
+      "metrics": {
+        "file_count": 5,
+        "success_count": 5,
+        "delta_skipped": 0,
+        "failed_files": []
+      }
+    }
+  ],
+  "global_metrics": {
+    "pipeline_id": "pipeline-46b42b42-20261011_052246",
+    "total_duration_seconds": 0.008718252182006836,
+    "total_documents_processed": 5,
+    "total_text_units_created": 0,
+    "total_translated_units": 0,
+    "total_entities_extracted": 0,
+    "total_relationships_extracted": 0,
+    "total_claims_extracted": 0,
+    "total_communities_detected": 0,
+    "total_community_reports_generated": 0,
+    "total_items_indexed": 0,
+    "total_items_index_failed": 0,
+    "relationships_indexed": 0,
+    "total_extraction_failures": 0,
+    "total_gleaning_failures": 0,
+    "total_claim_extraction_failures": 0,
+    "gleaning_improvement_rate": 0.0,
+    "entity_resolution_merge_rate": 0.0,
+    "relationship_resolution_merge_rate": 0.0,
+    "claim_resolution_merge_rate": 0.0,
+    "community_modularity_score": 0.0,
+    "stage_durations": {
+      "document_parsing": 0.001609,
+      "document_loading": 0.000124
+    },
+    "stage_throughput": {
+      "document_parsing": 3107.520198881293,
+      "document_loading": 40322.58064516129
+    },
+    "cache_hit_rate": 0.0,
+    "cache_size_mb": 0.010576248168945312
+  },
+  "incremental_fingerprints": {},
+  "failed_source_files": [],
+  "failed_text_unit_ids": {}
+}
+=====SECTION 07 rerun scenarios A-D (step4.py; D appends a sentence to docs/01_acme.txt)=====
+
+=== A: run again, no pipeline id given ===
+  1. pipeline id        : pipeline-46b42b42-20261011_052301
+  2. not force_rebuild  : True
+  3. metadata file found: False
+  corpus fingerprint    : 70f976b347ba
+  path taken      : NEW RUN -> start stage = document_parsing
+  stages that actually ran: ['document_parsing', 'document_loading'] | documents in context: 5
+
+=== B: run again, SAME pipeline id, nothing changed ===
+  1. pipeline id        : pipeline-46b42b42-20261011_052246
+  2. not force_rebuild  : True
+  3. metadata file found: True
+  corpus fingerprint    : 70f976b347ba
+  path taken      : RESUME  -> start stage = document_loading
+  stages that actually ran: ['document_loading'] | documents in context: 5
+
+=== C: SAME pipeline id + force_rebuild ===
+  1. pipeline id        : pipeline-46b42b42-20261011_052246
+  2. not force_rebuild  : False
+  3. metadata file found: True
+  corpus fingerprint    : 70f976b347ba
+  path taken      : NEW RUN -> start stage = document_parsing
+  stages that actually ran: ['document_parsing', 'document_loading'] | documents in context: 5
+
+=== D: SAME pipeline id, but I edited 01_acme.txt ===
+  1. pipeline id        : pipeline-46b42b42-20261011_052246
+  2. not force_rebuild  : True
+  3. metadata file found: True
+  corpus fingerprint    : 11e583bd8e55
+  path taken      : RESUME  -> start stage = document_parsing
+  stages that actually ran: ['document_parsing', 'document_loading'] | documents in context: 5
+run folders now:
+pipeline-46b42b42-20261011_052246
+pipeline-46b42b42-20261011_052301
+
+=====SECTION 08 folder fingerprint recomputed by hand, after the edit (scripts/manifest_demo.py)=====
+   01_acme.txt	134	623c55d166e165754cf9adbf1f27b7302ca6240e153d...
+   02_meera.txt	117	9db18212845c2e25a48c647ade110cd96c8bd35f7b3...
+   03_orbit.txt	124	62cfcca68978b7eeb429b98d84a38e55ee51d6f9f2f...
+   04_product.txt	125	c4af8543b454d6f30faae748243955dc9570dbb40...
+   05_investor.txt	115	22184e971586f5f453ce6d020177149faf9ae000...
+  fingerprint = 11e583bd8e55
+
+=====SECTION 09 cache key names with and without the folder fingerprint (scripts/keys_demo.py)=====
+parsing key, NO folder fingerprint : documents-1035b7a62512
+parsing key, with 11e583bd8e55      : documents-54cf4641e850
+loading key, NO folder fingerprint : documents-ac616352a4e7
+loading key, with 11e583bd8e55      : documents-0842cedc0821
+files on disk for RUN1:
+cache/pipeline-46b42b42-20261011_052246/cache_index.json
+cache/pipeline-46b42b42-20261011_052246/document_loading/documents-0842cedc0821.json
+cache/pipeline-46b42b42-20261011_052246/document_loading/documents-76101e2dcda9.json
+cache/pipeline-46b42b42-20261011_052246/document_parsing/documents-2e1fc5080839.json
+cache/pipeline-46b42b42-20261011_052246/document_parsing/documents-54cf4641e850.json
+cache/pipeline-46b42b42-20261011_052246/pipeline_metadata.json
+
+=====SECTION 10 real CLI resume of RUN1, nobody at the keyboard (bug 1)=====
+exit code: 1
+│ Built by AWS Professional Services | Version 0.2.3                        │
+│ Graph RAG Document Processing Pipeline                                       │
+│ Source Directory:                                                            │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ handoff_run/docs'                                                            │
+│ Timestamp: '2026-10-11 05:23:16'                                             │
+│ Cache Directory:                                                             │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ handoff_run/cache'                                                           │
+│ Force Rebuild: False                                                         │
+│ S3 Sync: False                                                               │
+│ Continue on Error: False                                                     │
+│ Pipeline ID: 'pipeline-46b42b42-20261011_052246'                             │
+│ Resume Mode: 'Auto-detect Failed/Incomplete Stage'                           │
+Initializing pipeline...
+LOG: Initialized Cache Manager at 'cache' with strategy='content_hash', TTL=86400s, chunk_size=1000, max_file_size=50MB, chunking_enabled=True
+LOG: Disabled stages: ['text_chunking', 'translation', 'graph_extraction', 'gleaning', 'graph_resolution', 'claim_extraction', 'claim_resolution', 'graph_analysis', 'community_detection', 'indexing']
+LOG: Successfully initialized pipeline with 2 stages: 'document_parsing, document_loading'
+LOG: Validating pipeline integrity for 'pipeline-46b42b42-20261011_052246'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'pipeline-46b42b42-20261011_052246' with 2 errors
+Pipeline integrity check failed for 'pipeline-46b42b42-20261011_052246':
+• Missing cache for completed stage 'document_parsing', key:
+'documents-1035b7a62512'
+• Missing cache for completed stage 'document_loading', key:
+'documents-ac616352a4e7'
+Continue despite integrity issues? [y/n]:
+An unexpected error occurred: EOF when reading a line
+LOG: Unexpected error during pipeline execution
+
+=====SECTION 11 real CLI resume of RUN1, answering y (bug 1 and bug 2)=====
+exit code: 0
+│ Built by AWS Professional Services | Version 0.2.3                        │
+│ Graph RAG Document Processing Pipeline                                       │
+│ Source Directory:                                                            │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ handoff_run/docs'                                                            │
+│ Timestamp: '2026-10-11 05:23:31'                                             │
+│ Cache Directory:                                                             │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ handoff_run/cache'                                                           │
+│ Force Rebuild: False                                                         │
+│ S3 Sync: False                                                               │
+│ Continue on Error: False                                                     │
+│ Pipeline ID: 'pipeline-46b42b42-20261011_052246'                             │
+│ Resume Mode: 'Auto-detect Failed/Incomplete Stage'                           │
+Initializing pipeline...
+LOG: Initialized Cache Manager at 'cache' with strategy='content_hash', TTL=86400s, chunk_size=1000, max_file_size=50MB, chunking_enabled=True
+LOG: Disabled stages: ['text_chunking', 'translation', 'graph_extraction', 'gleaning', 'graph_resolution', 'claim_extraction', 'claim_resolution', 'graph_analysis', 'community_detection', 'indexing']
+LOG: Successfully initialized pipeline with 2 stages: 'document_parsing, document_loading'
+LOG: Validating pipeline integrity for 'pipeline-46b42b42-20261011_052246'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'pipeline-46b42b42-20261011_052246' with 2 errors
+Pipeline integrity check failed for 'pipeline-46b42b42-20261011_052246':
+• Missing cache for completed stage 'document_parsing', key:
+'documents-1035b7a62512'
+• Missing cache for completed stage 'document_loading', key:
+'documents-ac616352a4e7'
+Continue despite integrity issues? [y/n]:
+Starting pipeline execution...
+LOG: Starting pipeline run - source: '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/handoff_run/docs', pipeline_id: 'pipeline-46b42b42-20261011_052246', resume_from: 'auto-detect'
+LOG: Resolved pipeline ID: 'pipeline-46b42b42-20261011_052246'
+LOG: Corpus manifest fingerprint: '11e583bd8e55'
+LOG: Resuming existing pipeline 'pipeline-46b42b42-20261011_052246' from stage: 'auto-detect'
+LOG: Preparing pipeline resume for 'pipeline-46b42b42-20261011_052246' from stage: 'auto-detect'
+LOG: Determining resume strategy for pipeline 'pipeline-46b42b42-20261011_052246'
+LOG: Resume strategy determined - Start from: 'document_loading', Load 2 completed stages
+LOG: Restoring pipeline context for 'pipeline-46b42b42-20261011_052246' with 2 completed stages
+LOG: Created context from metadata for pipeline 'pipeline-46b42b42-20261011_052246' (status: PipelineStageStatus.COMPLETED -> running)
+LOG: Context restoration completed for 'pipeline-46b42b42-20261011_052246': 2/2 stages loaded
+LOG: Context prepared for resume from 'document_loading' - keeping 1 previous stage results
+LOG: Pipeline resume prepared successfully - will start from stage: 'document_loading'
+LOG: Found 1 previously completed stages: 'document_parsing'
+LOG: Executing 1 stages: 'document_loading'
+LOG: Executing stage: 'document_loading'
+LOG: Pipeline metadata saved for 'pipeline-46b42b42-20261011_052246' (status: running)
+LOG: Starting stage: 'document_loading'
+LOG: DOCUMENT LOADING STAGE - STARTED
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: DOCUMENT LOADING STAGE - COMPLETED (5 documents loaded)
+LOG: Stage 'document_loading' completed successfully in 0.00 seconds. Inputs: 5, Outputs: 5
+LOG: Pipeline status updated: 'running' -> 'completed'
+LOG: Pipeline metadata saved for 'pipeline-46b42b42-20261011_052246' (status: completed)
+LOG: Saving 5 documents to cache
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)
+LOG: Successfully cached documents
+LOG: Stage 'document_loading' outputs cached: 5 documents
+LOG: Finalizing pipeline execution - ID: 'pipeline-46b42b42-20261011_052246'
+LOG: Pipeline completed successfully with all stages passed
+LOG: Pipeline metadata saved for 'pipeline-46b42b42-20261011_052246' (status: completed)
+LOG: PIPELINE SUMMARY
+LOG: Pipeline ID: pipeline-46b42b42-20261011_052246
+Status: completed
+Duration: 0.01s
+Stages: 2 completed, 0 failed, 0 running
+Data processed: 5 documents -> 0 entities, 0 relationships, 0 claims -> 0 communities
+LOG: Pipeline execution completed successfully - ID: 'pipeline-46b42b42-20261011_052246', Status: 'PipelineStageStatus.COMPLETED'
+================================================================================
+│ Pipeline Results Summary │
+Processing Summary
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric              ┃ Count ┃ Details                                 ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Documents Processed │     5 │ Source documents loaded into the system │
+│ Text Units Created  │     0 │ Text segments created through chunking  │
+└─────────────────────┴───────┴─────────────────────────────────────────┘
+================================================================================
+│ Pipeline Stage Execution Details │
+Stage Execution Summary
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━
+┃ Stage                ┃     Status      ┃     Duration ┃      Input ┃     Outpu
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━
+│ Document Parsing     │   ✓ COMPLETED   │        0.00s │          5 │
+│ Document Loading     │   ✓ COMPLETED   │        0.00s │          5 │
+└──────────────────────┴─────────────────┴──────────────┴────────────┴──────────
+================================================================================
+│ Performance Summary │
+Total Pipeline Duration         0.00 seconds
+Stages Executed                            2
+Stages from Cache                          0
+Cache Hit Rate                         0.00%
+Gleaning Improvement Rate              0.00%
+Entity Merge Rate                      0.00%
+Relationship Merge Rate                0.00%
+Claim Merge Rate                       0.00%
+Community Modularity                    0.00
+Avg. Throughput            6357.35 items/sec
+│ ✓ Pipeline completed successfully! │
+
+=====SECTION 12 force rebuild on a brand-new run id, then resume it (bug 3)=====
+exit code: 0
+LOG: Force rebuild: ignoring any existing cache for 'force-test'
+LOG: Starting new pipeline run: 'force-test'
+LOG: Executing 2 stages: 'document_parsing, document_loading'
+LOG: Cache disabled, skipping output save for stage: 'document_parsing'
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cache disabled, skipping output save for stage: 'document_loading'
+files:
+cache/force-test/pipeline_metadata.json
+exit code: 0
+LOG: Validating pipeline integrity for 'force-test'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'force-test' with 2 errors
+Pipeline integrity check failed for 'force-test':
+• Missing cache for completed stage 'document_parsing', key:
+• Missing cache for completed stage 'document_loading', key:
+Continue despite integrity issues? [y/n]:
+LOG: Rewinding resume point from 'document_loading' to 'document_parsing': it and every stage downstream of it will be recomputed
+LOG: Resume strategy determined - Start from: 'document_parsing', Load 0 completed stages
+LOG: Executing 2 stages: 'document_parsing, document_loading'
+LOG: Cached single file for key 'documents-54cf4641e850' (size: 5620 bytes)
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)
+files:
+cache/force-test/cache_index.json
+cache/force-test/document_loading/documents-0842cedc0821.json
+cache/force-test/document_parsing/documents-54cf4641e850.json
+cache/force-test/pipeline_metadata.json
+
+=====SECTION 13 normal run -> marker -> force rebuild -> resume, same run id (bug 3)=====
+[1] normal run, id demo-force
+exit code: 0
+LOG: Starting new pipeline run: 'demo-force'
+LOG: Executing 2 stages: 'document_parsing, document_loading'
+LOG: Cached single file for key 'documents-54cf4641e850' (size: 5620 bytes)
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)
+[2] marker stamped into run 1's saved outputs:
+   cache/demo-force/document_loading/documents-0842cedc0821.json | saved at 05:24:17 | doc1 text starts: MARKER-FROM-FIRST-RUN Acme R
+   cache/demo-force/document_parsing/documents-54cf4641e850.json | saved at 05:24:17 | doc1 text starts: MARKER-FROM-FIRST-RUN Acme R
+[3a] force rebuild, same id, nobody at the keyboard
+exit code: 1
+LOG: Validating pipeline integrity for 'demo-force'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'demo-force' with 2 errors
+Pipeline integrity check failed for 'demo-force':
+• Missing cache for completed stage 'document_parsing', key:
+• Missing cache for completed stage 'document_loading', key:
+Continue despite integrity issues? [y/n]:
+An unexpected error occurred: EOF when reading a line
+[3b] force rebuild, same id, answering y
+exit code: 0
+LOG: Validating pipeline integrity for 'demo-force'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'demo-force' with 2 errors
+Pipeline integrity check failed for 'demo-force':
+• Missing cache for completed stage 'document_parsing', key:
+• Missing cache for completed stage 'document_loading', key:
+Continue despite integrity issues? [y/n]:
+LOG: Force rebuild: ignoring any existing cache for 'demo-force'
+LOG: Starting new pipeline run: 'demo-force'
+LOG: Executing 2 stages: 'document_parsing, document_loading'
+LOG: Cache disabled, skipping output save for stage: 'document_parsing'
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cache disabled, skipping output save for stage: 'document_loading'
+    saved files after the force rebuild:
+   cache/demo-force/document_loading/documents-0842cedc0821.json | saved at 05:24:17 | doc1 text starts: MARKER-FROM-FIRST-RUN Acme R
+   cache/demo-force/document_parsing/documents-54cf4641e850.json | saved at 05:24:17 | doc1 text starts: MARKER-FROM-FIRST-RUN Acme R
+[4] resume, same id, no force
+exit code: 0
+LOG: Validating pipeline integrity for 'demo-force'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'demo-force' with 2 errors
+Pipeline integrity check failed for 'demo-force':
+• Missing cache for completed stage 'document_parsing', key:
+• Missing cache for completed stage 'document_loading', key:
+Continue despite integrity issues? [y/n]:
+LOG: Resume strategy determined - Start from: 'document_loading', Load 2 completed stages
+LOG: Executing 1 stages: 'document_loading'
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5642 bytes)
+    saved files after the resume:
+   cache/demo-force/document_loading/documents-0842cedc0821.json | saved at 05:25:06 | doc1 text starts: MARKER-FROM-FIRST-RUN Acme R
+   cache/demo-force/document_parsing/documents-54cf4641e850.json | saved at 05:24:17 | doc1 text starts: MARKER-FROM-FIRST-RUN Acme R
+
+=====SECTION 14 24-hour expiry (bug 4)=====
+[1] normal run, id demo-ttl
+exit code: 0
+LOG: Starting new pipeline run: 'demo-ttl'
+LOG: Executing 2 stages: 'document_parsing, document_loading'
+LOG: Cached single file for key 'documents-54cf4641e850' (size: 5620 bytes)
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)
+   entry documents-54cf4641e850 | created 2026-10-11T05:25:21 | expires 2026-10-12T05:25:21
+   entry documents-0842cedc0821 | created 2026-10-11T05:25:21 | expires 2026-10-12T05:25:21
+[2] resume right away
+exit code: 0
+LOG: Validating pipeline integrity for 'demo-ttl'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'demo-ttl' with 2 errors
+Pipeline integrity check failed for 'demo-ttl':
+• Missing cache for completed stage 'document_parsing', key:
+• Missing cache for completed stage 'document_loading', key:
+Continue despite integrity issues? [y/n]:
+LOG: Resume strategy determined - Start from: 'document_loading', Load 2 completed stages
+LOG: Executing 1 stages: 'document_loading'
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)
+[3] expiry dates edited to the past, then resume
+   expiry of every entry set to 2000-01-01
+exit code: 0
+LOG: Validating pipeline integrity for 'demo-ttl'
+LOG: Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'
+LOG: Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'
+LOG: Pipeline integrity validation failed for 'demo-ttl' with 2 errors
+Pipeline integrity check failed for 'demo-ttl':
+• Missing cache for completed stage 'document_parsing', key:
+• Missing cache for completed stage 'document_loading', key:
+Continue despite integrity issues? [y/n]:
+LOG: Rewinding resume point from 'document_loading' to 'document_parsing': it and every stage downstream of it will be recomputed
+LOG: Resume strategy determined - Start from: 'document_parsing', Load 0 completed stages
+LOG: Executing 2 stages: 'document_parsing, document_loading'
+LOG: Cached single file for key 'documents-54cf4641e850' (size: 5620 bytes)
+LOG: Using 5 documents from the 'document_parsing' stage
+LOG: Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)
+
+=====SECTION 15 which stage fingerprints change when one late setting changes (scripts/threshold_demo.py)=====
+similarity_threshold default: 0.6
+changed to: 0.55 
+
+stage                 before         after          still valid?
+document_parsing      54cf4641e850   54cf4641e850   yes
+document_loading      0842cedc0821   0842cedc0821   yes
+text_chunking         9fcbd193c678   9fcbd193c678   yes
+translation           64bc0bc08eed   64bc0bc08eed   yes
+graph_extraction      6c874c6a9e71   6c874c6a9e71   yes
+gleaning              6d3b14e6d688   6d3b14e6d688   yes
+graph_resolution      7d5bce1ee591   cc32ecbec5bb   NO - redo
+claim_extraction      cb31ed4487a5   7436faf6edaa   NO - redo
+claim_resolution      cb31ed4487a5   7436faf6edaa   NO - redo
+graph_analysis        cb31ed4487a5   7436faf6edaa   NO - redo
+community_detection   3eb2cb6c0a1c   dc53a249bcdd   NO - redo
+indexing              86550627de53   af93d04f9861   NO - redo
+
+=====SECTION 16 stage 3, capture pass: 7 documents, stand-in model with no answers yet (step5.py)=====
+ 134 docs/01_acme.txt
+ 117 docs/02_meera.txt
+ 124 docs/03_orbit.txt
+ 125 docs/04_product.txt
+ 115 docs/05_investor.txt
+2414 docs/06_profile.txt
+2804 docs/07_review.txt
+5833 total
+min_chunk_size = 1000 | max_chunk_size = 8000
+models the chunking stage asked the factory for:
+    anthropic.claude-sonnet-5-5 {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '0'}
+    anthropic.claude-haiku-5-5 {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '0'}
+-> _chunk_single_document('01_acme.txt')
+   pre-chunks: 1  sizes=[133]
+   chunk 1/1  method=unsplit  chars=133   starts: 'Acme Robotics is a company based in Pune. It '
+-> _chunk_single_document('02_meera.txt')
+   pre-chunks: 1  sizes=[116]
+   chunk 1/1  method=unsplit  chars=116   starts: 'Meera Shah studied engineering at IIT Bombay.'
+-> _chunk_single_document('03_orbit.txt')
+   pre-chunks: 1  sizes=[123]
+   chunk 1/1  method=unsplit  chars=123   starts: 'Orbit Logistics runs warehouses in Mumbai and'
+-> _chunk_single_document('04_product.txt')
+   pre-chunks: 1  sizes=[124]
+   chunk 1/1  method=unsplit  chars=124   starts: 'The Acme Picker X2 is a warehouse robot that '
+-> _chunk_single_document('05_investor.txt')
+   pre-chunks: 1  sizes=[114]
+   chunk 1/1  method=unsplit  chars=114   starts: 'Banyan Capital invested in Acme Robotics in 2'
+-> _chunk_single_document('06_profile.txt')
+   pre-chunks: 2  sizes=[1532, 884]
+   chunk 1/2  method=unsplit  chars=1532  starts: '# Acme Robotics: Company Profile  \nAcme Robot'
+   chunk 2/2  method=unsplit  chars=884   starts: '## Customers  \nOrbit Logistics is the largest'
+-> _chunk_single_document('07_review.txt')
+   pre-chunks: 1  sizes=[2803]
+   chunk 1/1  method=llm      chars=2803  starts: 'Acme Robotics annual review, prepared for the'
+
+stage results: [('document_parsing', 'completed', 7, 7), ('document_loading', 'completed', 7, 7), ('text_chunking', 'completed', 7, 8)]
+AI calls made: 1
+   prompt 266920b75e | model: anthropic.claude-haiku-5-5 | reply used: PLACEHOLDER | - Target chunk size: 1000 to 8000 characters
+--- system message: 2129 chars ---
+--- human message: 4878 chars ---
+DOCUMENT TO ANALYZE:
+1: Acme Robotics annual review, prepared for the board by the operations team.
+2: The Chennai installation at Orbit Logistics ran for the full year with sixty Picker X2 robots on the warehouse floor.
+3: Average uptime across the fleet was ninety-six percent, slightly below the ninety-eight percent promised in the service agreement.
+4: Most of the downtime came from worn drive wheels, which had to be replaced on forty of the sixty robots during the summer.
+5: The service office in Chennai added two technicians in June so that a failed robot could be repaired within one working day.
+6: Orbit Logistics reported that the time a picker spends walking fell by roughly half compared with the year before the robots arrived.
+7: A software fault in Fleet Console caused a four-hour stoppage in August, and a patch was released the following week.
+8: Orbit Logistics has asked for a written plan to bring uptime back above the agreed level before the contract is renewed.
+9: The engineering team spent most of the year designing the Picker X3, the planned successor to the Picker X2.
+10: The X3 is intended to lift sixty kilograms, which is twenty kilograms more than the X2 can carry today.
+11: Priya Nair, who leads hardware engineering, chose a new motor supplier in Coimbatore after the old supplier missed two deliveries.
+12: The first X3 prototype completed a week of continuous testing in the Hinjewadi workshop in October without a mechanical failure.
+13: Battery life on the prototype is about six hours, shorter than the eight hours of the X2, because the larger motors draw more power.
+14: The team is evaluating a bigger battery pack, but it would add weight and raise the price of each robot by about eight percent.
+15: Fleet Console will need an update so that a warehouse can run X2 and X3 robots side by side in one fleet.
+16: Meera Shah has set a target of shipping the first X3 units to a paying customer in the second half of next year.
+17: Acme Robotics hired thirty-one people during the year, bringing the total to about one hundred and twenty employees.
+18: Most of the new hires were service technicians and software engineers, with a smaller number joining the sales team.
+19: The company opened a sales office in Singapore in September, its first location outside India.
+20: Arjun Rao moved from Pune to lead the Singapore office and has started talks with two logistics operators there.
+21: Banyan Capital has indicated that it would take part in a second funding round to pay for the Southeast Asia expansion.
+22: Ravi Menon, the Banyan Capital partner on the board, asked for a detailed hiring plan before the round is opened.
+23: The board discussed whether to build a small assembly line in Singapore or to keep shipping finished robots from Pune.
+24: No decision was taken, and the operations team will present costs for both options at the next board meeting.
+
+CHUNKING PARAMETERS:
+- Target chunk size: 1000 to 8000 characters
+
+ANALYSIS PROCESS:
+1. Identify structural elements (headers, sections, lists) by line numbers
+2. Locate semantic transition points between different topics
+3. Calculate cumulative character count to ensure appropriate chunk sizes
+4. Select line numbers that preserve semantic coherence
+5. Output line numbers where new chunks should begin
+
+OUTPUT REQUIREMENTS:
+1. **XML FORMAT ONLY**: Start with `<?xml` and end with `</chunk_boundaries>`
+2. **LINE NUMBERS ONLY**: Each `<line_number>` contains only an integer
+3. **NO LINE 1**: Never include line 1 as a boundary
+4. **SINGLE CHUNK**: If text should remain as one chunk, output:
+   `<chunk_boundaries><single_chunk>true</single_chunk></chunk_boundaries>`
+5. **ASCENDING ORDER**: Line numbers in ascending order
+6. **VALID LINES**: Only reference existing line numbers
+
+Provide ONLY the XML output with no additional text or explanations.
+
+<?xml version="1.0" encoding="UTF-8"?>
+<chunk_boundaries>
+
+=====SECTION 17 stage 3, default settings, hand-written answer (new chunks at lines 9 and 17)=====
+{
+ "266920b75e": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<chunk_boundaries>\n    <line_number>9</line_number>\n    <line_number>17</line_number>\n</chunk_boundaries>",
+ "0b6352c8bf": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<chunk_boundaries>\n    <line_number>9</line_number>\n    <line_number>17</line_number>\n</chunk_boundaries>"
+}
+min_chunk_size = 1000 | max_chunk_size = 8000
+models the chunking stage asked the factory for:
+    anthropic.claude-sonnet-5-5 {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '0'}
+    anthropic.claude-haiku-5-5 {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '0'}
+-> _chunk_single_document('01_acme.txt')
+   pre-chunks: 1  sizes=[133]
+   chunk 1/1  method=unsplit  chars=133   starts: 'Acme Robotics is a company based in Pune. It '
+-> _chunk_single_document('02_meera.txt')
+   pre-chunks: 1  sizes=[116]
+   chunk 1/1  method=unsplit  chars=116   starts: 'Meera Shah studied engineering at IIT Bombay.'
+-> _chunk_single_document('03_orbit.txt')
+   pre-chunks: 1  sizes=[123]
+   chunk 1/1  method=unsplit  chars=123   starts: 'Orbit Logistics runs warehouses in Mumbai and'
+-> _chunk_single_document('04_product.txt')
+   pre-chunks: 1  sizes=[124]
+   chunk 1/1  method=unsplit  chars=124   starts: 'The Acme Picker X2 is a warehouse robot that '
+-> _chunk_single_document('05_investor.txt')
+   pre-chunks: 1  sizes=[114]
+   chunk 1/1  method=unsplit  chars=114   starts: 'Banyan Capital invested in Acme Robotics in 2'
+-> _chunk_single_document('06_profile.txt')
+   pre-chunks: 2  sizes=[1532, 884]
+   chunk 1/2  method=unsplit  chars=1532  starts: '# Acme Robotics: Company Profile  \nAcme Robot'
+   chunk 2/2  method=unsplit  chars=884   starts: '## Customers  \nOrbit Logistics is the largest'
+-> _chunk_single_document('07_review.txt')
+   pre-chunks: 1  sizes=[2803]
+   chunk 1/1  method=llm      chars=2801  starts: 'Acme Robotics annual review, prepared for the'
+
+stage results: [('document_parsing', 'completed', 7, 7), ('document_loading', 'completed', 7, 7), ('text_chunking', 'completed', 7, 8)]
+AI calls made: 1
+   prompt 266920b75e | model: anthropic.claude-haiku-5-5 | reply used: hand-written answer | - Target chunk size: 1000 to 8000 characters
+
+=====SECTION 18 stage 3, min_chunk_size lowered to 900, same hand-written answer=====
+min_chunk_size = 900 | max_chunk_size = 8000
+models the chunking stage asked the factory for:
+    anthropic.claude-sonnet-5-5 {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '0'}
+    anthropic.claude-haiku-5-5 {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '0'}
+-> _chunk_single_document('01_acme.txt')
+   pre-chunks: 1  sizes=[133]
+   chunk 1/1  method=unsplit  chars=133   starts: 'Acme Robotics is a company based in Pune. It '
+-> _chunk_single_document('02_meera.txt')
+   pre-chunks: 1  sizes=[116]
+   chunk 1/1  method=unsplit  chars=116   starts: 'Meera Shah studied engineering at IIT Bombay.'
+-> _chunk_single_document('03_orbit.txt')
+   pre-chunks: 1  sizes=[123]
+   chunk 1/1  method=unsplit  chars=123   starts: 'Orbit Logistics runs warehouses in Mumbai and'
+-> _chunk_single_document('04_product.txt')
+   pre-chunks: 1  sizes=[124]
+   chunk 1/1  method=unsplit  chars=124   starts: 'The Acme Picker X2 is a warehouse robot that '
+-> _chunk_single_document('05_investor.txt')
+   pre-chunks: 1  sizes=[114]
+   chunk 1/1  method=unsplit  chars=114   starts: 'Banyan Capital invested in Acme Robotics in 2'
+-> _chunk_single_document('06_profile.txt')
+   pre-chunks: 2  sizes=[1532, 884]
+   chunk 1/2  method=unsplit  chars=1532  starts: '# Acme Robotics: Company Profile  \nAcme Robot'
+   chunk 2/2  method=unsplit  chars=884   starts: '## Customers  \nOrbit Logistics is the largest'
+-> _chunk_single_document('07_review.txt')
+   pre-chunks: 1  sizes=[2803]
+   chunk 1/3  method=llm      chars=945   starts: 'Acme Robotics annual review, prepared for the'
+   chunk 2/3  method=llm      chars=952   starts: 'The engineering team spent most of the year d'
+   chunk 3/3  method=llm      chars=904   starts: 'Acme Robotics hired thirty-one people during '
+
+stage results: [('document_parsing', 'completed', 7, 7), ('document_loading', 'completed', 7, 7), ('text_chunking', 'completed', 7, 10)]
+AI calls made: 1
+   prompt 0b6352c8bf | model: anthropic.claude-haiku-5-5 | reply used: hand-written answer | - Target chunk size: 900 to 8000 characters
+one finished text unit (chunk 2 of 07_review.txt):
+  id                 = '73f8dff9-270d-550f-a570-aa47439d81c1'
+  short_id           = '73f8dff9'
+  attributes         = {'file_name': '07_review.txt', 'file_path': 'docs/07_review.txt', 'chunk_id': 2, 'total_chun...
+  created_at         = '2026-10-11T05:26:33.368966'
+  updated_at         = '2026-10-11T05:26:33.368967'
+  text               = 'The engineering team spent most of the year designing the Picker X3, the planned successor ...
+  translated_texts   = None
+  entity_ids         = []
+  relationship_ids   = []
+  community_ids      = []
+  document_ids       = ['067f7c10-8a16-5ff8-9b33-0629e4945b8f']
+  n_tokens           = 238
+
+=====SECTION 19 merge function called directly (scripts/merge_demo.py)=====
+three pieces (lines 1-8, 9-16, 17-24), sizes: [945, 952, 904]
+after merge_small_chunks (min 1000, max 8000): [2801]
+text at the first join: 'ore the contract is renewed.The engineering team spe'
+
+=====SECTION 20 end=====
+done

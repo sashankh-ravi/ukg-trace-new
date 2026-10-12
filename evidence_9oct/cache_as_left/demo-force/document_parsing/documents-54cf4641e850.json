@@ -1,0 +1,167 @@
+[
+  {
+    "page_content": "MARKER-FROM-FIRST-RUN Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.\nAcme has 120 employees.\n",
+    "document_id": "0048540f-f3cb-5e01-a919-32751f2ecdcb",
+    "file_name": "01_acme.txt",
+    "file_path": "docs/01_acme.txt",
+    "file_type": "txt",
+    "detected_language": "Unknown",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_number": 1,
+        "height": null,
+        "width": null,
+        "text_content": "Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.\nAcme has 120 employees.\n",
+        "elements": [],
+        "raw_data": {
+          "source": "docs/01_acme.txt"
+        }
+      }
+    ],
+    "elements": [],
+    "content": {
+      "text": "Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.\nAcme has 120 employees.\n",
+      "html": null,
+      "markdown": null
+    },
+    "metadata": {
+      "source": "docs/01_acme.txt",
+      "relative_path": "01_acme.txt",
+      "registry_namespace": "default"
+    },
+    "error_info": null
+  },
+  {
+    "page_content": "Meera Shah studied engineering at IIT Bombay. Before Acme Robotics she worked at Orbit Logistics as a hardware lead.\n",
+    "document_id": "7be7492f-6fbe-5854-a520-458b62df3a48",
+    "file_name": "02_meera.txt",
+    "file_path": "docs/02_meera.txt",
+    "file_type": "txt",
+    "detected_language": "Unknown",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_number": 1,
+        "height": null,
+        "width": null,
+        "text_content": "Meera Shah studied engineering at IIT Bombay. Before Acme Robotics she worked at Orbit Logistics as a hardware lead.\n",
+        "elements": [],
+        "raw_data": {
+          "source": "docs/02_meera.txt"
+        }
+      }
+    ],
+    "elements": [],
+    "content": {
+      "text": "Meera Shah studied engineering at IIT Bombay. Before Acme Robotics she worked at Orbit Logistics as a hardware lead.\n",
+      "html": null,
+      "markdown": null
+    },
+    "metadata": {
+      "source": "docs/02_meera.txt",
+      "relative_path": "02_meera.txt",
+      "registry_namespace": "default"
+    },
+    "error_info": null
+  },
+  {
+    "page_content": "Orbit Logistics runs warehouses in Mumbai and Chennai. In 2022 Orbit Logistics signed a supply contract with Acme Robotics.\n",
+    "document_id": "fd2f0171-0630-5b3d-8045-968cae3389b3",
+    "file_name": "03_orbit.txt",
+    "file_path": "docs/03_orbit.txt",
+    "file_type": "txt",
+    "detected_language": "Unknown",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_number": 1,
+        "height": null,
+        "width": null,
+        "text_content": "Orbit Logistics runs warehouses in Mumbai and Chennai. In 2022 Orbit Logistics signed a supply contract with Acme Robotics.\n",
+        "elements": [],
+        "raw_data": {
+          "source": "docs/03_orbit.txt"
+        }
+      }
+    ],
+    "elements": [],
+    "content": {
+      "text": "Orbit Logistics runs warehouses in Mumbai and Chennai. In 2022 Orbit Logistics signed a supply contract with Acme Robotics.\n",
+      "html": null,
+      "markdown": null
+    },
+    "metadata": {
+      "source": "docs/03_orbit.txt",
+      "relative_path": "03_orbit.txt",
+      "registry_namespace": "default"
+    },
+    "error_info": null
+  },
+  {
+    "page_content": "The Acme Picker X2 is a warehouse robot that lifts up to 40 kg. Orbit Logistics uses the Picker X2 in its Chennai warehouse.\n",
+    "document_id": "7bb17347-64e1-59a5-a0a3-97b71bdac324",
+    "file_name": "04_product.txt",
+    "file_path": "docs/04_product.txt",
+    "file_type": "txt",
+    "detected_language": "Unknown",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_number": 1,
+        "height": null,
+        "width": null,
+        "text_content": "The Acme Picker X2 is a warehouse robot that lifts up to 40 kg. Orbit Logistics uses the Picker X2 in its Chennai warehouse.\n",
+        "elements": [],
+        "raw_data": {
+          "source": "docs/04_product.txt"
+        }
+      }
+    ],
+    "elements": [],
+    "content": {
+      "text": "The Acme Picker X2 is a warehouse robot that lifts up to 40 kg. Orbit Logistics uses the Picker X2 in its Chennai warehouse.\n",
+      "html": null,
+      "markdown": null
+    },
+    "metadata": {
+      "source": "docs/04_product.txt",
+      "relative_path": "04_product.txt",
+      "registry_namespace": "default"
+    },
+    "error_info": null
+  },
+  {
+    "page_content": "Banyan Capital invested in Acme Robotics in 2019. Ravi Menon, a partner at Banyan Capital, sits on the Acme board.\n",
+    "document_id": "2e26b519-a67b-5afc-bcc1-7a7ad5f72d88",
+    "file_name": "05_investor.txt",
+    "file_path": "docs/05_investor.txt",
+    "file_type": "txt",
+    "detected_language": "Unknown",
+    "total_pages": 1,
+    "pages": [
+      {
+        "page_number": 1,
+        "height": null,
+        "width": null,
+        "text_content": "Banyan Capital invested in Acme Robotics in 2019. Ravi Menon, a partner at Banyan Capital, sits on the Acme board.\n",
+        "elements": [],
+        "raw_data": {
+          "source": "docs/05_investor.txt"
+        }
+      }
+    ],
+    "elements": [],
+    "content": {
+      "text": "Banyan Capital invested in Acme Robotics in 2019. Ravi Menon, a partner at Banyan Capital, sits on the Acme board.\n",
+      "html": null,
+      "markdown": null
+    },
+    "metadata": {
+      "source": "docs/05_investor.txt",
+      "relative_path": "05_investor.txt",
+      "registry_namespace": "default"
+    },
+    "error_info": null
+  }
+]

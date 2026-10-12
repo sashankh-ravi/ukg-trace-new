@@ -1,0 +1,41 @@
+{
+  "pipeline_id": "demo-force",
+  "created_at": "2026-10-09T14:10:15.522505",
+  "updated_at": "2026-10-09T14:10:53.061727",
+  "entries": {
+    "documents-54cf4641e850": {
+      "key": "documents-54cf4641e850",
+      "stage_name": "document_parsing",
+      "pipeline_id": "demo-force",
+      "created_at": "2026-10-09T14:10:15.522456",
+      "expires_at": "2026-10-10T14:10:15.522458",
+      "local_path": "cache/demo-force/document_parsing/documents-54cf4641e850.json",
+      "file_size": 5620,
+      "content_hash": "b339eddbb05e6c87",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_parsing",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    },
+    "documents-0842cedc0821": {
+      "key": "documents-0842cedc0821",
+      "stage_name": "document_loading",
+      "pipeline_id": "demo-force",
+      "created_at": "2026-10-09T14:10:53.061612",
+      "expires_at": "2026-10-10T14:10:53.061624",
+      "local_path": "cache/demo-force/document_loading/documents-0842cedc0821.json",
+      "file_size": 5642,
+      "content_hash": "0faa47584c063f73",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_loading",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+settings: fallback_chunk_size = 4800 | chunk_overlap = 500 | min = 1000 | max = 8000
+input text: 15099 characters
+
+size-only splitter (used by the 'simple' chunker and the fallback path):
+  piece 1: 4688 chars
+  piece 2: 4790 chars | shares its first 419 chars with the end of piece 1
+  piece 3: 4767 chars | shares its first 498 chars with the end of piece 2
+  piece 4: 2258 chars | shares its first 487 chars with the end of piece 3
+
+model path, the three chunks of 07_review.txt (lines 1-8, 9-16, 17-24):
+  chunk 2 shares 0 chars with the end of chunk 1
+  chunk 3 shares 0 chars with the end of chunk 2
+
+token estimate for the middle chunk: 238 | its length in characters: 952

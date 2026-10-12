@@ -1,0 +1,24 @@
+Acme Robotics annual review, prepared for the board by the operations team.
+The Chennai installation at Orbit Logistics ran for the full year with sixty Picker X2 robots on the warehouse floor.
+Average uptime across the fleet was ninety-six percent, slightly below the ninety-eight percent promised in the service agreement.
+Most of the downtime came from worn drive wheels, which had to be replaced on forty of the sixty robots during the summer.
+The service office in Chennai added two technicians in June so that a failed robot could be repaired within one working day.
+Orbit Logistics reported that the time a picker spends walking fell by roughly half compared with the year before the robots arrived.
+A software fault in Fleet Console caused a four-hour stoppage in August, and a patch was released the following week.
+Orbit Logistics has asked for a written plan to bring uptime back above the agreed level before the contract is renewed.
+The engineering team spent most of the year designing the Picker X3, the planned successor to the Picker X2.
+The X3 is intended to lift sixty kilograms, which is twenty kilograms more than the X2 can carry today.
+Priya Nair, who leads hardware engineering, chose a new motor supplier in Coimbatore after the old supplier missed two deliveries.
+The first X3 prototype completed a week of continuous testing in the Hinjewadi workshop in October without a mechanical failure.
+Battery life on the prototype is about six hours, shorter than the eight hours of the X2, because the larger motors draw more power.
+The team is evaluating a bigger battery pack, but it would add weight and raise the price of each robot by about eight percent.
+Fleet Console will need an update so that a warehouse can run X2 and X3 robots side by side in one fleet.
+Meera Shah has set a target of shipping the first X3 units to a paying customer in the second half of next year.
+Acme Robotics hired thirty-one people during the year, bringing the total to about one hundred and twenty employees.
+Most of the new hires were service technicians and software engineers, with a smaller number joining the sales team.
+The company opened a sales office in Singapore in September, its first location outside India.
+Arjun Rao moved from Pune to lead the Singapore office and has started talks with two logistics operators there.
+Banyan Capital has indicated that it would take part in a second funding round to pay for the Southeast Asia expansion.
+Ravi Menon, the Banyan Capital partner on the board, asked for a detailed hiring plan before the round is opened.
+The board discussed whether to build a small assembly line in Singapore or to keep shipping finished robots from Pune.
+No decision was taken, and the operations team will present costs for both options at the next board meeting.

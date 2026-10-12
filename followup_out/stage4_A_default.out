@@ -1,0 +1,24 @@
+translation settings: enabled=True | source=en | target=en | additional=None | is_noop=True
+stages built: ['document_parsing', 'document_loading', 'text_chunking', 'translation']
+models asked for while BUILDING the pipeline: ['anthropic.claude-sonnet-5-5', 'anthropic.claude-haiku-5-5']
+CHECKPOINT -> TranslationStage._execute_core
+CHECKPOINT -> TranslationStage._should_skip
+           returned: "source and target language are both 'en' with no additional targets"
+           returned: (5, 5, {'target_language': 'en', 'units_processed': 5, 'units_translated': 0, 'skipped': True, 'skip_reason...
+
+models asked for DURING the run: []
+model calls made: 0 []
+stage result: status = completed | in = 5 | out = 5
+stage metrics: {'target_language': 'en', 'units_processed': 5, 'units_translated': 0, 'skipped': True, 'skip_reason': "source and target language are both 'en' with no additional targets"}
+context.text_units: 5 | context.translated_units: 0 | same objects: False
+  01_acme.txt      text: 'Acme Robotics is a company based in Pune. It was founded b...
+                   translated_texts: None
+  02_meera.txt     text: 'Meera Shah studied engineering at IIT Bombay. Before Acme ...
+                   translated_texts: None
+  03_orbit.txt     text: 'Orbit Logistics runs warehouses in Mumbai and Chennai. In ...
+                   translated_texts: None
+  04_product.txt   text: 'The Acme Picker X2 is a warehouse robot that lifts up to 4...
+                   translated_texts: None
+  05_investor.txt  text: 'Banyan Capital invested in Acme Robotics in 2019. Ravi Men...
+                   translated_texts: None
+cache files: ['stage4-default/cache_index.json', 'stage4-default/document_loading/documents-0842cedc0821.json', 'stage4-default/document_parsing/documents-54cf4641e850.json', 'stage4-default/pipeline_metadata.json', 'stage4-default/text_chunking/text_units-9fcbd193c678.json', 'stage4-default/translation/translated_units-64bc0bc08eed.json']

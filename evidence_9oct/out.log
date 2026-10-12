@@ -1,0 +1,47 @@
+╭───────────────────────────────────────────────────────────────────────────╮
+│                                                                           │
+│                                                                           │
+│    ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗     ██████╗  █████╗  ██████╗  │
+│   ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║     ██╔══██╗██╔══██╗██╔════╝  │
+│   ██║  ███╗██████╔╝███████║██████╔╝███████║     ██████╔╝███████║██║  ███╗ │
+│   ██║   ██║██╔══██╗██╔══██║██╔══██╗██╔══██║     ██╔══██╗██╔══██║██║   ██║ │
+│   ╚██████╔╝██║  ██║██║  ██║██║  ██║██║  ██║     ██║  ██║██║  ██║╚██████╔╝ │
+│    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  │
+│                                                                           │
+│                                                                           │
+│ Built by AWS Professional Services | Version 0.2.3                        │
+│                                                                           │
+╰───────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Graph RAG Document Processing Pipeline                                       │
+│ Source Directory:                                                            │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ demo/docs'                                                                   │
+│ Timestamp: '2026-10-09 13:50:35'                                             │
+│ Cache Directory:                                                             │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ demo/cache'                                                                  │
+│ Force Rebuild: False                                                         │
+│ S3 Sync: False                                                               │
+│ Continue on Error: False                                                     │
+│ Pipeline ID: 'pipeline-46b42b42-20261009_132047'                             │
+│ Resume Mode: 'Auto-detect Failed/Incomplete Stage'                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Initializing pipeline...
+{"event": "Initialized Cache Manager at 'cache' with strategy='content_hash', TTL=86400s, chunk_size=1000, max_file_size=50MB, chunking_enabled=True", "logger": "unified_kg_rag.shared.cache_manager", "level": "info", "timestamp": "2026-10-09T13:50:35.224500Z"}
+{"event": "Disabled stages: ['text_chunking', 'translation', 'graph_extraction', 'gleaning', 'graph_resolution', 'claim_extraction', 'claim_resolution', 'graph_analysis', 'community_detection', 'indexing']", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:50:35.237008Z"}
+{"event": "Successfully initialized pipeline with 2 stages: 'document_parsing, document_loading'", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T13:50:35.237250Z"}
+{"event": "Validating pipeline integrity for 'pipeline-46b42b42-20261009_132047'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:50:35.237406Z"}
+{"event": "Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T13:50:35.238035Z"}
+{"event": "Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T13:50:35.238412Z"}
+{"event": "Pipeline integrity validation failed for 'pipeline-46b42b42-20261009_132047' with 2 errors", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T13:50:35.238566Z"}
+
+Pipeline integrity check failed for 'pipeline-46b42b42-20261009_132047':
+  • Missing cache for completed stage 'document_parsing', key: 
+'documents-1035b7a62512'
+  • Missing cache for completed stage 'document_loading', key: 
+'documents-ac616352a4e7'
+Continue despite integrity issues? [y/n]: 
+An unexpected error occurred: EOF when reading a line
+{"event": "Unexpected error during pipeline execution", "logger": "unified_kg_rag.application.cli.run_ingestion_pipeline", "level": "error", "timestamp": "2026-10-09T13:50:35.240960Z", "exception": "Traceback (most recent call last):\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/unified_kg_rag/application/cli/run_ingestion_pipeline.py\", line 430, in main\n    runner.run()\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/unified_kg_rag/application/cli/run_ingestion_pipeline.py\", line 390, in run\n    if not self._validate_pipeline_integrity():\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/unified_kg_rag/application/cli/run_ingestion_pipeline.py\", line 365, in _validate_pipeline_integrity\n    if not Confirm.ask(\"Continue despite integrity issues?\"):\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/.venv/lib/python3.11/site-packages/rich/prompt.py\", line 149, in ask\n    return _prompt(default=default, stream=stream)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/.venv/lib/python3.11/site-packages/rich/prompt.py\", line 292, in __call__\n    value = self.get_input(self.console, prompt, self.password, stream=stream)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/.venv/lib/python3.11/site-packages/rich/prompt.py\", line 211, in get_input\n    return console.input(prompt, password=password, stream=stream)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/claude/awslabs/unified-kg-rag-on-aws/.venv/lib/python3.11/site-packages/rich/console.py\", line 2185, in input\n    result = input()\n             ^^^^^^^\nEOFError: EOF when reading a line"}

@@ -1,0 +1,75 @@
+settings: min_chunk_size = 900, max_chunk_size = 8000, max_marker_miss_rate = 0.1
+document: 07_review.txt, 24 lines, 2804 bytes
+
+====================================================================================================
+CASE 1. sensible reply: lines 9 and 17
+   model reply: '<chunk_boundaries>\n<line_number>9</line_number><line_number>17</line_number>\n</chunk_boundaries>'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'line_number': ['9', '17']}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'line_number': ['9', '17']}) -> [9, 17]
+   CHECKPOINT LineBasedBoundaryProcessor.convert_line_numbers_to_indices -> ([946, 1899], 0)
+   CHECKPOINT LineBasedBoundaryProcessor.validate_error_rate -> True
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> 3 piece(s), sizes [945, 952, 904]
+   model calls made: 1  [('claude-haiku-5-5', 'hand-written answer')]
+   RESULT: [('llm', 945), ('llm', 952), ('llm', 904)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False
+====================================================================================================
+CASE 2. a line that does not exist: 9 and 99
+   model reply: '<chunk_boundaries>\n<line_number>9</line_number><line_number>99</line_number>\n</chunk_boundaries>'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'line_number': ['9', '99']}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'line_number': ['9', '99']}) -> [9, 99]
+   CHECKPOINT LineBasedBoundaryProcessor.convert_line_numbers_to_indices -> ([946], 1)
+   CHECKPOINT LineBasedBoundaryProcessor.validate_error_rate -> False
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> None (reply rejected)
+   CHECKPOINT IntelligentTextChunker._create_fallback_chunks -> ['Acme Robotics annual review, prepared for the board by the operations team.\nThe Chennai installation at Orbit Logi...
+   model calls made: 1  [('claude-haiku-5-5', 'hand-written answer')]
+   RESULT: [('fallback', 2803)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False
+====================================================================================================
+CASE 3. forbidden or nonsense numbers: 1, 0, -5, 9
+   model reply: '<chunk_boundaries>\n<line_number>1</line_number><line_number>0</line_number><line_number>-5</line_number><line_number>9</line_number>\n</chunk_boundaries>'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'line_number': ['1', '0', '-5', '9']}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'line_number': ['1', '0', '-5', '9']}) -> [9]
+   CHECKPOINT LineBasedBoundaryProcessor.convert_line_numbers_to_indices -> ([946], 0)
+   CHECKPOINT LineBasedBoundaryProcessor.validate_error_rate -> True
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> 2 piece(s), sizes [945, 1857]
+   model calls made: 1  [('claude-haiku-5-5', 'hand-written answer')]
+   RESULT: [('llm', 945), ('llm', 1857)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False
+====================================================================================================
+CASE 4. words instead of numbers
+   model reply: '<chunk_boundaries>\n<line_number>nine</line_number><line_number>seventeen</line_number>\n</chunk_boundaries>'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'line_number': ['nine', 'seventeen']}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'line_number': ['nine', 'seventeen']}) -> []
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> 1 piece(s), sizes [2803]
+   model calls made: 1  [('claude-haiku-5-5', 'hand-written answer')]
+   RESULT: [('llm', 2803)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False
+====================================================================================================
+CASE 5. model writes its own text instead of numbers
+   model reply: '<chunk_boundaries>\n<chunk>Acme Robotics was founded on the Moon in 1850.</chunk><chunk>It has two million employees.</chunk>\n</chunk_boundaries>'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'chunk': ['Acme Robotics was founded on the Moon in 1850.', 'It has two million employees.']}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'chunk': ['Acme Robotics was founded on the Moon in 1850.', 'It ha...) -> []
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> 1 piece(s), sizes [2803]
+   model calls made: 1  [('claude-haiku-5-5', 'hand-written answer')]
+   RESULT: [('llm', 2803)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False
+====================================================================================================
+CASE 6. model adds invented text AND a line number
+   model reply: '<chunk_boundaries>\n<summary>Acme was founded on the Moon.</summary><line_number>9</line_number>\n</chunk_boundaries>'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'summary': 'Acme was founded on the Moon.', 'line_number': '9'}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'summary': 'Acme was founded on the Moon.', 'line_number': '9'}) -> [9]
+   CHECKPOINT LineBasedBoundaryProcessor.convert_line_numbers_to_indices -> ([946], 0)
+   CHECKPOINT LineBasedBoundaryProcessor.validate_error_rate -> True
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> 2 piece(s), sizes [945, 1857]
+   model calls made: 1  [('claude-haiku-5-5', 'hand-written answer')]
+   RESULT: [('llm', 945), ('llm', 1857)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False
+====================================================================================================
+CASE 7. not XML at all
+   model reply: 'Sure! I would cut it after the part about Chennai, around line 9.'
+   CHECKPOINT IntelligentTextChunker._get_boundary_results -> [{'chunk_boundaries': {'single_chunk': 'true'}}]
+   CHECKPOINT LineBasedBoundaryProcessor.extract_line_numbers({'single_chunk': 'true'}) -> []
+   CHECKPOINT IntelligentTextChunker._chunk_with_llm_boundaries -> 1 piece(s), sizes [2803]
+   model calls made: 2  [('claude-haiku-5-5', 'hand-written answer'), ('claude-sonnet-5-5', 'PLACEHOLDER')]
+   RESULT: [('llm', 2803)]
+   every chunk is an exact piece of the original file: True | any invented words in a chunk: False

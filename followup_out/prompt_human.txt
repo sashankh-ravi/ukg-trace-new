@@ -1,0 +1,80 @@
+Analyze the following document to determine optimal semantic chunk boundaries that
+maximize information retrieval effectiveness while preserving semantic integrity and contextual relationships.
+
+The document is split into numbered lines. Identify line numbers where new chunks should begin.
+
+EXAMPLE:
+INPUT DOCUMENT:
+1: # Project Overview
+2: This project involves comprehensive system analysis.
+3:
+4: ## 1. System Requirements
+5: The system must handle multiple data sources and provide real-time processing.
+6:
+7: ### 1.1 Performance Requirements
+8: Response time should not exceed 100ms for standard queries.
+9:
+10: ## 2. Technical Specifications
+11: The architecture follows microservices patterns with containerized deployment.
+
+TARGET: 100-300 characters
+
+OUTPUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<chunk_boundaries>
+    <line_number>4</line_number>
+    <line_number>7</line_number>
+    <line_number>10</line_number>
+</chunk_boundaries>
+
+---
+
+DOCUMENT TO ANALYZE:
+1: Acme Robotics annual review, prepared for the board by the operations team.
+2: The Chennai installation at Orbit Logistics ran for the full year with sixty Picker X2 robots on the warehouse floor.
+3: Average uptime across the fleet was ninety-six percent, slightly below the ninety-eight percent promised in the service agreement.
+4: Most of the downtime came from worn drive wheels, which had to be replaced on forty of the sixty robots during the summer.
+5: The service office in Chennai added two technicians in June so that a failed robot could be repaired within one working day.
+6: Orbit Logistics reported that the time a picker spends walking fell by roughly half compared with the year before the robots arrived.
+7: A software fault in Fleet Console caused a four-hour stoppage in August, and a patch was released the following week.
+8: Orbit Logistics has asked for a written plan to bring uptime back above the agreed level before the contract is renewed.
+9: The engineering team spent most of the year designing the Picker X3, the planned successor to the Picker X2.
+10: The X3 is intended to lift sixty kilograms, which is twenty kilograms more than the X2 can carry today.
+11: Priya Nair, who leads hardware engineering, chose a new motor supplier in Coimbatore after the old supplier missed two deliveries.
+12: The first X3 prototype completed a week of continuous testing in the Hinjewadi workshop in October without a mechanical failure.
+13: Battery life on the prototype is about six hours, shorter than the eight hours of the X2, because the larger motors draw more power.
+14: The team is evaluating a bigger battery pack, but it would add weight and raise the price of each robot by about eight percent.
+15: Fleet Console will need an update so that a warehouse can run X2 and X3 robots side by side in one fleet.
+16: Meera Shah has set a target of shipping the first X3 units to a paying customer in the second half of next year.
+17: Acme Robotics hired thirty-one people during the year, bringing the total to about one hundred and twenty employees.
+18: Most of the new hires were service technicians and software engineers, with a smaller number joining the sales team.
+19: The company opened a sales office in Singapore in September, its first location outside India.
+20: Arjun Rao moved from Pune to lead the Singapore office and has started talks with two logistics operators there.
+21: Banyan Capital has indicated that it would take part in a second funding round to pay for the Southeast Asia expansion.
+22: Ravi Menon, the Banyan Capital partner on the board, asked for a detailed hiring plan before the round is opened.
+23: The board discussed whether to build a small assembly line in Singapore or to keep shipping finished robots from Pune.
+24: No decision was taken, and the operations team will present costs for both options at the next board meeting.
+
+CHUNKING PARAMETERS:
+- Target chunk size: 1000 to 8000 characters
+
+ANALYSIS PROCESS:
+1. Identify structural elements (headers, sections, lists) by line numbers
+2. Locate semantic transition points between different topics
+3. Calculate cumulative character count to ensure appropriate chunk sizes
+4. Select line numbers that preserve semantic coherence
+5. Output line numbers where new chunks should begin
+
+OUTPUT REQUIREMENTS:
+1. **XML FORMAT ONLY**: Start with `<?xml` and end with `</chunk_boundaries>`
+2. **LINE NUMBERS ONLY**: Each `<line_number>` contains only an integer
+3. **NO LINE 1**: Never include line 1 as a boundary
+4. **SINGLE CHUNK**: If text should remain as one chunk, output:
+   `<chunk_boundaries><single_chunk>true</single_chunk></chunk_boundaries>`
+5. **ASCENDING ORDER**: Line numbers in ascending order
+6. **VALID LINES**: Only reference existing line numbers
+
+Provide ONLY the XML output with no additional text or explanations.
+
+<?xml version="1.0" encoding="UTF-8"?>
+<chunk_boundaries>

@@ -1,0 +1,123 @@
+{
+  "pipeline_id": "stage3-min900",
+  "config": {
+    "stages_enabled": {
+      "document_parsing": true,
+      "document_loading": true,
+      "text_chunking": true,
+      "translation": false,
+      "graph_extraction": false,
+      "gleaning": false,
+      "graph_resolution": false,
+      "claim_extraction": false,
+      "claim_resolution": false,
+      "graph_analysis": false,
+      "community_detection": false,
+      "indexing": false
+    },
+    "cache_enabled": false,
+    "local_directory": "cache",
+    "s3_sync_enabled": false,
+    "s3_prefix": "pipeline-runs",
+    "continue_on_error": false,
+    "force_rebuild": true
+  },
+  "status": "completed",
+  "start_time": "2026-10-09T15:21:31.093296",
+  "end_time": "2026-10-09T15:21:31.124900",
+  "duration_seconds": 0.031208276748657227,
+  "source_directory": "/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/demo/docs",
+  "stage_results": [
+    {
+      "stage_name": "document_parsing",
+      "status": "completed",
+      "start_time": "2026-10-09T15:21:31.096259",
+      "end_time": "2026-10-09T15:21:31.099979",
+      "duration_seconds": 0.00372,
+      "input_count": 7,
+      "output_count": 7,
+      "metrics": {
+        "input_files": 7,
+        "parsed_files": [
+          "01_acme.txt",
+          "02_meera.txt",
+          "03_orbit.txt",
+          "04_product.txt",
+          "05_investor.txt",
+          "06_profile.txt",
+          "07_review.txt"
+        ],
+        "failed_files": [],
+        "success_rate": 100.0
+      }
+    },
+    {
+      "stage_name": "document_loading",
+      "status": "completed",
+      "start_time": "2026-10-09T15:21:31.103240",
+      "end_time": "2026-10-09T15:21:31.103285",
+      "duration_seconds": 0.000045,
+      "input_count": 7,
+      "output_count": 7,
+      "metrics": {
+        "file_count": 7,
+        "success_count": 7,
+        "delta_skipped": 0,
+        "failed_files": []
+      }
+    },
+    {
+      "stage_name": "text_chunking",
+      "status": "completed",
+      "start_time": "2026-10-09T15:21:31.105132",
+      "end_time": "2026-10-09T15:21:31.122828",
+      "duration_seconds": 0.017696,
+      "input_count": 7,
+      "output_count": 10,
+      "metrics": {
+        "chunker_type": "intelligent",
+        "documents_processed": 7,
+        "total_chunks": 10,
+        "avg_chunks_per_doc": 1.4285714285714286
+      }
+    }
+  ],
+  "global_metrics": {
+    "pipeline_id": "stage3-min900",
+    "total_duration_seconds": 0.031208276748657227,
+    "total_documents_processed": 7,
+    "total_text_units_created": 10,
+    "total_translated_units": 0,
+    "total_entities_extracted": 0,
+    "total_relationships_extracted": 0,
+    "total_claims_extracted": 0,
+    "total_communities_detected": 0,
+    "total_community_reports_generated": 0,
+    "total_items_indexed": 0,
+    "total_items_index_failed": 0,
+    "relationships_indexed": 0,
+    "total_extraction_failures": 0,
+    "total_gleaning_failures": 0,
+    "total_claim_extraction_failures": 0,
+    "gleaning_improvement_rate": 0.0,
+    "entity_resolution_merge_rate": 0.0,
+    "relationship_resolution_merge_rate": 0.0,
+    "claim_resolution_merge_rate": 0.0,
+    "community_modularity_score": 0.0,
+    "stage_durations": {
+      "document_parsing": 0.00372,
+      "document_loading": 0.000045,
+      "text_chunking": 0.017696
+    },
+    "stage_throughput": {
+      "document_parsing": 1881.7204301075267,
+      "document_loading": 155555.55555555553,
+      "text_chunking": 565.0994575045208
+    },
+    "cache_hit_rate": 0.0,
+    "cache_size_mb": 0.0
+  },
+  "incremental_fingerprints": {},
+  "failed_source_files": [],
+  "failed_text_unit_ids": {}
+}

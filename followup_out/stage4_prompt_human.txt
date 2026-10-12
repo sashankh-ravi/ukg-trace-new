@@ -1,0 +1,38 @@
+Translate the following text to LanguageCode.ES while preserving all original content
+and applying conservative formatting improvements:
+
+Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.
+Acme has 120 employees.
+
+Target Language: LanguageCode.ES
+
+TRANSLATION INSTRUCTIONS:
+1. Translate to LanguageCode.ES with complete accuracy (process even if source language matches target)
+2. Preserve ALL original content without additions, deletions, or meaning changes
+3. Apply conservative markdown formatting where it improves readability
+4. Convert clear HTML tags and document structures to appropriate markdown
+5. Complete the entire text processing task - OUTPUT THE FULL DOCUMENT FROM START TO FINISH
+
+FORMATTING GUIDELINES:
+- Use markdown for headers, emphasis, lists, and tables where clearly applicable
+- Convert HTML tags to markdown equivalents when the mapping is obvious
+- Maintain document structure and hierarchy
+- Apply minimal formatting that enhances readability without changing content
+
+MANDATORY REQUIREMENT:
+You MUST output the COMPLETE translated document from the very beginning to the very end. Do not stop, truncate, or
+provide partial output. Process the entire input text without interruption.
+
+STRICTLY FORBIDDEN ACTIONS:
+- Adding explanatory text, commentary, or notes about the translation
+- Adding observations about language similarity or translation process
+- Removing or summarizing content
+- Enhancing beyond direct translation and conservative formatting
+- Modifying document meaning or structure
+- Stopping before the complete document is processed
+- Adding continuation messages or asking if more is needed
+- Adding ANY notes or explanations, even when translating between the same language
+
+OUTPUT REQUIREMENT:
+Provide ONLY the translated and formatted text - THE COMPLETE DOCUMENT IN ITS ENTIRETY. No additional notes,
+explanations, or commentary of any kind.

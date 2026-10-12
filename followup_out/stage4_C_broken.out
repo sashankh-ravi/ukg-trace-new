@@ -1,0 +1,29 @@
+translation settings: enabled=True | source=en | target=es | additional=None | is_noop=False
+stages built: ['document_parsing', 'document_loading', 'text_chunking', 'translation']
+models asked for while BUILDING the pipeline: ['anthropic.claude-sonnet-5-5', 'anthropic.claude-haiku-5-5']
+CHECKPOINT -> TranslationStage._execute_core
+CHECKPOINT -> TranslationStage._should_skip
+           returned: None
+CHECKPOINT -> TextUnitTranslator.__init__
+           returned: 'translator built'
+CHECKPOINT -> TextUnitTranslator.translate_text_units
+           returned: '5 units; same list object that went in: True'
+           returned: (5, 5, {'target_language': 'es', 'units_processed': 5, 'units_translated': 0, 'translation_stats': {'num_to...
+
+models asked for DURING the run: ['anthropic.claude-haiku-5-5']
+model calls made: 0 []
+stage result: status = completed | in = 5 | out = 5
+stage metrics: {'target_language': 'es', 'units_processed': 5, 'units_translated': 0}
+translation_stats: {'num_total_units': 5, 'num_successful_translations': 0, 'num_failed_translations': 5, 'num_translated': 0, 'total_processing_time': 0.01}
+context.text_units: 5 | context.translated_units: 5 | same objects: True
+  01_acme.txt      text: 'Acme Robotics is a company based in Pune. It was founded b...
+                   translated_texts: None
+  02_meera.txt     text: 'Meera Shah studied engineering at IIT Bombay. Before Acme ...
+                   translated_texts: None
+  03_orbit.txt     text: 'Orbit Logistics runs warehouses in Mumbai and Chennai. In ...
+                   translated_texts: None
+  04_product.txt   text: 'The Acme Picker X2 is a warehouse robot that lifts up to 4...
+                   translated_texts: None
+  05_investor.txt  text: 'Banyan Capital invested in Acme Robotics in 2019. Ravi Men...
+                   translated_texts: None
+cache files: ['stage4-es-broken/cache_index.json', 'stage4-es-broken/document_loading/documents-0842cedc0821.json', 'stage4-es-broken/document_parsing/documents-54cf4641e850.json', 'stage4-es-broken/pipeline_metadata.json', 'stage4-es-broken/text_chunking/text_units-9fcbd193c678.json', 'stage4-es-broken/translation/translated_units-bcd305bae257.json']

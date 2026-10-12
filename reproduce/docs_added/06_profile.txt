@@ -1,0 +1,37 @@
+# Acme Robotics: Company Profile
+
+Acme Robotics is a warehouse automation company headquartered in Pune, India. It designs and builds mobile robots that move goods inside warehouses. The company sells mainly to logistics operators and large retailers.
+
+## History
+
+Acme Robotics was founded in 2015 by Meera Shah, a hardware engineer who had studied at IIT Bombay.
+Before starting Acme, Shah worked at Orbit Logistics as a hardware lead, where she saw how much time warehouse staff spent walking between shelves.
+The first prototype was built in a rented garage in Pune during 2016.
+In 2017 the company moved to a larger workshop in Hinjewadi and hired its first ten engineers.
+By 2019 Acme had shipped robots to four customers and opened a small service office in Chennai.
+In 2022 the company signed its largest supply contract so far, with Orbit Logistics.
+
+## Products
+
+The main product is the Acme Picker X2, a wheeled robot that lifts loads of up to 40 kg and carries them to a packing station.
+The Picker X2 replaced the original Picker X1, which could lift only 15 kg and needed floor markers to navigate.
+The X2 navigates with cameras and a laser scanner, so it does not need floor markers.
+Acme also sells Fleet Console, a software dashboard that lets a warehouse manager see where every robot is and assign tasks.
+A typical installation uses between 20 and 60 robots together with one Fleet Console licence.
+Battery life is about eight hours, and a robot returns to its charging dock on its own when the battery is low.
+
+## Customers
+
+Orbit Logistics is the largest customer and uses the Picker X2 in its Chennai warehouse.
+Orbit Logistics also runs warehouses in Mumbai, where a second installation is planned.
+Other customers include a grocery chain in Bengaluru and two electronics distributors in Hyderabad.
+Customers usually sign a three-year service agreement that covers repairs and software updates.
+Most new customers come through referrals from existing ones.
+
+## Funding and Board
+
+Banyan Capital invested in Acme Robotics in 2019, in the company's first outside funding round.
+Ravi Menon, a partner at Banyan Capital, joined the Acme board after that investment.
+The board also includes Meera Shah and one independent director.
+Acme has said it plans to raise a second round to expand into Southeast Asia.
+The company employs about 120 people, most of them engineers and service technicians.

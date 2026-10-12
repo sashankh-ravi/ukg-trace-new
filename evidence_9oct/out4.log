@@ -1,0 +1,146 @@
+╭───────────────────────────────────────────────────────────────────────────╮
+│                                                                           │
+│                                                                           │
+│    ██████╗ ██████╗  █████╗ ██████╗ ██╗  ██╗     ██████╗  █████╗  ██████╗  │
+│   ██╔════╝ ██╔══██╗██╔══██╗██╔══██╗██║  ██║     ██╔══██╗██╔══██╗██╔════╝  │
+│   ██║  ███╗██████╔╝███████║██████╔╝███████║     ██████╔╝███████║██║  ███╗ │
+│   ██║   ██║██╔══██╗██╔══██║██╔══██╗██╔══██║     ██╔══██╗██╔══██║██║   ██║ │
+│   ╚██████╔╝██║  ██║██║  ██║██║  ██║██║  ██║     ██║  ██║██║  ██║╚██████╔╝ │
+│    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  │
+│                                                                           │
+│                                                                           │
+│ Built by AWS Professional Services | Version 0.2.3                        │
+│                                                                           │
+╰───────────────────────────────────────────────────────────────────────────╯
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Graph RAG Document Processing Pipeline                                       │
+│ Source Directory:                                                            │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ demo/docs'                                                                   │
+│ Timestamp: '2026-10-09 14:07:00'                                             │
+│ Cache Directory:                                                             │
+│ '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/ │
+│ demo/cache'                                                                  │
+│ Force Rebuild: False                                                         │
+│ S3 Sync: False                                                               │
+│ Continue on Error: False                                                     │
+│ Pipeline ID: 'force-test'                                                    │
+│ Resume Mode: 'Auto-detect Failed/Incomplete Stage'                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Initializing pipeline...
+{"event": "Initialized Cache Manager at 'cache' with strategy='content_hash', TTL=86400s, chunk_size=1000, max_file_size=50MB, chunking_enabled=True", "logger": "unified_kg_rag.shared.cache_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.931305Z"}
+{"event": "Disabled stages: ['text_chunking', 'translation', 'graph_extraction', 'gleaning', 'graph_resolution', 'claim_extraction', 'claim_resolution', 'graph_analysis', 'community_detection', 'indexing']", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.943880Z"}
+{"event": "Successfully initialized pipeline with 2 stages: 'document_parsing, document_loading'", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.944125Z"}
+{"event": "Validating pipeline integrity for 'force-test'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.944274Z"}
+{"event": "Missing cache for completed stage 'document_parsing', key: 'documents-1035b7a62512'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T14:07:00.945014Z"}
+{"event": "Missing cache for completed stage 'document_loading', key: 'documents-ac616352a4e7'", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T14:07:00.945233Z"}
+{"event": "Pipeline integrity validation failed for 'force-test' with 2 errors", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.945320Z"}
+
+Pipeline integrity check failed for 'force-test':
+  • Missing cache for completed stage 'document_parsing', key: 
+'documents-1035b7a62512'
+  • Missing cache for completed stage 'document_loading', key: 
+'documents-ac616352a4e7'
+Continue despite integrity issues? [y/n]: 
+Starting pipeline execution...
+{"event": "Starting pipeline run - source: '/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/demo/docs', pipeline_id: 'force-test', resume_from: 'auto-detect'", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.947636Z"}
+{"event": "Resolved pipeline ID: 'force-test'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.947829Z"}
+{"event": "Corpus manifest fingerprint: '11e583bd8e55'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.948585Z"}
+{"event": "Resuming existing pipeline 'force-test' from stage: 'auto-detect'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.948710Z"}
+{"event": "Preparing pipeline resume for 'force-test' from stage: 'auto-detect'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.948829Z"}
+{"event": "Determining resume strategy for pipeline 'force-test'", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.948896Z"}
+{"event": "Stage 'document_parsing' is recorded completed, but the cache holds no 'documents' for it under the current inputs (key 'documents-54cf4641e850'): the inputs changed since it ran, or the cache is incomplete", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T14:07:00.949183Z"}
+{"event": "Rewinding resume point from 'document_loading' to 'document_parsing': it and every stage downstream of it will be recomputed", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "warning", "timestamp": "2026-10-09T14:07:00.949267Z"}
+{"event": "Resume strategy determined - Start from: 'document_parsing', Load 0 completed stages", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.949332Z"}
+{"event": "Restoring pipeline context for 'force-test' with 0 completed stages", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.949396Z"}
+{"event": "Created context from metadata for pipeline 'force-test' (status: PipelineStageStatus.COMPLETED -> running)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.949641Z"}
+{"event": "Context restoration completed for 'force-test': 0/0 stages loaded", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.949730Z"}
+{"event": "Context prepared for resume from 'document_parsing' - keeping 0 previous stage results", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.950182Z"}
+{"event": "Pipeline resume prepared successfully - will start from stage: 'document_parsing'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.950282Z"}
+{"event": "Executing 2 stages: 'document_parsing, document_loading'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.950399Z"}
+{"event": "Executing stage: 'document_parsing'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.950478Z"}
+{"event": "Pipeline metadata saved for 'force-test' (status: running)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.953281Z"}
+{"event": "Starting stage: 'document_parsing'", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.953417Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.953490Z"}
+{"event": "DOCUMENT PARSING STAGE - STARTED", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.953552Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.953610Z"}
+{"event": "Found 5 files to parse", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.954265Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.955482Z"}
+{"event": "DOCUMENT PARSING STAGE - COMPLETED (5/5 files parsed)", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.955596Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.955669Z"}
+{"event": "Stage 'document_parsing' completed successfully in 0.00 seconds. Inputs: 5, Outputs: 5", "pipeline_id": "force-test", "stage": "document_parsing", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.955774Z"}
+{"event": "Pipeline status updated: 'running' -> 'completed'", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.956030Z"}
+{"event": "Pipeline metadata saved for 'force-test' (status: completed)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.957280Z"}
+{"event": "Saving 5 documents to cache", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.957391Z"}
+{"event": "Cached single file for key 'documents-54cf4641e850' (size: 5620 bytes)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.cache_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.958436Z"}
+{"event": "Successfully cached documents", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.958572Z"}
+{"event": "Stage 'document_parsing' outputs cached: 5 documents", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.958643Z"}
+{"event": "Executing stage: 'document_loading'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.958727Z"}
+{"event": "Pipeline status updated: 'completed' -> 'running'", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.959022Z"}
+{"event": "Pipeline metadata saved for 'force-test' (status: running)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.960086Z"}
+{"event": "Starting stage: 'document_loading'", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.960425Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.960562Z"}
+{"event": "DOCUMENT LOADING STAGE - STARTED", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.960663Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.960726Z"}
+{"event": "Using 5 documents from the 'document_parsing' stage", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.960875Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.960952Z"}
+{"event": "DOCUMENT LOADING STAGE - COMPLETED (5 documents loaded)", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.961021Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.961094Z"}
+{"event": "Stage 'document_loading' completed successfully in 0.00 seconds. Inputs: 5, Outputs: 5", "pipeline_id": "force-test", "stage": "document_loading", "logger": "unified_kg_rag.application.ingestion.pipeline_stages", "level": "info", "timestamp": "2026-10-09T14:07:00.961165Z"}
+{"event": "Pipeline status updated: 'running' -> 'completed'", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.961409Z"}
+{"event": "Pipeline metadata saved for 'force-test' (status: completed)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.962570Z"}
+{"event": "Saving 5 documents to cache", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.962690Z"}
+{"event": "Cached single file for key 'documents-0842cedc0821' (size: 5620 bytes)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.cache_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.963768Z"}
+{"event": "Successfully cached documents", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.963898Z"}
+{"event": "Stage 'document_loading' outputs cached: 5 documents", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.963969Z"}
+{"event": "Finalizing pipeline execution - ID: 'force-test'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.964048Z"}
+{"event": "Pipeline completed successfully with all stages passed", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.964344Z"}
+{"event": "Pipeline metadata saved for 'force-test' (status: completed)", "pipeline_id": "force-test", "logger": "unified_kg_rag.shared.pipeline_manager", "level": "info", "timestamp": "2026-10-09T14:07:00.965507Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.965640Z"}
+{"event": "PIPELINE SUMMARY", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.965711Z"}
+{"event": "============================================================", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.965848Z"}
+{"event": "Pipeline ID: force-test\nStatus: completed\nDuration: 0.01s\nStages: 2 completed, 0 failed, 0 running\nData processed: 5 documents -> 0 entities, 0 relationships, 0 claims -> 0 communities", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.965914Z"}
+{"event": "Pipeline execution completed successfully - ID: 'force-test', Status: 'PipelineStageStatus.COMPLETED'", "pipeline_id": "force-test", "logger": "unified_kg_rag.application.ingestion.pipeline", "level": "info", "timestamp": "2026-10-09T14:07:00.965977Z"}
+
+================================================================================
+╭──────────────────────────╮
+│ Pipeline Results Summary │
+╰──────────────────────────╯
+                           Processing Summary                            
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric              ┃ Count ┃ Details                                 ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Documents Processed │     5 │ Source documents loaded into the system │
+│ Text Units Created  │     0 │ Text segments created through chunking  │
+└─────────────────────┴───────┴─────────────────────────────────────────┘
+
+================================================================================
+╭──────────────────────────────────╮
+│ Pipeline Stage Execution Details │
+╰──────────────────────────────────╯
+                              Stage Execution Summary                           
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━
+┃ Stage                ┃     Status      ┃     Duration ┃      Input ┃     Outpu
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━
+│ Document Parsing     │   ✓ COMPLETED   │        0.00s │          5 │          
+│ Document Loading     │   ✓ COMPLETED   │        0.00s │          5 │          
+└──────────────────────┴─────────────────┴──────────────┴────────────┴──────────
+
+================================================================================
+╭─────────────────────╮
+│ Performance Summary │
+╰─────────────────────╯
+ Total Pipeline Duration         0.00 seconds 
+ Stages Executed                            2 
+ Stages from Cache                          0 
+ Cache Hit Rate                         0.00% 
+ Gleaning Improvement Rate              0.00% 
+ Entity Merge Rate                      0.00% 
+ Relationship Merge Rate                0.00% 
+ Claim Merge Rate                       0.00% 
+ Community Modularity                    0.00 
+ Avg. Throughput            5239.99 items/sec 
+╭────────────────────────────────────╮
+│ ✓ Pipeline completed successfully! │
+╰────────────────────────────────────╯

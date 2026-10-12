@@ -1,0 +1,21 @@
+settings (defaults): min_chunk_size=1000, max_chunk_size=8000, pre_chunk_size=50000
+document: 08_long.txt, 24160 characters, no headings
+
+REPLY: model says keep as one chunk
+   chunks: [('llm', 24159)]
+   largest chunk: 24159 characters | over max_chunk_size (8000): True
+   stats: llm_processing_failures=None, fallback_chunks_used=None
+   quality check: ['1 chunks exceed maximum size']
+
+REPLY: model writes words instead of numbers
+   chunks: [('llm', 24159)]
+   largest chunk: 24159 characters | over max_chunk_size (8000): True
+   stats: llm_processing_failures=None, fallback_chunks_used=None
+   quality check: ['1 chunks exceed maximum size']
+
+REPLY: model gives usable numbers (lines 49, 97, 145)
+   chunks: [('llm', 6039), ('llm', 6039), ('llm', 6039), ('llm', 6039)]
+   largest chunk: 6039 characters | over max_chunk_size (8000): False
+   stats: llm_processing_failures=None, fallback_chunks_used=None
+   quality check: []
+

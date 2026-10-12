@@ -1,0 +1,41 @@
+{
+  "pipeline_id": "pipeline-46b42b42-20261009_133810",
+  "created_at": "2026-10-09T13:38:10.852650",
+  "updated_at": "2026-10-09T13:38:10.855474",
+  "entries": {
+    "documents-2e1fc5080839": {
+      "key": "documents-2e1fc5080839",
+      "stage_name": "document_parsing",
+      "pipeline_id": "pipeline-46b42b42-20261009_133810",
+      "created_at": "2026-10-09T13:38:10.852604",
+      "expires_at": "2026-10-10T13:38:10.852606",
+      "local_path": "cache/pipeline-46b42b42-20261009_133810/document_parsing/documents-2e1fc5080839.json",
+      "file_size": 5545,
+      "content_hash": "897b6359d7c0c573",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_parsing",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    },
+    "documents-76101e2dcda9": {
+      "key": "documents-76101e2dcda9",
+      "stage_name": "document_loading",
+      "pipeline_id": "pipeline-46b42b42-20261009_133810",
+      "created_at": "2026-10-09T13:38:10.855387",
+      "expires_at": "2026-10-10T13:38:10.855389",
+      "local_path": "cache/pipeline-46b42b42-20261009_133810/document_loading/documents-76101e2dcda9.json",
+      "file_size": 5545,
+      "content_hash": "897b6359d7c0c573",
+      "record_count": 5,
+      "data_type": "list",
+      "metadata": {
+        "stage_type": "document_loading",
+        "context_attribute": "documents",
+        "is_chunked": false
+      }
+    }
+  }
+}
