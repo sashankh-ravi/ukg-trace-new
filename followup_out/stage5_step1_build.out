@@ -1,0 +1,32 @@
+settings read by the constructor:
+  config.processing.ignore_errors             = False
+  config.fixing.enabled                       = True
+  config.fixing.fixing_model_id               = anthropic.claude-sonnet-5-5
+  graph_extraction.extraction_model_id        = anthropic.claude-sonnet-5-5
+  GraphExtractionPrompt.min_output_tokens     = 32768
+  config.custom_prompts                       = graph_extraction_system=None graph_extraction_human=None claim_extraction_system=None claim_extraction_human=None description_summarization_system=None description_summarization_human=None graph_refinement_system=None graph_refinement_human=None community_report_system=None community_report_human=None answer_generation_system=None answer_generation_human=None context_building_system=None context_building_human=None entity_extraction_system=None entity_extraction_human=None keywords_extraction_system=None keywords_extraction_human=None corpus_profile_system=None corpus_profile_human=None drift_primer_system=None drift_primer_human=None keyword_expansion_system=None keyword_expansion_human=None query_refinement_system=None query_refinement_human=None strategy_selection_system=None strategy_selection_human=None global_map_system=None global_map_human=None
+
+>>> GraphExtractionStage(config, providers=providers)
+CHECKPOINT -> create_robust_xml_output_parser  called with {'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'enable_output_fixing': True, 'output_fixing_model_id': 'anthropic.claude-sonnet-5-5', 'factory': 'HandAnsweredFactory', 'min_output_tokens': 32768}
+CHECKPOINT -> factory.get_model  called with {'model_id': 'anthropic.claude-sonnet-5-5', 'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'min_output_tokens': 32768}
+           returned: HandAnsweredModel
+           returned: OutputFixingParser
+CHECKPOINT -> setup_chain  called with {'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'factory': 'HandAnsweredFactory', 'model_id': 'anthropic.claude-sonnet-5-5', 'prompt_class': 'GraphExtractionPrompt', 'parser': 'OutputFixingParser', 'custom_prompts': 'CustomPromptConfig'}
+CHECKPOINT -> factory.get_model  called with {'model_id': 'anthropic.claude-sonnet-5-5', 'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'min_output_tokens': 32768}
+           returned: HandAnsweredModel
+           returned: RunnableBinding
+
+after construction:
+  stage.name                 = graph_extraction
+  stage.extractor            = GraphExtractor
+  extractor.ignore_errors    = False
+  extractor.factory          = HandAnsweredFactory (the stand-in; normally the Bedrock factory)
+  extractor.batch_processor  = BatchProcessor
+  extractor.stats            = num_total_units=0 num_successful_extractions=0 num_failed_extractions=0 failed_text_unit_ids=[] total_entities_extracted=0 total_relationships_extracted=0 total_processing_time=0.0 entities_filtered_by_confidence=0 relationships_filtered_by_confidence=0 average_entity_confidence=0.0 confidence_threshold_applied=0.0 entities_ungrounded=0 relationships_ungrounded=0 relationships_dropped_ungrounded_endpoint=0
+  extractor.graph_extractor  = RunnableBinding named 'GraphExtractionPrompt'
+     step 1: ChatPromptTemplate
+     step 2: HandAnsweredModel
+     step 3: OutputFixingParser
+  prompt messages            = ['SystemMessagePromptTemplate', 'HumanMessagePromptTemplate']
+  prompt variables to fill   = ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chunk']
+  models asked for           = [('anthropic.claude-sonnet-5-5', {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '32768'}), ('anthropic.claude-sonnet-5-5', {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '32768'})]
