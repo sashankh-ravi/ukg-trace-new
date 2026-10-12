@@ -4,6 +4,7 @@ Only the chunk from 05_investor.txt misbehaves; the other four get their normal 
   throttle-once    AWS-style ThrottlingException on the first call for that chunk, then a normal reply
   denied-always    AWS-style AccessDeniedException on every call for that chunk
   throttle-always  AWS-style ThrottlingException on every call for that chunk
+  (set IGNORE_ERRORS=on to switch processing.ignore_errors on)
   hang-once        the first call for that chunk sleeps 4 s; the group time limit is set to 2 s
 
 Changes made by THIS SCRIPT (not by the repo), so the runs finish quickly:
@@ -82,6 +83,9 @@ def exec_traced(self, ctx):
 PS.GraphExtractionStage._execute_core = exec_traced
 
 config = get_config()
+import os
+if os.environ.get("IGNORE_ERRORS") == "on": config.processing.ignore_errors = True
+print("config.processing.ignore_errors =", config.processing.ignore_errors)
 factory = TroubledFactory(config)
 providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
 on = (T.DOCUMENT_PARSING, T.DOCUMENT_LOADING, T.TEXT_CHUNKING, T.TRANSLATION, T.GRAPH_EXTRACTION)
