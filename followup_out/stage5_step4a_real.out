@@ -1,0 +1,76 @@
+reply: 1983 characters, two top-level sections <entities> and <relationships>
+
+
+  >>> ENTER RobustXMLOutputParser.parse   (shared/utils/langchain.py)
+              text = str of 1983 chars: '<entities>\n<entity>\n<name>Acme Robotics</name'...'relationship>\n</relationships>'
+    line 609          original_sections = self._detect_xml_sections(text)
+              original_sections = set of 2: ['entities', 'relationships']
+    line 611          try:
+    line 612              cleaned_text = self._clean_xml_for_lxml(text)
+              cleaned_text = bytes of 1983 chars: '<entities>\n<entity>\n<name>Acme Robotics</name'...'relationship>\n</relationships>'
+    line 613              result = self._try_lxml_recover_parse(cleaned_text)
+              result = dict {'entities': "{'entity': list of 5}"}
+    line 614              if self._sections_preserved(original_sections, result):
+
+  >>> ENTER RobustXMLOutputParser._sections_preserved   (shared/utils/langchain.py)
+              original_sections = set of 2: ['entities', 'relationships']
+              parsed_result = dict {'entities': "{'entity': list of 5}"}
+    line 675          if not original_sections:
+    line 679              set(parsed_result.keys()) if isinstance(parsed_result, dict) else set()
+    line 678          parsed_sections = (
+              parsed_sections = set of 1: ['entities']
+    line 681          missing_sections = original_sections - parsed_sections
+              missing_sections = set of 1: ['relationships']
+    line 683          if missing_sections:
+    line 684              return False
+  <<< RobustXMLOutputParser._sections_preserved RETURNS False
+
+    line 616              raise ValueError("Missing sections in lxml result")
+    line 617          except Exception as e:
+              e = ValueError
+    line 618              logger.debug(
+    line 619                  "LXML recovery parsing failed: %s: %s. Trying XML fallback...",
+    line 620                  type(e).__name__,
+    line 621                  e,
+    line 618              logger.debug(
+    line 624          try:
+    line 625              fallback_result = self._extract_xml_fallback(text)
+
+  >>> ENTER RobustXMLOutputParser._extract_xml_fallback   (shared/utils/langchain.py)
+              text = str of 1983 chars: '<entities>\n<entity>\n<name>Acme Robotics</name'...'relationship>\n</relationships>'
+    line 689          result = {}
+              result = dict {}
+    line 691          try:
+    line 692              section_pattern = r"<([a-zA-Z0-9_]+)>(.*?)</\1>"
+              section_pattern = '<([a-zA-Z0-9_]+)>(.*?)</\\1>'
+    line 693              section_matches = re.findall(section_pattern, text, re.DOTALL)
+              section_matches = list of 2 (tag, content) pairs, tags ['entities', 'relationships']
+    line 695              for section_name, section_content in section_matches:
+              section_name = 'entities'
+              section_content = str of 1137 chars: '\n<entity>\n<name>Acme Robotics</name>\n<type>OR'...'bots.</source_text>\n</entity>\n'
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+    line 697                      section_content
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+              section_result = dict {'entity': 'list of 5'}
+    line 702                  result[section_name] = {} if section_result is None else section_result
+              result = dict {'entities': "{'entity': list of 5}"}
+    line 695              for section_name, section_content in section_matches:
+              section_name = 'relationships'
+              section_content = str of 792 chars: '\n<relationship>\n<source>Acme Robotics</source'...'/source_text>\n</relationship>\n'
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+    line 697                      section_content
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+              section_result = dict {'relationship': 'list of 3'}
+    line 702                  result[section_name] = {} if section_result is None else section_result
+              result = dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+    line 695              for section_name, section_content in section_matches:
+    line 704              return result if result else None
+  <<< RobustXMLOutputParser._extract_xml_fallback RETURNS dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+
+              fallback_result = dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+    line 626              if fallback_result:
+    line 627                  return fallback_result
+  <<< RobustXMLOutputParser.parse RETURNS dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+
+
+RESULT: top-level keys ['entities', 'relationships'] | entities: 5 | relationships: 3
