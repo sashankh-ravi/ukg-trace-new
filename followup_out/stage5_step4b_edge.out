@@ -1,0 +1,10 @@
+allowed types in the prompt: ['PERSON', 'ORGANIZATION', 'LOCATION', 'CONCEPT', 'OBJECT', 'EVENT', 'TEMPORAL']
+  input {"type": "COMPANY"}    -> type='COMPANY'        confidence=1.0
+  input {"confidence": "10"}   -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "9"}    -> type='ORGANIZATION'   confidence=0.9
+  input {"confidence": "1"}    -> type='ORGANIZATION'   confidence=0.1
+  input {"confidence": "1.0"}  -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "0.3"}  -> type='ORGANIZATION'   confidence=0.3
+  input {"confidence": "85"}   -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "high"} -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": null}   -> type='ORGANIZATION'   confidence=1.0

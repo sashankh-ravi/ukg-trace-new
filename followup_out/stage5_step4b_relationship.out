@@ -1,0 +1,252 @@
+input: {
+ "source": "Acme Robotics",
+ "target": "Pune",
+ "type": "LOCATED_IN",
+ "description": "Acme Robotics is based in Pune.",
+ "strength": "9",
+ "source_text": "Acme Robotics is a company based in Pune."
+}
+entity_name_to_id (built from this chunk's 5 entities): {'acme robotics': '029c17c5..', 'pune': 'ccf6b40c..', 'meera shah': 'c2b63f75..', '2015': '84910ee8..', 'warehouse robots': 'aede349c..'} 
+
+
+  >>> ENTER BaseProcessor.parse_relationship_data   (domain/ingestion/base_processor.py)
+              rel_data = {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme Robotics is based in Pune.", "strength": "9", "source_text": "Acme Robotics is a company based in Pune."}
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+              entity_name_to_id = dict with keys ['acme robotics', 'pune', 'meera shah', '2015', 'warehouse robots']
+    line 142          raw_source_name, raw_target_name = "", ""
+              raw_source_name = ''
+              raw_target_name = ''
+    line 143          try:
+    line 144              raw_source_name = coerce_llm_text(rel_data.get("source"))
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'Acme Robotics'
+              join = False
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'Acme Robotics'
+
+              raw_source_name = 'Acme Robotics'
+    line 145              raw_target_name = coerce_llm_text(rel_data.get("target"))
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'Pune'
+              join = False
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'Pune'
+
+              raw_target_name = 'Pune'
+    line 146              rel_type = coerce_llm_text(rel_data.get("type"))
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'LOCATED_IN'
+              join = False
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'LOCATED_IN'
+
+              rel_type = 'LOCATED_IN'
+    line 148              source_name = clean_display_name(raw_source_name)
+
+  >>> ENTER clean_display_name   (shared/utils/common.py)
+              name = 'Acme Robotics'
+    line 163      if not name:
+    line 165      return " ".join(name.split())
+  <<< clean_display_name RETURNS 'Acme Robotics'
+
+              source_name = 'Acme Robotics'
+    line 149              target_name = clean_display_name(raw_target_name)
+
+  >>> ENTER clean_display_name   (shared/utils/common.py)
+              name = 'Pune'
+    line 163      if not name:
+    line 165      return " ".join(name.split())
+  <<< clean_display_name RETURNS 'Pune'
+
+              target_name = 'Pune'
+    line 151              if not all((source_name, target_name, rel_type)):
+    line 160              source_key = entity_key(source_name)
+
+  >>> ENTER entity_key   (shared/utils/common.py)
+              name = 'Acme Robotics'
+    line 182      if not name:
+    line 184      folded = unicodedata.normalize("NFKC", name).casefold()
+              folded = 'acme robotics'
+    line 185      key = folded.replace("_", " ").replace("-", " ")
+              key = 'acme robotics'
+    line 186      key = _RE_KEY_DROP_CHARS.sub("", key)
+    line 187      key = " ".join(key.split())
+              key = 'acme robotics'
+    line 188      key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    line 189      return key or folded.strip()
+  <<< entity_key RETURNS 'acme robotics'
+
+              source_key = 'acme robotics'
+    line 161              target_key = entity_key(target_name)
+
+  >>> ENTER entity_key   (shared/utils/common.py)
+              name = 'Pune'
+    line 182      if not name:
+    line 184      folded = unicodedata.normalize("NFKC", name).casefold()
+              folded = 'pune'
+    line 185      key = folded.replace("_", " ").replace("-", " ")
+              key = 'pune'
+    line 186      key = _RE_KEY_DROP_CHARS.sub("", key)
+    line 187      key = " ".join(key.split())
+    line 188      key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    line 189      return key or folded.strip()
+  <<< entity_key RETURNS 'pune'
+
+              target_key = 'pune'
+    line 171              source_id = entity_name_to_id.get(source_key) or self._generate_entity_id(
+              source_id = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+    line 174              target_id = entity_name_to_id.get(target_key) or self._generate_entity_id(
+              target_id = 'ccf6b40c-b366-5c4a-8775-9cbd0808cde5'
+    line 178              rel_id = self._generate_relationship_id(source_key, target_key, rel_type)
+
+  >>> ENTER BaseProcessor._generate_relationship_id   (domain/ingestion/base_processor.py)
+              source_name = 'acme robotics'
+              target_name = 'pune'
+              rel_type = 'LOCATED_IN'
+    line 237              f"relationship:{entity_key(source_name)}:{entity_key(target_name)}:"
+
+  >>> ENTER entity_key   (shared/utils/common.py)
+              name = 'acme robotics'
+    line 182      if not name:
+    line 184      folded = unicodedata.normalize("NFKC", name).casefold()
+              folded = 'acme robotics'
+    line 185      key = folded.replace("_", " ").replace("-", " ")
+              key = 'acme robotics'
+    line 186      key = _RE_KEY_DROP_CHARS.sub("", key)
+    line 187      key = " ".join(key.split())
+              key = 'acme robotics'
+    line 188      key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    line 189      return key or folded.strip()
+  <<< entity_key RETURNS 'acme robotics'
+
+
+  >>> ENTER entity_key   (shared/utils/common.py)
+              name = 'pune'
+    line 182      if not name:
+    line 184      folded = unicodedata.normalize("NFKC", name).casefold()
+              folded = 'pune'
+    line 185      key = folded.replace("_", " ").replace("-", " ")
+              key = 'pune'
+    line 186      key = _RE_KEY_DROP_CHARS.sub("", key)
+    line 187      key = " ".join(key.split())
+    line 188      key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    line 189      return key or folded.strip()
+  <<< entity_key RETURNS 'pune'
+
+    line 238              f"{rel_type}".lower()
+    line 237              f"relationship:{entity_key(source_name)}:{entity_key(target_name)}:"
+    line 238              f"{rel_type}".lower()
+    line 236          rel_id_content = (
+              rel_id_content = 'relationship:acme robotics:pune:located_in'
+    line 240          return generate_stable_id(rel_id_content)
+
+  >>> ENTER generate_stable_id   (shared/utils/common.py)
+              content = 'relationship:acme robotics:pune:located_in'
+              namespace_key = 'unified-kg-rag-on-aws'
+    line 116      namespace = uuid.uuid5(uuid.NAMESPACE_DNS, namespace_key)
+              namespace = UUID
+    line 117      return str(uuid.uuid5(namespace, content))
+  <<< generate_stable_id RETURNS 'be2347b0-191f-5cc2-b756-13a696fe2450'
+
+  <<< BaseProcessor._generate_relationship_id RETURNS 'be2347b0-191f-5cc2-b756-13a696fe2450'
+
+              rel_id = 'be2347b0-191f-5cc2-b756-13a696fe2450'
+    line 179              attributes = self._parse_attributes(rel_data.get("attributes"), text_unit)
+
+  >>> ENTER BaseProcessor._parse_attributes   (domain/ingestion/base_processor.py)
+              attributes = None
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 120          parsed = {}
+              parsed = {}
+    line 121          if isinstance(attributes, list):
+    line 130          if text_unit and text_unit.attributes:
+    line 131              for key in ["index", "filters"]:
+              key = 'index'
+    line 132                  if key in text_unit.attributes:
+    line 131              for key in ["index", "filters"]:
+              key = 'filters'
+    line 132                  if key in text_unit.attributes:
+    line 131              for key in ["index", "filters"]:
+    line 134          return parsed
+  <<< BaseProcessor._parse_attributes RETURNS {}
+
+              attributes = {}
+    line 182              source_text = rel_data.get("source_text")
+              source_text = 'Acme Robotics is a company based in Pune.'
+    line 183              if isinstance(source_text, str) and source_text.strip():
+    line 184                  attributes["_source_text"] = source_text.strip()
+              attributes = {"_source_text": "Acme Robotics is a company based in Pune."}
+    line 185              weight = self._parse_weight(rel_data)
+
+  >>> ENTER BaseProcessor._parse_weight   (domain/ingestion/base_processor.py)
+              data = {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme Robotics is based in Pune.", "strength": "9", "source_text": "Acme Robotics is a company based in Pune."}
+              default = 1.0
+    line 244          value = data.get("strength", data.get("weight"))
+              value = '9'
+    line 245          if value is None:
+    line 247          try:
+    line 248              return float(value)
+  <<< BaseProcessor._parse_weight RETURNS 9.0
+
+              weight = 9.0
+    line 187              logger.debug(
+    line 188                  "Successfully parsed relationship: '%s' -> '%s' (type: '%s', id: '%s')",
+    line 189                  source_name,
+    line 190                  target_name,
+    line 191                  rel_type,
+    line 192                  rel_id[:8],
+    line 187              logger.debug(
+    line 194              return Relationship(
+    line 195                  id=rel_id,
+    line 196                  short_id=rel_id[:8],
+    line 197                  source_id=source_id,
+    line 198                  source_name=source_name,
+    line 199                  target_id=target_id,
+    line 200                  target_name=target_name,
+    line 201                  type=rel_type,
+    line 202                  weight=weight,
+    line 203                  description=coerce_llm_text(rel_data.get("description"), join=True),
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'Acme Robotics is based in Pune.'
+              join = True
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'Acme Robotics is based in Pune.'
+
+    line 204                  description_embedding=None,
+    line 205                  rank=rel_data.get("rank", 1),
+    line 206                  text_unit_ids=[text_unit.id],
+    line 207                  attributes=attributes,
+    line 208                  created_at=datetime.now(),
+    line 209                  updated_at=datetime.now(),
+    line 194              return Relationship(
+  <<< BaseProcessor.parse_relationship_data RETURNS Relationship('Acme Robotics' -LOCATED_IN-> 'Pune', weight=9.0, id=be2347b0..)
+
+============================================================
+RESULT: Relationship
+  id                    = 'be2347b0-191f-5cc2-b756-13a696fe2450'
+  short_id              = 'be2347b0'
+  attributes            = {'_source_text': 'Acme Robotics is a company based in Pune.'}
+  created_at            = '(time of the run)'
+  updated_at            = '(time of the run)'
+  source_id             = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+  source_name           = 'Acme Robotics'
+  target_id             = 'ccf6b40c-b366-5c4a-8775-9cbd0808cde5'
+  target_name           = 'Pune'
+  type                  = 'LOCATED_IN'
+  weight                = 9.0
+  description           = 'Acme Robotics is based in Pune.'
+  description_embedding = None
+  text_unit_ids         = ['7625b4ab-91a2-55fb-abb8-321474c04dd0']
+  rank                  = 1

@@ -1,0 +1,243 @@
+input: the parsed reply for 01_acme.txt; 5 entities, 3 relationships
+
+
+  >>> ENTER GraphExtractor._parse_extraction_result   (adapters/ingestion/graph_extractor.py)
+              result = dict with keys ['entities', 'relationships'] (the parsed reply)
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 344          entities: list[Entity] = []
+              entities = list of 0: []
+    line 345          relationships: list[Relationship] = []
+              relationships = list of 0: []
+    line 347          if not isinstance(result, dict):
+    line 351          raw_entities = result.get("entities")
+              raw_entities = {"entity": [{"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune that builds warehouse robots and has 120 employees.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Pune", "type": "LOCATION", "description": "The city where Acme Robotics is based.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Meera Shah", "type": "PERSON", "description": "The founder of Acme Robotics.", "confidence": "10", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "2015", "type": "TEMPORAL", "description": "The year Acme Robotics was founded.", "confidence": "9", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "warehouse robots", "type": "OBJECT", "description": "The products Acme Robotics builds.", "confidence": "8", "source_text": "Acme builds warehouse robots."}]}
+    line 352          raw_relationships = result.get("relationships", {})
+              raw_relationships = dict {'relationship': list of 3}
+    line 353          if not isinstance(raw_entities, dict | list) or not isinstance(
+    line 354              raw_relationships, dict | list
+    line 353          if not isinstance(raw_entities, dict | list) or not isinstance(
+    line 361          entities_data = ensure_list(raw_entities, inner_key="entity")
+
+  >>> ENTER ensure_list   (shared/utils/common.py)
+              data = {"entity": [{"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune that builds warehouse robots and has 120 employees.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Pune", "type": "LOCATION", "description": "The city where Acme Robotics is based.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Meera Shah", "type": "PERSON", "description": "The founder of Acme Robotics.", "confidence": "10", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "2015", "type": "TEMPORAL", "description": "The year Acme Robotics was founded.", "confidence": "9", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "warehouse robots", "type": "OBJECT", "description": "The products Acme Robotics builds.", "confidence": "8", "source_text": "Acme builds warehouse robots."}]}
+              inner_key = 'entity'
+    line 104      if isinstance(data, dict):
+    line 105          data = data.get(inner_key, []) if inner_key else data
+              data = list of 5 dicts, first: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune ...
+    line 107      if not isinstance(data, list):
+    line 110      return data
+  <<< ensure_list RETURNS list of 5 dicts, first: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune ...
+
+              entities_data = list of 5 dicts, first: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune ...
+    line 362          for entity_data in entities_data:
+              entity_data = dict with keys ['name', 'type', 'description', 'confidence', 'source_text']
+    line 363              if entity := self.parse_entity_data(entity_data, text_unit):
+              entity = Entity(name='Acme Robotics', type='ORGANIZATION', confidence=1.0, id=029c17c5..)
+    line 364                  entities.append(entity)
+              entities = list of 1: 'Acme Robotics'
+    line 362          for entity_data in entities_data:
+              entity_data = {"name": "Pune", "type": "LOCATION", "description": "The city where Acme Robotics is based.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}
+    line 363              if entity := self.parse_entity_data(entity_data, text_unit):
+              entity = Entity(name='Pune', type='LOCATION', confidence=1.0, id=ccf6b40c..)
+    line 364                  entities.append(entity)
+              entities = list of 2: 'Acme Robotics', 'Pune'
+    line 362          for entity_data in entities_data:
+              entity_data = {"name": "Meera Shah", "type": "PERSON", "description": "The founder of Acme Robotics.", "confidence": "10", "source_text": "It was founded by Meera Shah in 2015."}
+    line 363              if entity := self.parse_entity_data(entity_data, text_unit):
+              entity = Entity(name='Meera Shah', type='PERSON', confidence=1.0, id=c2b63f75..)
+    line 364                  entities.append(entity)
+              entities = list of 3: 'Acme Robotics', 'Pune', 'Meera Shah'
+    line 362          for entity_data in entities_data:
+              entity_data = {"name": "2015", "type": "TEMPORAL", "description": "The year Acme Robotics was founded.", "confidence": "9", "source_text": "It was founded by Meera Shah in 2015."}
+    line 363              if entity := self.parse_entity_data(entity_data, text_unit):
+              entity = Entity(name='2015', type='TEMPORAL', confidence=0.9, id=84910ee8..)
+    line 364                  entities.append(entity)
+              entities = list of 4: 'Acme Robotics', 'Pune', 'Meera Shah', '2015'
+    line 362          for entity_data in entities_data:
+              entity_data = {"name": "warehouse robots", "type": "OBJECT", "description": "The products Acme Robotics builds.", "confidence": "8", "source_text": "Acme builds warehouse robots."}
+    line 363              if entity := self.parse_entity_data(entity_data, text_unit):
+              entity = Entity(name='warehouse robots', type='OBJECT', confidence=0.8, id=aede349c..)
+    line 364                  entities.append(entity)
+              entities = list of 5: 'Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots'
+    line 362          for entity_data in entities_data:
+    line 366          entities, dropped_keys = self._apply_entity_grounding(entities, text_unit)
+
+  >>> ENTER GraphExtractor._apply_entity_grounding   (adapters/ingestion/graph_extractor.py)
+              entities = list of 5: 'Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots'
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 490          grounding = self.extraction_config.entity_grounding
+              grounding = EntityGroundingConfig(enabled=False, action='drop')
+    line 491          chunk_text = self.get_text_for_processing(text_unit)
+              chunk_text = 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds ware...
+    line 493          kept: list[Entity] = []
+              kept = list of 0: []
+    line 494          dropped_keys: set[str] = set()
+              dropped_keys = set
+    line 495          for entity in entities:
+              entity = Entity(name='Acme Robotics', type='ORGANIZATION', confidence=1.0, id=029c17c5..)
+    line 496              source_text = (entity.attributes or {}).pop("_source_text", None)
+              source_text = 'Acme Robotics is a company based in Pune.'
+    line 497              grounded = (not grounding.enabled) or is_grounded(
+              grounded = True
+    line 504              if grounded:
+    line 505                  kept.append(entity)
+              kept = list of 1: 'Acme Robotics'
+    line 506                  continue
+    line 495          for entity in entities:
+              entity = Entity(name='Pune', type='LOCATION', confidence=1.0, id=ccf6b40c..)
+    line 496              source_text = (entity.attributes or {}).pop("_source_text", None)
+              source_text = 'Acme Robotics is a company based in Pune.'
+    line 497              grounded = (not grounding.enabled) or is_grounded(
+    line 504              if grounded:
+    line 505                  kept.append(entity)
+              kept = list of 2: 'Acme Robotics', 'Pune'
+    line 506                  continue
+    line 495          for entity in entities:
+              entity = Entity(name='Meera Shah', type='PERSON', confidence=1.0, id=c2b63f75..)
+    line 496              source_text = (entity.attributes or {}).pop("_source_text", None)
+              source_text = 'It was founded by Meera Shah in 2015.'
+    line 497              grounded = (not grounding.enabled) or is_grounded(
+    line 504              if grounded:
+    line 505                  kept.append(entity)
+              kept = list of 3: 'Acme Robotics', 'Pune', 'Meera Shah'
+    line 506                  continue
+    line 495          for entity in entities:
+              entity = Entity(name='2015', type='TEMPORAL', confidence=0.9, id=84910ee8..)
+    line 496              source_text = (entity.attributes or {}).pop("_source_text", None)
+              source_text = 'It was founded by Meera Shah in 2015.'
+    line 497              grounded = (not grounding.enabled) or is_grounded(
+    line 504              if grounded:
+    line 505                  kept.append(entity)
+              kept = list of 4: 'Acme Robotics', 'Pune', 'Meera Shah', '2015'
+    line 506                  continue
+    line 495          for entity in entities:
+              entity = Entity(name='warehouse robots', type='OBJECT', confidence=0.8, id=aede349c..)
+    line 496              source_text = (entity.attributes or {}).pop("_source_text", None)
+              source_text = 'Acme builds warehouse robots.'
+    line 497              grounded = (not grounding.enabled) or is_grounded(
+    line 504              if grounded:
+    line 505                  kept.append(entity)
+              kept = list of 5: 'Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots'
+    line 506                  continue
+    line 495          for entity in entities:
+    line 528          dropped_keys -= {entity_key(e.name) for e in kept}
+    line 529          return kept, dropped_keys
+  <<< GraphExtractor._apply_entity_grounding RETURNS tuple of 2: [list of 5: [Entity, Entity, Entity, ...], set]
+
+              entities = list of 5: 'Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots'
+              dropped_keys = set
+    line 368          entity_name_to_id = self.build_entity_key_index(entities)
+
+  >>> ENTER BaseProcessor.build_entity_key_index   (domain/ingestion/base_processor.py)
+              entities = list of 5: 'Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots'
+    line 230          return {entity_key(entity.name): entity.id for entity in entities}
+  <<< BaseProcessor.build_entity_key_index RETURNS dict with keys ['acme robotics', 'pune', 'meera shah', '2015', 'warehouse robots']
+
+              entity_name_to_id = dict with keys ['acme robotics', 'pune', 'meera shah', '2015', 'warehouse robots']
+    line 369          relationships_data = ensure_list(raw_relationships, inner_key="relationship")
+
+  >>> ENTER ensure_list   (shared/utils/common.py)
+              data = dict {'relationship': list of 3}
+              inner_key = 'relationship'
+    line 104      if isinstance(data, dict):
+    line 105          data = data.get(inner_key, []) if inner_key else data
+              data = list of 3 dicts, first: {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme R...
+    line 107      if not isinstance(data, list):
+    line 110      return data
+  <<< ensure_list RETURNS list of 3 dicts, first: {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme R...
+
+              relationships_data = list of 3 dicts, first: {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme R...
+    line 370          for rel_data in relationships_data:
+              rel_data = {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme Robotics is based in Pune.", "strength": "9", "source_text": "Acme Robotics is a company based in Pune."}
+    line 371              if relationship := self.parse_relationship_data(
+    line 372                  rel_data, text_unit, entity_name_to_id
+    line 371              if relationship := self.parse_relationship_data(
+              relationship = Relationship('Acme Robotics' -LOCATED_IN-> 'Pune', weight=9.0, id=be2347b0..)
+    line 374                  relationships.append(relationship)
+              relationships = list of 1: 'Acme Robotics->Pune'
+    line 370          for rel_data in relationships_data:
+              rel_data = dict with keys ['source', 'target', 'type', 'description', 'strength', 'source_text']
+    line 371              if relationship := self.parse_relationship_data(
+    line 372                  rel_data, text_unit, entity_name_to_id
+    line 371              if relationship := self.parse_relationship_data(
+              relationship = Relationship('Meera Shah' -FOUNDED-> 'Acme Robotics', weight=10.0, id=1f791988..)
+    line 374                  relationships.append(relationship)
+              relationships = list of 2: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics'
+    line 370          for rel_data in relationships_data:
+              rel_data = {"source": "Acme Robotics", "target": "warehouse robots", "type": "CREATES", "description": "Acme Robotics builds warehouse robots.", "strength": "9", "source_text": "Acme builds warehouse robots."}
+    line 371              if relationship := self.parse_relationship_data(
+    line 372                  rel_data, text_unit, entity_name_to_id
+    line 371              if relationship := self.parse_relationship_data(
+              relationship = Relationship('Acme Robotics' -CREATES-> 'warehouse robots', weight=9.0, id=8adb12c2..)
+    line 374                  relationships.append(relationship)
+              relationships = list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+    line 370          for rel_data in relationships_data:
+    line 376          relationships = self._drop_relationships_to_dropped_entities(
+    line 377              relationships, dropped_keys, text_unit
+    line 376          relationships = self._drop_relationships_to_dropped_entities(
+
+  >>> ENTER GraphExtractor._drop_relationships_to_dropped_entities   (adapters/ingestion/graph_extractor.py)
+              relationships = list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+              dropped_keys = set
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 543          if not dropped_keys:
+    line 544              return relationships
+  <<< GraphExtractor._drop_relationships_to_dropped_entities RETURNS list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+
+    line 379          relationships = self._apply_relationship_grounding(relationships, text_unit)
+
+  >>> ENTER GraphExtractor._apply_relationship_grounding   (adapters/ingestion/graph_extractor.py)
+              relationships = list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 573          grounding = self.extraction_config.entity_grounding
+              grounding = EntityGroundingConfig(enabled=False, action='drop')
+    line 574          chunk_text = self.get_text_for_processing(text_unit)
+              chunk_text = 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds ware...
+    line 576          kept: list[Relationship] = []
+              kept = list of 0: []
+    line 577          for rel in relationships:
+              rel = Relationship('Acme Robotics' -LOCATED_IN-> 'Pune', weight=9.0, id=be2347b0..)
+    line 578              source_text = (rel.attributes or {}).pop("_source_text", None)
+              source_text = 'Acme Robotics is a company based in Pune.'
+    line 579              grounded = (not grounding.enabled) or is_grounded(
+              grounded = True
+    line 586              if grounded:
+    line 587                  kept.append(rel)
+              kept = list of 1: 'Acme Robotics->Pune'
+    line 588                  continue
+    line 577          for rel in relationships:
+              rel = Relationship('Meera Shah' -FOUNDED-> 'Acme Robotics', weight=10.0, id=1f791988..)
+    line 578              source_text = (rel.attributes or {}).pop("_source_text", None)
+              source_text = 'It was founded by Meera Shah in 2015.'
+    line 579              grounded = (not grounding.enabled) or is_grounded(
+    line 586              if grounded:
+    line 587                  kept.append(rel)
+              kept = list of 2: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics'
+    line 588                  continue
+    line 577          for rel in relationships:
+              rel = Relationship('Acme Robotics' -CREATES-> 'warehouse robots', weight=9.0, id=8adb12c2..)
+    line 578              source_text = (rel.attributes or {}).pop("_source_text", None)
+              source_text = 'Acme builds warehouse robots.'
+    line 579              grounded = (not grounding.enabled) or is_grounded(
+    line 586              if grounded:
+    line 587                  kept.append(rel)
+              kept = list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+    line 588                  continue
+    line 577          for rel in relationships:
+    line 610          return kept
+  <<< GraphExtractor._apply_relationship_grounding RETURNS list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+
+              relationships = list of 3: 'Acme Robotics->Pune', 'Meera Shah->Acme Robotics', 'Acme Robotics->warehouse robots'
+    line 381          return entities, relationships
+  <<< GraphExtractor._parse_extraction_result RETURNS tuple of 2: [list of 5: [Entity, Entity, Entity, ...], list of 3: [Relationship, Relationship, Relationship]]
+
+============================================================
+RESULT: 5 entities, 3 relationships
+  'Acme Robotics'      type='ORGANIZATION'  confidence=1.0  attributes={}
+  'Pune'               type='LOCATION'      confidence=1.0  attributes={}
+  'Meera Shah'         type='PERSON'        confidence=1.0  attributes={}
+  '2015'               type='TEMPORAL'      confidence=0.9  attributes={}
+  'warehouse robots'   type='OBJECT'        confidence=0.8  attributes={}
+  'Acme Robotics' -LOCATED_IN-> 'Pune'  weight=9.0  attributes={}
+  'Meera Shah' -FOUNDED-> 'Acme Robotics'  weight=10.0  attributes={}
+  'Acme Robotics' -CREATES-> 'warehouse robots'  weight=9.0  attributes={}

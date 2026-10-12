@@ -1,0 +1,173 @@
+input: {
+ "name": "Acme Robotics",
+ "type": "ORGANIZATION",
+ "description": "A company based in Pune that builds warehouse robots and has 120 employees.",
+ "confidence": "10",
+ "source_text": "Acme Robotics is a company based in Pune."
+} 
+
+
+  >>> ENTER BaseProcessor.parse_entity_data   (domain/ingestion/base_processor.py)
+              entity_data = dict with keys ['name', 'type', 'description', 'confidence', 'source_text']
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 54           try:
+    line 55               name = clean_display_name(coerce_llm_text(entity_data.get("name")))
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'Acme Robotics'
+              join = False
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'Acme Robotics'
+
+
+  >>> ENTER clean_display_name   (shared/utils/common.py)
+              name = 'Acme Robotics'
+    line 163      if not name:
+    line 165      return " ".join(name.split())
+  <<< clean_display_name RETURNS 'Acme Robotics'
+
+              name = 'Acme Robotics'
+    line 56               if not name:
+    line 66               entity_id = self._generate_entity_id(name)
+
+  >>> ENTER BaseProcessor._generate_entity_id   (domain/ingestion/base_processor.py)
+              name = 'Acme Robotics'
+    line 113          return generate_stable_id(f"entity:{entity_key(name)}")
+
+  >>> ENTER entity_key   (shared/utils/common.py)
+              name = 'Acme Robotics'
+    line 182      if not name:
+    line 184      folded = unicodedata.normalize("NFKC", name).casefold()
+              folded = 'acme robotics'
+    line 185      key = folded.replace("_", " ").replace("-", " ")
+              key = 'acme robotics'
+    line 186      key = _RE_KEY_DROP_CHARS.sub("", key)
+    line 187      key = " ".join(key.split())
+              key = 'acme robotics'
+    line 188      key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    line 189      return key or folded.strip()
+  <<< entity_key RETURNS 'acme robotics'
+
+
+  >>> ENTER generate_stable_id   (shared/utils/common.py)
+              content = 'entity:acme robotics'
+              namespace_key = 'unified-kg-rag-on-aws'
+    line 116      namespace = uuid.uuid5(uuid.NAMESPACE_DNS, namespace_key)
+              namespace = UUID
+    line 117      return str(uuid.uuid5(namespace, content))
+  <<< generate_stable_id RETURNS '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+
+  <<< BaseProcessor._generate_entity_id RETURNS '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+
+              entity_id = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+    line 67               attributes = self._parse_attributes(
+    line 68                   entity_data.get("attributes"), text_unit
+    line 67               attributes = self._parse_attributes(
+
+  >>> ENTER BaseProcessor._parse_attributes   (domain/ingestion/base_processor.py)
+              attributes = None
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 120          parsed = {}
+              parsed = {}
+    line 121          if isinstance(attributes, list):
+    line 130          if text_unit and text_unit.attributes:
+    line 131              for key in ["index", "filters"]:
+              key = 'index'
+    line 132                  if key in text_unit.attributes:
+    line 131              for key in ["index", "filters"]:
+              key = 'filters'
+    line 132                  if key in text_unit.attributes:
+    line 131              for key in ["index", "filters"]:
+    line 134          return parsed
+  <<< BaseProcessor._parse_attributes RETURNS {}
+
+              attributes = {}
+    line 73               source_text = entity_data.get("source_text")
+              source_text = 'Acme Robotics is a company based in Pune.'
+    line 74               if isinstance(source_text, str) and source_text.strip():
+    line 75                   attributes["_source_text"] = source_text.strip()
+              attributes = {"_source_text": "Acme Robotics is a company based in Pune."}
+    line 76               confidence = self._parse_confidence(entity_data)
+
+  >>> ENTER BaseProcessor._parse_confidence   (domain/ingestion/base_processor.py)
+              data = dict with keys ['name', 'type', 'description', 'confidence', 'source_text']
+              default = 1.0
+    line 268          value = data.get("confidence")
+              value = '10'
+    line 269          if value is None:
+    line 271          try:
+    line 272              raw_confidence = float(value)
+              raw_confidence = 10.0
+    line 273              written_as_integer = isinstance(value, int) or (
+    line 274                  isinstance(value, str) and value.strip().lstrip("+").isdigit()
+    line 273              written_as_integer = isinstance(value, int) or (
+              written_as_integer = True
+    line 276              if raw_confidence > 1.0 or (raw_confidence == 1.0 and written_as_integer):
+    line 277                  normalized = raw_confidence / 10.0
+              normalized = 1.0
+    line 280              return max(0.0, min(1.0, normalized))
+  <<< BaseProcessor._parse_confidence RETURNS 1.0
+
+              confidence = 1.0
+    line 78               logger.debug(
+    line 79                   "Successfully parsed entity: '%s' (id: %s, confidence: %.2f)",
+    line 80                   name,
+    line 81                   entity_id[:8],
+    line 82                   confidence,
+    line 78               logger.debug(
+    line 84               return Entity(
+    line 85                   id=entity_id,
+    line 86                   short_id=entity_id[:8],
+    line 87                   name=name,
+    line 88                   name_embedding=None,
+    line 89                   type=coerce_llm_text(entity_data.get("type")),
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'ORGANIZATION'
+              join = False
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'ORGANIZATION'
+
+    line 90                   description=coerce_llm_text(entity_data.get("description"), join=True),
+
+  >>> ENTER coerce_llm_text   (domain/ingestion/base_processor.py)
+              value = 'A company based in Pune that builds warehouse robots and has 120 employees.'
+              join = True
+    line 29       if value is None:
+    line 31       if not isinstance(value, list):
+    line 32           return str(value).strip()
+  <<< coerce_llm_text RETURNS 'A company based in Pune that builds warehouse robots and has 120 employees.'
+
+    line 91                   description_embedding=None,
+    line 92                   text_unit_ids=[text_unit.id],
+    line 93                   community_ids=None,
+    line 94                   rank=entity_data.get("rank", 1),
+    line 95                   frequency=None,
+    line 96                   confidence=confidence,
+    line 97                   attributes=attributes,
+    line 98                   created_at=datetime.now(),
+    line 99                   updated_at=datetime.now(),
+    line 84               return Entity(
+  <<< BaseProcessor.parse_entity_data RETURNS Entity(name='Acme Robotics', type='ORGANIZATION', confidence=1.0, id=029c17c5..)
+
+============================================================
+RESULT: Entity
+  id                    = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+  short_id              = '029c17c5'
+  attributes            = {'_source_text': 'Acme Robotics is a company based in Pune.'}
+  created_at            = '(time of the run)'
+  updated_at            = '(time of the run)'
+  name                  = 'Acme Robotics'
+  name_embedding        = None
+  type                  = 'ORGANIZATION'
+  description           = 'A company based in Pune that builds warehouse robots and has 120 employees.'
+  description_embedding = None
+  text_unit_ids         = ['7625b4ab-91a2-55fb-abb8-321474c04dd0']
+  community_ids         = None
+  rank                  = 1
+  frequency             = None
+  confidence            = 1.0
