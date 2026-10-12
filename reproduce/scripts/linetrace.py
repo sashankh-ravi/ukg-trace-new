@@ -20,8 +20,15 @@ def default_describe(v):
 def _sig(v):
     return (id(v), len(v)) if isinstance(v, (list, dict, set)) else id(v)
 
+def inner_code(func, name):
+    """The code object of a function defined inside func (e.g. a nested helper)."""
+    return next(c for c in getattr(func, '__code__', func).co_consts if hasattr(c, 'co_name') and c.co_name == name)
+
 def trace(functions, describe=default_describe, skip=("self",)):
-    watch = {f.__code__: f.__qualname__ for f in functions}
+    watch = {}
+    for f in functions:   # a function, or a code object (for functions defined inside other functions)
+        code = getattr(f, "__code__", f)
+        watch[code] = getattr(f, "__qualname__", None) or code.co_qualname
     def tracer(frame, event, arg):
         if frame.f_code not in watch: return None
         name = watch[frame.f_code]; seen = {}
