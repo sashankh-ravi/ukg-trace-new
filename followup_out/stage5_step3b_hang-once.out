@@ -1,0 +1,150 @@
+batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_wait': 2, 'call_timeout_seconds': 2, 'max_attempts': 5}
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk   (shared/utils/langchain.py)
+              chunk_num = 1
+              chunk_items = list of 5 TextUnit
+              prepare_inputs_func = function _prepare_extraction_inputs
+              prepared_batch_func = function _batch_func
+              retrying_sequential_func = function timed_sequential_func
+              show_progress = True
+    line 248              chunk_inputs = prepare_inputs_func(chunk_items)
+              chunk_inputs = list of 5 prompt-inputs
+    line 249              if not chunk_inputs:
+    line 254              try:
+    line 256                  def run_batch(inputs: list[dict[str, Any]] = chunk_inputs) -> Any:
+              run_batch = function run_batch
+    line 259                  results: list[Any] = list(
+    line 260                      self._run_with_timeout(
+    line 261                          run_batch,
+    line 262                          self.call_timeout_seconds,
+    line 263                          f"{task_name} batch chunk {chunk_num}",
+    line 260                      self._run_with_timeout(
+    line 266              except Exception as e:
+    line 267                  logger.warning(
+    line 268                      "Batch processing failed for chunk %s: %s. Falling back to "
+    line 270                      chunk_num,
+    line 271                      e,
+    line 267                  logger.warning(
+    line 273                  return self._process_sequentially_with_fallback(
+    line 274                      chunk_inputs,
+    line 275                      retrying_sequential_func,
+    line 276                      f"{task_name} (chunk {chunk_num})",
+    line 277                      show_progress=show_progress,
+    line 273                  return self._process_sequentially_with_fallback(
+  >>> ENTER BatchProcessor._process_sequentially_with_fallback   (shared/utils/langchain.py)
+              inputs = list of 5 prompt-inputs
+              sequential_func = function timed_sequential_func
+              show_progress = True
+    line 420          logger.info("Processing %s items sequentially for '%s'", len(inputs), task_name)
+    line 422          results = []
+              results = []
+    line 424          successful_count = 0
+              successful_count = 0
+    line 426          for single_input in tqdm(
+    line 427              inputs, desc=progress_desc, disable=None if show_progress else True
+    line 426          for single_input in tqdm(
+              single_input = prompt-input for 'Acme Robotics is a com'...
+    line 429              try:
+    line 430                  result = sequential_func(single_input)
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
+              single_input = prompt-input for 'Acme Robotics is a com'...
+              sequential_func = function invoke
+    line 219              return self._run_with_timeout(
+    line 220                  lambda: sequential_func(single_input),
+    line 221                  self.call_timeout_seconds,
+    line 222                  f"{task_name} item",
+    line 219              return self._run_with_timeout(
+  <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+              result = parsed reply dict
+    line 431                  results.append(result)
+              results = [parsed reply dict]
+    line 432                  successful_count += 1
+              successful_count = 1
+    line 426          for single_input in tqdm(
+              single_input = prompt-input for 'Meera Shah studied eng'...
+    line 429              try:
+    line 430                  result = sequential_func(single_input)
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
+              single_input = prompt-input for 'Meera Shah studied eng'...
+              sequential_func = function invoke
+    line 219              return self._run_with_timeout(
+    line 220                  lambda: sequential_func(single_input),
+    line 221                  self.call_timeout_seconds,
+    line 222                  f"{task_name} item",
+    line 219              return self._run_with_timeout(
+  <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+              result = parsed reply dict
+    line 431                  results.append(result)
+              results = [parsed reply dict, parsed reply dict]
+    line 432                  successful_count += 1
+              successful_count = 2
+    line 426          for single_input in tqdm(
+              single_input = prompt-input for 'Orbit Logistics runs w'...
+    line 429              try:
+    line 430                  result = sequential_func(single_input)
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
+              single_input = prompt-input for 'Orbit Logistics runs w'...
+              sequential_func = function invoke
+    line 219              return self._run_with_timeout(
+    line 220                  lambda: sequential_func(single_input),
+    line 221                  self.call_timeout_seconds,
+    line 222                  f"{task_name} item",
+    line 219              return self._run_with_timeout(
+  <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+              result = parsed reply dict
+    line 431                  results.append(result)
+              results = [parsed reply dict, parsed reply dict, parsed reply dict]
+    line 432                  successful_count += 1
+              successful_count = 3
+    line 426          for single_input in tqdm(
+              single_input = prompt-input for 'The Acme Picker X2 is '...
+    line 429              try:
+    line 430                  result = sequential_func(single_input)
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
+              single_input = prompt-input for 'The Acme Picker X2 is '...
+              sequential_func = function invoke
+    line 219              return self._run_with_timeout(
+    line 220                  lambda: sequential_func(single_input),
+    line 221                  self.call_timeout_seconds,
+    line 222                  f"{task_name} item",
+    line 219              return self._run_with_timeout(
+  <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+              result = parsed reply dict
+    line 431                  results.append(result)
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+    line 432                  successful_count += 1
+              successful_count = 4
+    line 426          for single_input in tqdm(
+              single_input = prompt-input for 'Banyan Capital investe'...
+    line 429              try:
+    line 430                  result = sequential_func(single_input)
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
+              single_input = prompt-input for 'Banyan Capital investe'...
+              sequential_func = function invoke
+    line 219              return self._run_with_timeout(
+    line 220                  lambda: sequential_func(single_input),
+    line 221                  self.call_timeout_seconds,
+    line 222                  f"{task_name} item",
+    line 219              return self._run_with_timeout(
+  <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+              result = parsed reply dict
+    line 431                  results.append(result)
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+    line 432                  successful_count += 1
+              successful_count = 5
+    line 426          for single_input in tqdm(
+    line 442          logger.info(
+    line 443              "Sequential processing completed for '%s': %s/%s items processed successfully",
+    line 444              task_name,
+    line 445              successful_count,
+    line 446              len(inputs),
+    line 442          logger.info(
+    line 448          return results
+  <<< BatchProcessor._process_sequentially_with_fallback RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+  <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 8
+  t= 0.08s  model called for chunk 05, call #1
+  t= 2.06s  model called for chunk 05, call #2
+  t= 4.08s  chunk 05 call #1 finally finished sleeping (in the abandoned thread)
+stage 5 status: completed | failed_units: 0 | entities: 16 | relationships: 14
+failed chunks: []
