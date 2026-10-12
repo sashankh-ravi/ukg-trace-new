@@ -2,7 +2,7 @@
 
 A running log of possible bugs found while tracing [awslabs/unified-kg-rag-on-aws](https://github.com/awslabs/unified-kg-rag-on-aws) step by step.
 
-Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) are candidates shown to the person on 12 October 2026; they have not yet said which to log.
+Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document.
 
 ## About this log
 
@@ -526,7 +526,7 @@ On the 2,804-character test file, two unusable replies (words for numbers; inven
 
 ---
 
-## Candidate 8 (shown 12 October, not yet approved): The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12
+## Bug 8: The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12
 
 The translator passes the language enum object itself into the prompt template, and how that object prints depends on the Python version.
 
@@ -586,7 +586,7 @@ The formatting call on three Python versions (`lang_format_demo.sh`; the 3.10 an
 
 ---
 
-## Candidate 9 (shown 12 October, not yet approved): Any non-empty model reply is stored as the translation
+## Bug 9: Any non-empty model reply is stored as the translation
 
 **Cause.** The only test on the reply is that it is not empty:
 
@@ -626,7 +626,7 @@ The formatting call on three Python versions (`lang_format_demo.sh`; the 3.10 an
 
 ---
 
-## Candidate 10 (shown 12 October, not yet approved): Stage 4 reports `completed` when every translation call failed
+## Bug 10: Stage 4 reports `completed` when every translation call failed
 
 **Cause.** Errors are caught and logged inside the translator, and the stage counts the chunks it was given as its output:
 

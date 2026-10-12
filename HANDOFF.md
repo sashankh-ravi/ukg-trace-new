@@ -110,7 +110,7 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
 | 9b | Stages 6 to 12 | Not started. |
 | 10 | The other four commands (`run-rag`, `run-eval`, `run-visualization`, `run-prompt-tuning`) | Not started. |
 
-Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (candidates 8, 9 and 10) were shown to them on 12 October; they had not yet said which to log.
+Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day.
 
 ---
 
@@ -4271,9 +4271,9 @@ stand-alone enum, python 3.12.3 -> 'L.ES'
 
 - **[RAN]** The original text is kept. The translation is added to the chunk's `translated_texts` dictionary, keyed by language code (`translator.py`, lines 183 to 186). `n_tokens` still describes the original.
 - **[RAN]** `context.translated_units` holds the same objects as `context.text_units`; the translator changes the chunks in place and returns the list it was given (line 121).
-- **[RAN]** The prompt names the target as `LanguageCode.ES` on Python 3.11, because the enum object itself is passed in (line 168). On Python 3.10 the same formatting gives `es`. The repo supports 3.10 to 3.12. Candidate 8.
-- **[RAN]** Any non-empty reply is stored as the translation (lines 177 to 186). The placeholder XML in run B1 was stored as the "Spanish translation" of all five chunks and counted as five successes. Candidate 9.
-- **[RAN]** When every model call fails, the stage still ends `completed`, with `units_translated: 0` and five failures counted only inside `translation_stats`. Errors are caught in the translator (lines 118 to 119), and the stage reports as many outputs as inputs (line 755). Candidate 10.
+- **[RAN]** The prompt names the target as `LanguageCode.ES` on Python 3.11, because the enum object itself is passed in (line 168). On Python 3.10 the same formatting gives `es`. The repo supports 3.10 to 3.12. Bug 8.
+- **[RAN]** Any non-empty reply is stored as the translation (lines 177 to 186). The placeholder XML in run B1 was stored as the "Spanish translation" of all five chunks and counted as five successes. Bug 9.
+- **[RAN]** When every model call fails, the stage still ends `completed`, with `units_translated: 0` and five failures counted only inside `translation_stats`. Errors are caught in the translator (lines 118 to 119), and the stage reports as many outputs as inputs (line 755). Bug 10.
 - **Claude's own mistake, 12 October.** On the first answered replay Claude matched two hand-written answers to the wrong prompts, because it assumed the prompts were captured in document order; they were not. The Meera Shah chunk received the Orbit Logistics translation. The pipeline accepted it. The mapping was corrected by matching each answer to the source text quoted in its prompt (the key table above), and the run was repeated. The answers file in this repository is the corrected one.
 
 **[NOT CHECKED] What later stages read.** A search (not a full read) shows later stages use `context.translated_units or context.text_units` (`pipeline_stages.py` lines 777, 827, 985, 1296, 1311; line 1188 has the opposite order), and that helpers such as `domain/ingestion/base_processor.py` lines 46 to 48 read `translated_texts.get(target_language, text)`. If that holds, the translation, not the original, is what the graph is built from when translation is on. To be confirmed in stage 5.
@@ -4317,9 +4317,9 @@ Full text is in `POTENTIAL_BUGS.md`. Summary:
 | 5 | Merged chunk pieces lose the space or line break between them | **Candidate.** Proposed to the person, no answer yet | **[RAN]** section 8.4 |
 | 6 | A force rebuild of an existing run ID also stops at the integrity prompt | **Candidate.** Found 11 October while building this file; the person has not seen it | **[RAN]** section 7.4, step 3a |
 | 7 | An unusable model reply in chunking is accepted silently and can leave a chunk far over the size limit | Logged 11 October | **[RAN]** section 8.6, stand-in model |
-| 8 | The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12 | **Candidate**, shown 12 October | **[RAN]** section 9.1 |
-| 9 | Any non-empty model reply is stored as the translation | **Candidate**, shown 12 October | **[RAN]** section 9.1 |
-| 10 | Stage 4 reports `completed` when every translation call failed | **Candidate**, shown 12 October | **[RAN]** section 9.1 |
+| 8 | The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12 | Logged 12 October | **[RAN]** section 9.1 |
+| 9 | Any non-empty model reply is stored as the translation | Logged 12 October | **[RAN]** section 9.1 |
+| 10 | Stage 4 reports `completed` when every translation call failed | Logged 12 October | **[RAN]** section 9.1 |
 
 None of these has been reported to the maintainers, and none has been checked against the repo's issue tracker or its unit tests.
 

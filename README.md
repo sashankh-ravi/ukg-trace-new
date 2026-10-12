@@ -9,8 +9,9 @@ This is an independent study log. It is not affiliated with or endorsed by AWS o
 | File | What it is |
 |---|---|
 | [`HANDOFF.md`](HANDOFF.md) | The full record: what has been read, what was run, the trace of stages 1 to 4, open questions, corrections. Self-contained: every script and sample document is in its appendices. |
-| [`POTENTIAL_BUGS.md`](POTENTIAL_BUGS.md) | The bug tracker. Five entries agreed during the session (1, 2, 3, 4, 7) and five candidates not yet approved (5, 6, 8, 9, 10). None has been reported to the maintainers. |
-| [`SESSION_LOG.md`](SESSION_LOG.md) | The conversation that produced all this: every question asked, quoted exactly, with a short note of what was done and where the result lives. Not a full transcript. |
+| [`POTENTIAL_BUGS.md`](POTENTIAL_BUGS.md) | The bug tracker. Eight entries agreed during the session (1 to 4 and 7 to 10) and two candidates not yet decided (5 and 6). None has been reported to the maintainers. |
+| [`SESSION_LOG.md`](SESSION_LOG.md) | The conversation that produced all this: every question asked, quoted exactly, with a short note of what was done and where the result lives. |
+| [`chat/TRANSCRIPT.md`](chat/TRANSCRIPT.md) | The full chat, copied from its history: every message and every written reply word for word, with each tool call shortened to one line. |
 
 ## Progress
 
@@ -41,7 +42,8 @@ The model calls were not made to Amazon Bedrock. A stand-in model (`reproduce/sc
 | `reproduce_output_fresh.txt` | Full output of `run_all.sh` from 11 October 2026. |
 | `followup_out/` | Outputs of the scripts run by hand: stage 3 follow-ups and stage 4. |
 | `evidence_9oct/` | Logs, captured prompts and the cache folder left by the first session on 9 October 2026. |
-| `build/` | Templates and the script that assembles `HANDOFF.md` and `POTENTIAL_BUGS.md` from code and outputs, plus the self-extraction test. |
+| `chat/` | The chat transcript. |
+| `build/` | Templates and the script that assembles `HANDOFF.md` and `POTENTIAL_BUGS.md` from code and outputs, the self-extraction test, and `transcript_from_history.py`, which turned saved pages of the chat history into transcript text. |
 
 ## Re-running
 
