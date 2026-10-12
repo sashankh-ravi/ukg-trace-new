@@ -2,7 +2,7 @@
 
 A running log of possible bugs found while tracing [awslabs/unified-kg-rag-on-aws](https://github.com/awslabs/unified-kg-rag-on-aws) step by step.
 
-Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document.
+Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document. Entry 11 (stage 5, graph extraction) was found and approved on 12 October 2026 and is also in their log document.
 
 ## About this log
 
@@ -340,3 +340,37 @@ stage metrics: {'target_language': 'es', 'units_processed': 5, 'units_translated
 The five failures appear only in `translation_stats` (`num_failed_translations: 5`). The full output is in `HANDOFF.md`, section 9.1.
 
 **Not yet checked.** Whether anything downstream (metrics, alarms) reacts to `units_translated: 0`. Later stages would then use the untranslated text, which is the same as translation being off.
+
+---
+
+## Bug 11: The `ignore_errors` setting has no effect on chunks that fail in graph extraction
+
+With `processing.ignore_errors` at its default, `False` ("don't ignore errors"), a chunk whose model call fails every attempt is still dropped, and the stage carries on and reports `completed`. Switching the setting on gives the same result. Found and logged 12 October 2026.
+
+**The setting:**
+
+@@code unified_kg_rag/domain/models/config.py 998-1001@@
+
+**Cause.** The extractor only reads the setting when the batch processor raises an error:
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 155-171@@
+
+The batch processor does not raise for a chunk that fails every attempt. It records a `BATCH_ITEM_FAILED` marker in that chunk's place:
+
+@@code unified_kg_rag/shared/utils/langchain.py 426-448@@
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step3b_failures.py denied-always`: stages 1 to 5 on the five sample files with the stand-in model; the chunk from `05_investor.txt` gets an AWS-style `AccessDeniedException` on every call. Default settings:
+
+@@txt followup_out/stage5_bug11_ignore_off_summary.txt@@
+
+The same run with `IGNORE_ERRORS=on` (sets `processing.ignore_errors = True`):
+
+@@txt followup_out/stage5_bug11_ignore_on_summary.txt@@
+
+With every chunk answered normally the stage gives 16 entities and 14 relationships (`followup_out/stage5_B_answered.out`). The full line traces are in `followup_out/step3b_ignore_off.out` and `followup_out/step3b_ignore_on.out`.
+
+The loss is not hidden: it is counted in the stage's `failed_units` and in the pipeline's failed-chunk list. The run stops only when every chunk fails, because the stage then produces no output and the zero-output check fails it (`followup_out/stage5_A_capture.out`).
+
+**Not yet checked.** Whether any later stage reads the failed-chunk list and reacts. Whether the other stages that use the same batch processor (gleaning, claim extraction) behave the same way.
+
+**Possible fix.** After the batch call, if any result is `BATCH_ITEM_FAILED` and `ignore_errors` is off, raise an error.

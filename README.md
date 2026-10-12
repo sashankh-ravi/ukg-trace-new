@@ -9,7 +9,7 @@ This is an independent study log. It is not affiliated with or endorsed by AWS o
 | File | What it is |
 |---|---|
 | [`HANDOFF.md`](HANDOFF.md) | The full record: what has been read, what was run, the trace of stages 1 to 4, open questions, corrections. Self-contained: every script and sample document is in its appendices. |
-| [`POTENTIAL_BUGS.md`](POTENTIAL_BUGS.md) | The bug tracker. Eight entries agreed during the session (1 to 4 and 7 to 10) and two candidates not yet decided (5 and 6). None has been reported to the maintainers. |
+| [`POTENTIAL_BUGS.md`](POTENTIAL_BUGS.md) | The bug tracker. Nine entries agreed during the session (1 to 4 and 7 to 11) and two candidates not yet decided (5 and 6). None has been reported to the maintainers. |
 | [`SESSION_LOG.md`](SESSION_LOG.md) | The conversation that produced all this: every question asked, quoted exactly, with a short note of what was done and where the result lives. |
 | [`chat/TRANSCRIPT.md`](chat/TRANSCRIPT.md) | The full chat, copied from its history: every message and every written reply word for word, with each tool call shortened to one line. |
 

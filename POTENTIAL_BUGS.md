@@ -2,7 +2,7 @@
 
 A running log of possible bugs found while tracing [awslabs/unified-kg-rag-on-aws](https://github.com/awslabs/unified-kg-rag-on-aws) step by step.
 
-Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document.
+Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document. Entry 11 (stage 5, graph extraction) was found and approved on 12 October 2026 and is also in their log document.
 
 ## About this log
 
@@ -694,3 +694,103 @@ stage metrics: {'target_language': 'es', 'units_processed': 5, 'units_translated
 The five failures appear only in `translation_stats` (`num_failed_translations: 5`). The full output is in `HANDOFF.md`, section 9.1.
 
 **Not yet checked.** Whether anything downstream (metrics, alarms) reacts to `units_translated: 0`. Later stages would then use the untranslated text, which is the same as translation being off.
+
+---
+
+## Bug 11: The `ignore_errors` setting has no effect on chunks that fail in graph extraction
+
+With `processing.ignore_errors` at its default, `False` ("don't ignore errors"), a chunk whose model call fails every attempt is still dropped, and the stage carries on and reports `completed`. Switching the setting on gives the same result. Found and logged 12 October 2026.
+
+**The setting:**
+
+```python
+# unified_kg_rag/domain/models/config.py, lines 998-1001
+    ignore_errors: bool = Field(
+        default=False,
+        description="Ignore errors and continue processing",
+    )
+```
+
+**Cause.** The extractor only reads the setting when the batch processor raises an error:
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 155-171
+        try:
+            extraction_results = self.batch_processor.execute_with_fallback(
+                items_to_process=text_units,
+                prepare_inputs_func=self._prepare_extraction_inputs,
+                batch_func=self.graph_extractor.batch,
+                sequential_func=self.graph_extractor.invoke,
+                task_name="Graph Extraction",
+                run_config=self.config.processing.model_dump(),
+                show_progress=self.show_progress,
+            )
+        except Exception as e:
+            if not self.ignore_errors:
+                raise
+            logger.error("Error during graph extraction: %s", e)
+            self.stats.num_failed_extractions = len(text_units)
+            self.stats.failed_text_unit_ids = [unit.id for unit in text_units]
+            return [], [], self.stats
+```
+
+The batch processor does not raise for a chunk that fails every attempt. It records a `BATCH_ITEM_FAILED` marker in that chunk's place:
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 426-448
+        for single_input in tqdm(
+            inputs, desc=progress_desc, disable=None if show_progress else True
+        ):
+            try:
+                result = sequential_func(single_input)
+                results.append(result)
+                successful_count += 1
+            except Exception as e:
+                logger.error(
+                    "Sequential processing failed for single item in '%s': %s",
+                    task_name,
+                    e,
+                )
+                # Keep results 1:1 with inputs so callers can zip them back.
+                results.append(BATCH_ITEM_FAILED)
+
+        logger.info(
+            "Sequential processing completed for '%s': %s/%s items processed successfully",
+            task_name,
+            successful_count,
+            len(inputs),
+        )
+        return results
+```
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step3b_failures.py denied-always`: stages 1 to 5 on the five sample files with the stand-in model; the chunk from `05_investor.txt` gets an AWS-style `AccessDeniedException` on every call. Default settings:
+
+```text
+config.processing.ignore_errors = False
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 4
+  t= 0.33s  model called for chunk 05, call #1
+  t= 0.35s  model called for chunk 05, call #2
+stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
+failed chunks: ['05_investor.txt']
+```
+
+The same run with `IGNORE_ERRORS=on` (sets `processing.ignore_errors = True`):
+
+```text
+config.processing.ignore_errors = True
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 4
+  t= 0.05s  model called for chunk 05, call #1
+  t= 0.07s  model called for chunk 05, call #2
+stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
+failed chunks: ['05_investor.txt']
+```
+
+With every chunk answered normally the stage gives 16 entities and 14 relationships (`followup_out/stage5_B_answered.out`). The full line traces are in `followup_out/step3b_ignore_off.out` and `followup_out/step3b_ignore_on.out`.
+
+The loss is not hidden: it is counted in the stage's `failed_units` and in the pipeline's failed-chunk list. The run stops only when every chunk fails, because the stage then produces no output and the zero-output check fails it (`followup_out/stage5_A_capture.out`).
+
+**Not yet checked.** Whether any later stage reads the failed-chunk list and reacts. Whether the other stages that use the same batch processor (gleaning, claim extraction) behave the same way.
+
+**Possible fix.** After the batch call, if any result is `BATCH_ITEM_FAILED` and `ignore_errors` is off, raise an error.

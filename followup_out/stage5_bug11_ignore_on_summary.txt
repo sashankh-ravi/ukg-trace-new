@@ -1,0 +1,7 @@
+config.processing.ignore_errors = True
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 4
+  t= 0.05s  model called for chunk 05, call #1
+  t= 0.07s  model called for chunk 05, call #2
+stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
+failed chunks: ['05_investor.txt']

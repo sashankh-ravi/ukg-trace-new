@@ -106,11 +106,11 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
 | 7 | Stage 3, text chunking, with Claude answering the model's prompt by hand | Done, run |
 | 7b | Follow-up questions on stage 3: size checks, overlap, wrong or invented model replies | Done, run (section 8.6) |
 | 8 | Stage 4, translation | Done, run with checkpoints and hand-written Spanish translations (section 9.1) |
-| 9 | Stage 5, graph extraction | **Next.** Not started. |
+| 9 | Stage 5, graph extraction | **In progress** (12 October). Steps 1 to 3 traced line by line: construction, inputs, batch processor normal and failure paths. Outputs in `followup_out/stage5_*.out`; not yet written up in this file. **Next:** step 4, reading each reply (XML reader, repair model, `_parse_extraction_result`). |
 | 9b | Stages 6 to 12 | Not started. |
 | 10 | The other four commands (`run-rag`, `run-eval`, `run-visualization`, `run-prompt-tuning`) | Not started. |
 
-Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day.
+Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day. Bug 11 (stage 5) was approved and added on 12 October.
 
 ---
 
@@ -758,6 +758,7 @@ Full text is in `POTENTIAL_BUGS.md`. Summary:
 | 8 | The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12 | Logged 12 October | **[RAN]** section 9.1 |
 | 9 | Any non-empty model reply is stored as the translation | Logged 12 October | **[RAN]** section 9.1 |
 | 10 | Stage 4 reports `completed` when every translation call failed | Logged 12 October | **[RAN]** section 9.1 |
+| 11 | The `ignore_errors` setting has no effect on chunks that fail in graph extraction | Logged 12 October | **[RAN]** `followup_out/step3b_ignore_off.out`, `step3b_ignore_on.out` |
 
 None of these has been reported to the maintainers, and none has been checked against the repo's issue tracker or its unit tests.
 
@@ -778,6 +779,7 @@ Collected from the sections above. All **[NOT CHECKED]** unless marked.
 9. Does the lost separator (candidate 5) matter downstream? It depends on how extraction reads chunk text.
 10. Behaviour on Windows and on Python 3.10 or 3.12.
 11. Everything about the four other commands.
+12. **[INFERRED]** Is the batch processor's fixed 300-second call limit (`shared/utils/langchain.py` line 127, not settable from the config) long enough for a graph extraction reply? The prompt allows up to 32,768 output tokens. A call that legitimately takes longer would time out, be retried up to 5 times, and each abandoned call would keep running and be billed (lines 154 to 159). Real reply times have not been measured.
 
 ---
 
@@ -965,6 +967,42 @@ Small scripts called by `run_all.sh`, followed by scripts run by hand: three sta
 `reproduce/scripts/lang_format_demo.sh`
 
 @@file reproduce/scripts/lang_format_demo.sh bash@@
+
+`reproduce/scripts/linetrace.py`
+
+@@file reproduce/scripts/linetrace.py python@@
+
+`reproduce/scripts/stage5.py`
+
+@@file reproduce/scripts/stage5.py python@@
+
+`reproduce/scripts/make_answers5.py`
+
+@@file reproduce/scripts/make_answers5.py python@@
+
+`reproduce/scripts/answers_stage5.json`
+
+@@file reproduce/scripts/answers_stage5.json json@@
+
+`reproduce/scripts/stage5_step1_build.py`
+
+@@file reproduce/scripts/stage5_step1_build.py python@@
+
+`reproduce/scripts/stage5_step1b_inside_setup.py`
+
+@@file reproduce/scripts/stage5_step1b_inside_setup.py python@@
+
+`reproduce/scripts/stage5_step2_inputs.py`
+
+@@file reproduce/scripts/stage5_step2_inputs.py python@@
+
+`reproduce/scripts/stage5_step3a_batch.py`
+
+@@file reproduce/scripts/stage5_step3a_batch.py python@@
+
+`reproduce/scripts/stage5_step3b_failures.py`
+
+@@file reproduce/scripts/stage5_step3b_failures.py python@@
 
 ### Appendix H. Self-extraction test
 

@@ -106,11 +106,11 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
 | 7 | Stage 3, text chunking, with Claude answering the model's prompt by hand | Done, run |
 | 7b | Follow-up questions on stage 3: size checks, overlap, wrong or invented model replies | Done, run (section 8.6) |
 | 8 | Stage 4, translation | Done, run with checkpoints and hand-written Spanish translations (section 9.1) |
-| 9 | Stage 5, graph extraction | **Next.** Not started. |
+| 9 | Stage 5, graph extraction | **In progress** (12 October). Steps 1 to 3 traced line by line: construction, inputs, batch processor normal and failure paths. Outputs in `followup_out/stage5_*.out`; not yet written up in this file. **Next:** step 4, reading each reply (XML reader, repair model, `_parse_extraction_result`). |
 | 9b | Stages 6 to 12 | Not started. |
 | 10 | The other four commands (`run-rag`, `run-eval`, `run-visualization`, `run-prompt-tuning`) | Not started. |
 
-Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day.
+Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day. Bug 11 (stage 5) was approved and added on 12 October.
 
 ---
 
@@ -4320,6 +4320,7 @@ Full text is in `POTENTIAL_BUGS.md`. Summary:
 | 8 | The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12 | Logged 12 October | **[RAN]** section 9.1 |
 | 9 | Any non-empty model reply is stored as the translation | Logged 12 October | **[RAN]** section 9.1 |
 | 10 | Stage 4 reports `completed` when every translation call failed | Logged 12 October | **[RAN]** section 9.1 |
+| 11 | The `ignore_errors` setting has no effect on chunks that fail in graph extraction | Logged 12 October | **[RAN]** `followup_out/step3b_ignore_off.out`, `step3b_ignore_on.out` |
 
 None of these has been reported to the maintainers, and none has been checked against the repo's issue tracker or its unit tests.
 
@@ -4340,6 +4341,7 @@ Collected from the sections above. All **[NOT CHECKED]** unless marked.
 9. Does the lost separator (candidate 5) matter downstream? It depends on how extraction reads chunk text.
 10. Behaviour on Windows and on Python 3.10 or 3.12.
 11. Everything about the four other commands.
+12. **[INFERRED]** Is the batch processor's fixed 300-second call limit (`shared/utils/langchain.py` line 127, not settable from the config) long enough for a graph extraction reply? The prompt allows up to 32,768 output tokens. A call that legitimately takes longer would time out, be retried up to 5 times, and each abandoned call would keep running and be billed (lines 154 to 159). Real reply times have not been measured.
 
 ---
 
@@ -5763,13 +5765,647 @@ print("stand-alone enum, python", sys.version.split()[0], "->", repr("{x}".forma
 for v in 3.10 3.12; do uv run --no-project --python $v python -c "$T" 2>/dev/null | tail -1; done
 ```
 
+`reproduce/scripts/linetrace.py`
+
+```python
+"""Line-by-line tracer used by the stage 5 step scripts.
+
+trace(functions, describe) returns a function for sys.settrace. While a watched function runs, every
+executed line is printed with its line number, and after it every local variable that line created or
+changed (compared by identity, and for lists and dicts also by length). Functions called from a watched
+function are not traced unless they are watched too.
+"""
+import linecache
+
+def default_describe(v):
+    if isinstance(v, (str, int, float, bool, type(None))):
+        r = repr(v); return r if len(r) <= 100 else r[:97] + "..."
+    if isinstance(v, (list, tuple)):
+        inner = ", ".join(default_describe(x) for x in v[:3])
+        return f"{type(v).__name__} of {len(v)}: [{inner}{', ...' if len(v) > 3 else ''}]"
+    if isinstance(v, dict):
+        return f"dict with keys {list(v)[:6]}"
+    return type(v).__name__
+
+def _sig(v):
+    return (id(v), len(v)) if isinstance(v, (list, dict, set)) else id(v)
+
+def inner_code(func, name):
+    """The code object of a function defined inside func (e.g. a nested helper)."""
+    return next(c for c in getattr(func, '__code__', func).co_consts if hasattr(c, 'co_name') and c.co_name == name)
+
+def trace(functions, describe=default_describe, skip=("self",)):
+    watch = {}
+    for f in functions:   # a function, or a code object (for functions defined inside other functions)
+        code = getattr(f, "__code__", f)
+        watch[code] = getattr(f, "__qualname__", None) or code.co_qualname
+    def tracer(frame, event, arg):
+        if frame.f_code not in watch: return None
+        name = watch[frame.f_code]; seen = {}
+        def show_changes(frame):
+            for k, v in frame.f_locals.items():
+                if k in skip: continue
+                if seen.get(k) != _sig(v):
+                    seen[k] = _sig(v); print(f"{'':14}{k} = {describe(v)}")
+        def local(frame, event, arg):
+            if event in ("line", "return"): show_changes(frame)
+            if event == "line":
+                src = linecache.getline(frame.f_code.co_filename, frame.f_lineno).rstrip()
+                print(f"    line {frame.f_lineno:<5}{src}")
+            elif event == "return":
+                print(f"  <<< {name} RETURNS {describe(arg)}\n")
+            return local
+        print(f"\n  >>> ENTER {name}   ({frame.f_code.co_filename.split('unified_kg_rag/')[-1]})")
+        show_changes(frame)
+        return local
+    return tracer
+```
+
+`reproduce/scripts/stage5.py`
+
+```python
+"""Stage 5 (graph extraction) with checkpoints.  Usage: python stage5.py <run name>
+
+Runs stages 1 to 5 on the folder docs5 with the stand-in model (fake_llm.py).
+Replies come from answers.json if present, otherwise the stand-in's placeholder.
+Settings can be changed with environment variables, for the experiments:
+  GROUNDING=on        switch on the hallucination guard (off by default)
+  THRESHOLD=0.7       entity confidence threshold (0.0 by default)
+"""
+import functools, json, logging, os, sys
+from pathlib import Path
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.domain.models import PipelineConfig, PipelineStageType as T
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.application.ingestion.pipeline import DataIngestionPipeline as DIP
+from unified_kg_rag.application.ingestion import pipeline_stages as PS
+from unified_kg_rag.adapters.ingestion import graph_extractor as GX
+from fake_llm import HandAnsweredFactory, PROMPTS
+
+run = sys.argv[1]
+def short(v, n=110):
+    s = repr(v); return s if len(s) <= n else s[:n-3] + "..."
+def checkpoint(cls, name, show=lambda out, a: out):
+    orig = getattr(cls, name)
+    @functools.wraps(orig)
+    def w(self, *a, **k):
+        print(f"CHECKPOINT -> {cls.__name__}.{name}")
+        out = orig(self, *a, **k); print(f"           returned: {short(show(out, a))}"); return out
+    setattr(cls, name, w)
+
+config = get_config()
+gx = config.processing.graph_extraction
+if os.environ.get("GROUNDING") == "on": gx.entity_grounding.enabled = True
+if os.environ.get("THRESHOLD"): gx.entity_confidence_threshold = float(os.environ["THRESHOLD"])
+print(f"settings: max_entities_per_chunk={gx.max_entities_per_chunk} | max_relationships_per_chunk={gx.max_relationships_per_chunk}"
+      f" | entity_confidence_threshold={gx.entity_confidence_threshold} | grounding enabled={gx.entity_grounding.enabled}"
+      f" action={gx.entity_grounding.action} | ignore_errors={config.processing.ignore_errors}")
+factory = HandAnsweredFactory(config)
+providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
+on = (T.DOCUMENT_PARSING, T.DOCUMENT_LOADING, T.TEXT_CHUNKING, T.TRANSLATION, T.GRAPH_EXTRACTION)
+pc = PipelineConfig(stages_enabled={t: t in on for t in T}, local_directory=Path("cache5"))
+p = DIP(config=config, pipeline_config=pc, source_directory=Path("docs5"), providers=providers)
+print("stages built:", [s.name for s in p.stages])
+
+n = lambda out, a: f"{len(out)} items"
+checkpoint(PS.GraphExtractionStage, "_execute_core")
+checkpoint(GX.GraphExtractor, "extract_from_text_units", lambda out, a: f"{len(out[0])} entities, {len(out[1])} relationships")
+checkpoint(GX.GraphExtractor, "_prepare_extraction_inputs", lambda out, a: f"{len(out)} prompt inputs, keys {sorted(out[0])}")
+checkpoint(GX.GraphExtractor, "_process_extraction_results", lambda out, a: f"{len(out[0])} entities, {len(out[1])} relationships")
+checkpoint(GX.GraphExtractor, "_parse_extraction_result", lambda out, a: f"chunk {a[1].attributes.get('file_name')}: {len(out[0])} entities, {len(out[1])} relationships")
+checkpoint(GX.GraphExtractor, "_merge_entities", lambda out, a: f"{len(a[0])} in -> {len(out)} out")
+checkpoint(GX.GraphExtractor, "_merge_relationships", lambda out, a: f"{len(a[0])} in -> {len(out)} out")
+checkpoint(GX.GraphExtractor, "_materialize_relationship_endpoints", lambda out, a: f"{len(a[0])} in -> {len(out)} out")
+checkpoint(GX.GraphExtractor, "_filter_entities_by_confidence", lambda out, a: f"{len(out[0])} kept, {out[1]} removed")
+
+PROMPTS.unlink(missing_ok=True)
+ctx = p.run("docs5", pipeline_id=f"stage5-{run}")
+calls = [json.loads(l) for l in PROMPTS.open()] if PROMPTS.exists() else []
+print("\nmodel calls made:", len(calls), [c["reply_used"] for c in calls])
+r = [x for x in ctx.stage_results if x.stage_name == "graph_extraction"][0]
+print("stage result: status =", r.status.value, "| in =", r.input_count, "| out =", r.output_count)
+if r.error_message: print("stage error_message:", r.error_message)
+print("stages run:", [(x.stage_name, x.status.value) for x in ctx.stage_results])
+print("stage metrics:", {k: v for k, v in r.metrics.items() if k != "extraction_stats"})
+print("extraction_stats:", {k: (round(v, 2) if isinstance(v, float) else v) for k, v in (r.metrics.get("extraction_stats") or {}).items() if k != "total_processing_time"})
+print("failed_text_unit_ids:", ctx.failed_text_unit_ids.get("graph_extraction"))
+unit_file = {u.id: u.attributes["file_name"] for u in ctx.text_units}
+print(f"\nENTITIES ({len(ctx.entities)})")
+for e in ctx.entities:
+    print(f"  {e.name:<26} type={e.type:<13} conf={e.confidence} freq={e.frequency} from={sorted(unit_file.get(i, i[:8]) for i in e.text_unit_ids)}")
+    if e.description: print(f"  {'':<26} description: {short(e.description, 120)}")
+print(f"\nRELATIONSHIPS ({len(ctx.relationships)})")
+for x in ctx.relationships:
+    print(f"  {x.source_name} --{x.type}--> {x.target_name}  weight={x.weight} from={sorted(unit_file.get(i, i[:8]) for i in x.text_unit_ids)}")
+print("\ncache files:", sorted(str(f.relative_to('cache5')) for f in Path('cache5', f'stage5-{run}').rglob('*.json')))
+```
+
+`reproduce/scripts/make_answers5.py`
+
+```python
+"""Writes answers_stage5.json: Claude's hand-written replies to the five stage 5 prompts."""
+import json
+
+def ent(name, typ, desc, conf, src):
+    return f"<entity>\n<name>{name}</name>\n<type>{typ}</type>\n<description>{desc}</description>\n<confidence>{conf}</confidence>\n<source_text>{src}</source_text>\n</entity>"
+def rel(s, t, typ, desc, strength, src):
+    return f"<relationship>\n<source>{s}</source>\n<target>{t}</target>\n<type>{typ}</type>\n<description>{desc}</description>\n<strength>{strength}</strength>\n<source_text>{src}</source_text>\n</relationship>"
+def reply(ents, rels):
+    return "<entities>\n" + "\n".join(ents) + "\n</entities>\n\n<relationships>\n" + "\n".join(rels) + "\n</relationships>"
+
+A = {}
+# 01_acme.txt
+A["481b2e4f4b"] = reply([
+    ent("Acme Robotics", "ORGANIZATION", "A company based in Pune that builds warehouse robots and has 120 employees.", 10, "Acme Robotics is a company based in Pune."),
+    ent("Pune", "LOCATION", "The city where Acme Robotics is based.", 10, "Acme Robotics is a company based in Pune."),
+    ent("Meera Shah", "PERSON", "The founder of Acme Robotics.", 10, "It was founded by Meera Shah in 2015."),
+    ent("2015", "TEMPORAL", "The year Acme Robotics was founded.", 9, "It was founded by Meera Shah in 2015."),
+    ent("warehouse robots", "OBJECT", "The products Acme Robotics builds.", 8, "Acme builds warehouse robots."),
+], [
+    rel("Acme Robotics", "Pune", "LOCATED_IN", "Acme Robotics is based in Pune.", 9, "Acme Robotics is a company based in Pune."),
+    rel("Meera Shah", "Acme Robotics", "FOUNDED", "Meera Shah founded Acme Robotics in 2015.", 10, "It was founded by Meera Shah in 2015."),
+    rel("Acme Robotics", "warehouse robots", "CREATES", "Acme Robotics builds warehouse robots.", 9, "Acme builds warehouse robots."),
+])
+# 03_orbit.txt
+A["47fccd1fd4"] = reply([
+    ent("Orbit Logistics", "ORGANIZATION", "A company that runs warehouses in Mumbai and Chennai and signed a supply contract with Acme Robotics in 2022.", 10, "Orbit Logistics runs warehouses in Mumbai and Chennai."),
+    ent("Mumbai", "LOCATION", "A city where Orbit Logistics runs warehouses.", 10, "Orbit Logistics runs warehouses in Mumbai and Chennai."),
+    ent("Chennai", "LOCATION", "A city where Orbit Logistics runs warehouses.", 10, "Orbit Logistics runs warehouses in Mumbai and Chennai."),
+    ent("Acme Robotics", "ORGANIZATION", "A company that signed a supply contract with Orbit Logistics in 2022.", 9, "In 2022 Orbit Logistics signed a supply contract with Acme Robotics."),
+    ent("supply contract", "OBJECT", "The contract signed between Orbit Logistics and Acme Robotics in 2022.", 8, "signed a supply contract with Acme Robotics"),
+    ent("2022", "TEMPORAL", "The year the supply contract was signed.", 9, "In 2022 Orbit Logistics signed a supply contract"),
+], [
+    rel("Orbit Logistics", "Mumbai", "OPERATES", "Orbit Logistics runs warehouses in Mumbai.", 8, "Orbit Logistics runs warehouses in Mumbai and Chennai."),
+    rel("Orbit Logistics", "Chennai", "OPERATES", "Orbit Logistics runs warehouses in Chennai.", 8, "Orbit Logistics runs warehouses in Mumbai and Chennai."),
+    rel("Orbit Logistics", "Acme Robotics", "PARTNERS_WITH", "Orbit Logistics signed a supply contract with Acme Robotics in 2022.", 8, "In 2022 Orbit Logistics signed a supply contract with Acme Robotics."),
+])
+# 02_meera.txt
+A["af258f25ff"] = reply([
+    ent("Meera Shah", "PERSON", "A person who studied engineering at IIT Bombay and worked at Orbit Logistics as a hardware lead before Acme Robotics.", 10, "Meera Shah studied engineering at IIT Bombay."),
+    ent("IIT Bombay", "ORGANIZATION", "The institution where Meera Shah studied engineering.", 10, "Meera Shah studied engineering at IIT Bombay."),
+    ent("Acme Robotics", "ORGANIZATION", "A company Meera Shah was at after Orbit Logistics.", 8, "Before Acme Robotics she worked at Orbit Logistics as a hardware lead."),
+    ent("Orbit Logistics", "ORGANIZATION", "A company where Meera Shah worked as a hardware lead before Acme Robotics.", 9, "she worked at Orbit Logistics as a hardware lead."),
+], [
+    rel("Meera Shah", "IIT Bombay", "STUDIED_AT", "Meera Shah studied engineering at IIT Bombay.", 8, "Meera Shah studied engineering at IIT Bombay."),
+    rel("Meera Shah", "Orbit Logistics", "WORKED_AT", "Meera Shah worked at Orbit Logistics as a hardware lead before Acme Robotics.", 7, "she worked at Orbit Logistics as a hardware lead."),
+])
+# 05_investor.txt
+A["e5a610dbad"] = reply([
+    ent("Banyan Capital", "ORGANIZATION", "An investor in Acme Robotics since 2019.", 10, "Banyan Capital invested in Acme Robotics in 2019."),
+    ent("Acme Robotics", "ORGANIZATION", "A company that Banyan Capital invested in in 2019.", 10, "Banyan Capital invested in Acme Robotics in 2019."),
+    ent("2019", "TEMPORAL", "The year Banyan Capital invested in Acme Robotics.", 9, "Banyan Capital invested in Acme Robotics in 2019."),
+    ent("Ravi Menon", "PERSON", "A partner at Banyan Capital who sits on the Acme board.", 10, "Ravi Menon, a partner at Banyan Capital, sits on the Acme board."),
+    ent("Acme board", "ORGANIZATION", "The board of Acme Robotics, on which Ravi Menon sits.", 7, "sits on the Acme board."),
+], [
+    rel("Banyan Capital", "Acme Robotics", "INVESTED_IN", "Banyan Capital invested in Acme Robotics in 2019.", 9, "Banyan Capital invested in Acme Robotics in 2019."),
+    rel("Ravi Menon", "Banyan Capital", "PART_OF", "Ravi Menon is a partner at Banyan Capital.", 8, "Ravi Menon, a partner at Banyan Capital"),
+    rel("Ravi Menon", "Acme board", "PART_OF", "Ravi Menon sits on the Acme board.", 8, "sits on the Acme board."),
+    rel("Acme board", "Acme Robotics", "PART_OF", "The Acme board is the board of Acme Robotics.", 7, "sits on the Acme board."),
+])
+# 04_product.txt
+A["21733b78c0"] = reply([
+    ent("Acme Picker X2", "OBJECT", "A warehouse robot that lifts up to 40 kg, used by Orbit Logistics in its Chennai warehouse.", 10, "The Acme Picker X2 is a warehouse robot that lifts up to 40 kg."),
+    ent("Orbit Logistics", "ORGANIZATION", "A company that uses the Picker X2 in its Chennai warehouse.", 10, "Orbit Logistics uses the Picker X2 in its Chennai warehouse."),
+    ent("Chennai", "LOCATION", "The city of the Orbit Logistics warehouse where the Picker X2 is used.", 9, "in its Chennai warehouse."),
+], [
+    rel("Orbit Logistics", "Acme Picker X2", "USES", "Orbit Logistics uses the Picker X2 in its Chennai warehouse.", 9, "Orbit Logistics uses the Picker X2 in its Chennai warehouse."),
+    rel("Acme Picker X2", "Chennai", "LOCATED_IN", "The Picker X2 is used in the Orbit Logistics warehouse in Chennai.", 6, "uses the Picker X2 in its Chennai warehouse."),
+])
+json.dump(A, open("answers_stage5.json", "w"), indent=1, ensure_ascii=False); open("answers_stage5.json", "a").write("\n")
+print(len(A), "answers written")
+```
+
+`reproduce/scripts/answers_stage5.json`
+
+```json
+{
+ "481b2e4f4b": "<entities>\n<entity>\n<name>Acme Robotics</name>\n<type>ORGANIZATION</type>\n<description>A company based in Pune that builds warehouse robots and has 120 employees.</description>\n<confidence>10</confidence>\n<source_text>Acme Robotics is a company based in Pune.</source_text>\n</entity>\n<entity>\n<name>Pune</name>\n<type>LOCATION</type>\n<description>The city where Acme Robotics is based.</description>\n<confidence>10</confidence>\n<source_text>Acme Robotics is a company based in Pune.</source_text>\n</entity>\n<entity>\n<name>Meera Shah</name>\n<type>PERSON</type>\n<description>The founder of Acme Robotics.</description>\n<confidence>10</confidence>\n<source_text>It was founded by Meera Shah in 2015.</source_text>\n</entity>\n<entity>\n<name>2015</name>\n<type>TEMPORAL</type>\n<description>The year Acme Robotics was founded.</description>\n<confidence>9</confidence>\n<source_text>It was founded by Meera Shah in 2015.</source_text>\n</entity>\n<entity>\n<name>warehouse robots</name>\n<type>OBJECT</type>\n<description>The products Acme Robotics builds.</description>\n<confidence>8</confidence>\n<source_text>Acme builds warehouse robots.</source_text>\n</entity>\n</entities>\n\n<relationships>\n<relationship>\n<source>Acme Robotics</source>\n<target>Pune</target>\n<type>LOCATED_IN</type>\n<description>Acme Robotics is based in Pune.</description>\n<strength>9</strength>\n<source_text>Acme Robotics is a company based in Pune.</source_text>\n</relationship>\n<relationship>\n<source>Meera Shah</source>\n<target>Acme Robotics</target>\n<type>FOUNDED</type>\n<description>Meera Shah founded Acme Robotics in 2015.</description>\n<strength>10</strength>\n<source_text>It was founded by Meera Shah in 2015.</source_text>\n</relationship>\n<relationship>\n<source>Acme Robotics</source>\n<target>warehouse robots</target>\n<type>CREATES</type>\n<description>Acme Robotics builds warehouse robots.</description>\n<strength>9</strength>\n<source_text>Acme builds warehouse robots.</source_text>\n</relationship>\n</relationships>",
+ "47fccd1fd4": "<entities>\n<entity>\n<name>Orbit Logistics</name>\n<type>ORGANIZATION</type>\n<description>A company that runs warehouses in Mumbai and Chennai and signed a supply contract with Acme Robotics in 2022.</description>\n<confidence>10</confidence>\n<source_text>Orbit Logistics runs warehouses in Mumbai and Chennai.</source_text>\n</entity>\n<entity>\n<name>Mumbai</name>\n<type>LOCATION</type>\n<description>A city where Orbit Logistics runs warehouses.</description>\n<confidence>10</confidence>\n<source_text>Orbit Logistics runs warehouses in Mumbai and Chennai.</source_text>\n</entity>\n<entity>\n<name>Chennai</name>\n<type>LOCATION</type>\n<description>A city where Orbit Logistics runs warehouses.</description>\n<confidence>10</confidence>\n<source_text>Orbit Logistics runs warehouses in Mumbai and Chennai.</source_text>\n</entity>\n<entity>\n<name>Acme Robotics</name>\n<type>ORGANIZATION</type>\n<description>A company that signed a supply contract with Orbit Logistics in 2022.</description>\n<confidence>9</confidence>\n<source_text>In 2022 Orbit Logistics signed a supply contract with Acme Robotics.</source_text>\n</entity>\n<entity>\n<name>supply contract</name>\n<type>OBJECT</type>\n<description>The contract signed between Orbit Logistics and Acme Robotics in 2022.</description>\n<confidence>8</confidence>\n<source_text>signed a supply contract with Acme Robotics</source_text>\n</entity>\n<entity>\n<name>2022</name>\n<type>TEMPORAL</type>\n<description>The year the supply contract was signed.</description>\n<confidence>9</confidence>\n<source_text>In 2022 Orbit Logistics signed a supply contract</source_text>\n</entity>\n</entities>\n\n<relationships>\n<relationship>\n<source>Orbit Logistics</source>\n<target>Mumbai</target>\n<type>OPERATES</type>\n<description>Orbit Logistics runs warehouses in Mumbai.</description>\n<strength>8</strength>\n<source_text>Orbit Logistics runs warehouses in Mumbai and Chennai.</source_text>\n</relationship>\n<relationship>\n<source>Orbit Logistics</source>\n<target>Chennai</target>\n<type>OPERATES</type>\n<description>Orbit Logistics runs warehouses in Chennai.</description>\n<strength>8</strength>\n<source_text>Orbit Logistics runs warehouses in Mumbai and Chennai.</source_text>\n</relationship>\n<relationship>\n<source>Orbit Logistics</source>\n<target>Acme Robotics</target>\n<type>PARTNERS_WITH</type>\n<description>Orbit Logistics signed a supply contract with Acme Robotics in 2022.</description>\n<strength>8</strength>\n<source_text>In 2022 Orbit Logistics signed a supply contract with Acme Robotics.</source_text>\n</relationship>\n</relationships>",
+ "af258f25ff": "<entities>\n<entity>\n<name>Meera Shah</name>\n<type>PERSON</type>\n<description>A person who studied engineering at IIT Bombay and worked at Orbit Logistics as a hardware lead before Acme Robotics.</description>\n<confidence>10</confidence>\n<source_text>Meera Shah studied engineering at IIT Bombay.</source_text>\n</entity>\n<entity>\n<name>IIT Bombay</name>\n<type>ORGANIZATION</type>\n<description>The institution where Meera Shah studied engineering.</description>\n<confidence>10</confidence>\n<source_text>Meera Shah studied engineering at IIT Bombay.</source_text>\n</entity>\n<entity>\n<name>Acme Robotics</name>\n<type>ORGANIZATION</type>\n<description>A company Meera Shah was at after Orbit Logistics.</description>\n<confidence>8</confidence>\n<source_text>Before Acme Robotics she worked at Orbit Logistics as a hardware lead.</source_text>\n</entity>\n<entity>\n<name>Orbit Logistics</name>\n<type>ORGANIZATION</type>\n<description>A company where Meera Shah worked as a hardware lead before Acme Robotics.</description>\n<confidence>9</confidence>\n<source_text>she worked at Orbit Logistics as a hardware lead.</source_text>\n</entity>\n</entities>\n\n<relationships>\n<relationship>\n<source>Meera Shah</source>\n<target>IIT Bombay</target>\n<type>STUDIED_AT</type>\n<description>Meera Shah studied engineering at IIT Bombay.</description>\n<strength>8</strength>\n<source_text>Meera Shah studied engineering at IIT Bombay.</source_text>\n</relationship>\n<relationship>\n<source>Meera Shah</source>\n<target>Orbit Logistics</target>\n<type>WORKED_AT</type>\n<description>Meera Shah worked at Orbit Logistics as a hardware lead before Acme Robotics.</description>\n<strength>7</strength>\n<source_text>she worked at Orbit Logistics as a hardware lead.</source_text>\n</relationship>\n</relationships>",
+ "e5a610dbad": "<entities>\n<entity>\n<name>Banyan Capital</name>\n<type>ORGANIZATION</type>\n<description>An investor in Acme Robotics since 2019.</description>\n<confidence>10</confidence>\n<source_text>Banyan Capital invested in Acme Robotics in 2019.</source_text>\n</entity>\n<entity>\n<name>Acme Robotics</name>\n<type>ORGANIZATION</type>\n<description>A company that Banyan Capital invested in in 2019.</description>\n<confidence>10</confidence>\n<source_text>Banyan Capital invested in Acme Robotics in 2019.</source_text>\n</entity>\n<entity>\n<name>2019</name>\n<type>TEMPORAL</type>\n<description>The year Banyan Capital invested in Acme Robotics.</description>\n<confidence>9</confidence>\n<source_text>Banyan Capital invested in Acme Robotics in 2019.</source_text>\n</entity>\n<entity>\n<name>Ravi Menon</name>\n<type>PERSON</type>\n<description>A partner at Banyan Capital who sits on the Acme board.</description>\n<confidence>10</confidence>\n<source_text>Ravi Menon, a partner at Banyan Capital, sits on the Acme board.</source_text>\n</entity>\n<entity>\n<name>Acme board</name>\n<type>ORGANIZATION</type>\n<description>The board of Acme Robotics, on which Ravi Menon sits.</description>\n<confidence>7</confidence>\n<source_text>sits on the Acme board.</source_text>\n</entity>\n</entities>\n\n<relationships>\n<relationship>\n<source>Banyan Capital</source>\n<target>Acme Robotics</target>\n<type>INVESTED_IN</type>\n<description>Banyan Capital invested in Acme Robotics in 2019.</description>\n<strength>9</strength>\n<source_text>Banyan Capital invested in Acme Robotics in 2019.</source_text>\n</relationship>\n<relationship>\n<source>Ravi Menon</source>\n<target>Banyan Capital</target>\n<type>PART_OF</type>\n<description>Ravi Menon is a partner at Banyan Capital.</description>\n<strength>8</strength>\n<source_text>Ravi Menon, a partner at Banyan Capital</source_text>\n</relationship>\n<relationship>\n<source>Ravi Menon</source>\n<target>Acme board</target>\n<type>PART_OF</type>\n<description>Ravi Menon sits on the Acme board.</description>\n<strength>8</strength>\n<source_text>sits on the Acme board.</source_text>\n</relationship>\n<relationship>\n<source>Acme board</source>\n<target>Acme Robotics</target>\n<type>PART_OF</type>\n<description>The Acme board is the board of Acme Robotics.</description>\n<strength>7</strength>\n<source_text>sits on the Acme board.</source_text>\n</relationship>\n</relationships>",
+ "21733b78c0": "<entities>\n<entity>\n<name>Acme Picker X2</name>\n<type>OBJECT</type>\n<description>A warehouse robot that lifts up to 40 kg, used by Orbit Logistics in its Chennai warehouse.</description>\n<confidence>10</confidence>\n<source_text>The Acme Picker X2 is a warehouse robot that lifts up to 40 kg.</source_text>\n</entity>\n<entity>\n<name>Orbit Logistics</name>\n<type>ORGANIZATION</type>\n<description>A company that uses the Picker X2 in its Chennai warehouse.</description>\n<confidence>10</confidence>\n<source_text>Orbit Logistics uses the Picker X2 in its Chennai warehouse.</source_text>\n</entity>\n<entity>\n<name>Chennai</name>\n<type>LOCATION</type>\n<description>The city of the Orbit Logistics warehouse where the Picker X2 is used.</description>\n<confidence>9</confidence>\n<source_text>in its Chennai warehouse.</source_text>\n</entity>\n</entities>\n\n<relationships>\n<relationship>\n<source>Orbit Logistics</source>\n<target>Acme Picker X2</target>\n<type>USES</type>\n<description>Orbit Logistics uses the Picker X2 in its Chennai warehouse.</description>\n<strength>9</strength>\n<source_text>Orbit Logistics uses the Picker X2 in its Chennai warehouse.</source_text>\n</relationship>\n<relationship>\n<source>Acme Picker X2</source>\n<target>Chennai</target>\n<type>LOCATED_IN</type>\n<description>The Picker X2 is used in the Orbit Logistics warehouse in Chennai.</description>\n<strength>6</strength>\n<source_text>uses the Picker X2 in its Chennai warehouse.</source_text>\n</relationship>\n</relationships>"
+}
+```
+
+`reproduce/scripts/stage5_step1_build.py`
+
+```python
+"""Stage 5, step 1: what is built when the graph extraction stage is constructed.
+No chunk is processed and no model is called. Usage: python stage5_step1_build.py"""
+import functools, logging
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.application.ingestion import pipeline_stages as PS
+from unified_kg_rag.adapters.ingestion import graph_extractor as GX
+from unified_kg_rag.domain.prompts import GraphExtractionPrompt
+from fake_llm import HandAnsweredFactory
+
+def checkpoint(owner, name, label):
+    orig = getattr(owner, name)
+    @functools.wraps(orig)
+    def w(*a, **k):
+        shown = {kk: (getattr(v, "__name__", None) or type(v).__name__ if not isinstance(v, (str, int, float, bool, type(None))) else v) for kk, v in k.items()}
+        print(f"CHECKPOINT -> {label}  called with {shown}")
+        out = orig(*a, **k)
+        print(f"           returned: {type(out).__name__}")
+        return out
+    setattr(owner, name, w)
+
+config = get_config()
+gx = config.processing.graph_extraction
+print("settings read by the constructor:")
+print("  config.processing.ignore_errors             =", config.processing.ignore_errors)
+print("  config.fixing.enabled                       =", config.fixing.enabled)
+print("  config.fixing.fixing_model_id               =", config.fixing.fixing_model_id)
+print("  graph_extraction.extraction_model_id        =", gx.extraction_model_id)
+print("  GraphExtractionPrompt.min_output_tokens     =", GraphExtractionPrompt.min_output_tokens)
+print("  config.custom_prompts                       =", config.custom_prompts)
+print()
+factory = HandAnsweredFactory(config)
+checkpoint(factory, "get_model", "factory.get_model")
+checkpoint(GX, "create_robust_xml_output_parser", "create_robust_xml_output_parser")
+checkpoint(GX, "setup_chain", "setup_chain")
+providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
+
+print(">>> GraphExtractionStage(config, providers=providers)")
+stage = PS.GraphExtractionStage(config, providers=providers)
+x = stage.extractor
+print()
+print("after construction:")
+print("  stage.name                 =", stage.name)
+print("  stage.extractor            =", type(x).__name__)
+print("  extractor.ignore_errors    =", x.ignore_errors)
+print("  extractor.factory          =", type(x.factory).__name__, "(the stand-in; normally the Bedrock factory)")
+print("  extractor.batch_processor  =", type(x.batch_processor).__name__)
+print("  extractor.stats            =", x.stats)
+print("  extractor.graph_extractor  =", type(x.graph_extractor).__name__, "named", repr(x.graph_extractor.config.get("run_name")))
+steps = x.graph_extractor.bound.steps
+for i, s in enumerate(steps, 1):
+    print(f"     step {i}: {type(s).__name__}")
+print("  prompt messages            =", [type(m).__name__ for m in steps[0].messages])
+print("  prompt variables to fill   =", sorted(steps[0].input_variables))
+print("  models asked for           =", factory.requested)
+```
+
+`reproduce/scripts/stage5_step1b_inside_setup.py`
+
+```python
+"""Stage 5, step 1b: step line by line through create_robust_xml_output_parser and setup_chain,
+as they run when the graph extractor is built, then show what the finished reader does with one reply.
+Uses Python's line tracer: every executed line of those two functions is printed with its line number,
+followed by any local variable that was created or changed by it.
+Usage: python stage5_step1b_inside_setup.py   (answers.json with the stage 5 answers must be present)"""
+import json, linecache, logging, sys
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.adapters.aws import chain_factory as CF
+from unified_kg_rag.adapters.ingestion.graph_extractor import GraphExtractor
+from fake_llm import HandAnsweredFactory
+
+WATCH = {CF.create_robust_xml_output_parser.__code__, CF.setup_chain.__code__}
+
+def show(v):
+    if isinstance(v, (str, int, float, bool, type(None))):
+        r = repr(v); return r if len(r) < 90 else r[:87] + "..."
+    name = type(v).__name__
+    if name == "ResolvedPrompt":
+        return f"ResolvedPrompt(system_prompt_template: {len(v.system_prompt_template)} chars, human_prompt_template: {len(v.human_prompt_template)} chars)"
+    if name == "ChatPromptTemplate":
+        return f"ChatPromptTemplate(messages={[type(m).__name__ for m in v.messages]}, input_variables={sorted(v.input_variables)})"
+    if name == "OutputFixingParser":
+        return f"OutputFixingParser(parser={type(v.parser).__name__}, max_retries={v.max_retries}, retry_chain=prompt|{type(v.retry_chain.steps[1]).__name__}|...)"
+    if name == "RunnableBinding":
+        return f"RunnableBinding(bound={' | '.join(type(s).__name__ for s in v.bound.steps)}, config={v.config})"
+    if name in ("RunnableSequence",):
+        return " | ".join(type(s).__name__ for s in v.steps)
+    if hasattr(v, "__name__"): return v.__name__
+    return name
+
+def tracer(frame, event, arg):
+    if frame.f_code not in WATCH: return None
+    seen = {}
+    fname = frame.f_code.co_name
+    def local(frame, event, arg):
+        if event in ("line", "return"):
+            for k, v in frame.f_locals.items():
+                if k not in seen or seen[k] is not v:
+                    seen[k] = v; print(f"{'':10}{k} = {show(v)}")
+        if event == "line":
+            src = linecache.getline(frame.f_code.co_filename, frame.f_lineno).rstrip()
+            print(f"  {fname[:8]}:{frame.f_lineno:<4}{src}")
+        elif event == "return":
+            print(f"  {fname} RETURNS {show(arg)}\n")
+        return local
+    print(f"\n>>> ENTER {fname}  ({frame.f_code.co_filename.split('unified_kg_rag/')[1]})")
+    return local(frame, "call", arg)
+
+config = get_config()
+factory = HandAnsweredFactory(config)
+providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
+sys.settrace(tracer)
+extractor = GraphExtractor(config, providers=providers)
+sys.settrace(None)
+
+print("=" * 70)
+print("WHY THE READER IS NEEDED: one chunk through the finished chain, one step at a time")
+chain = extractor.graph_extractor.bound
+prompt, model, reader = chain.steps
+inputs = extractor._prepare_extraction_inputs(
+    [type("U", (), {"translated_texts": None, "text": open("docs5/01_acme.txt").read().strip(), "id": "x"})()])[0]
+messages = prompt.invoke(inputs)
+print("step 1, prompt template -> returns", type(messages).__name__, "with", len(messages.to_messages()), "messages")
+raw = model.invoke(messages)
+print("step 2, model           -> returns", type(raw).__name__, "; its .content is a", type(raw.content).__name__, "of", len(raw.content), "characters, starting:")
+print("    " + raw.content[:160].replace("\n", "\n    "))
+parsed = reader.invoke(raw)
+print("step 3, reader          -> returns", type(parsed).__name__, "with keys", list(parsed))
+print("    parsed['entities']['entity'] is a", type(parsed["entities"]["entity"]).__name__, "of", len(parsed["entities"]["entity"]))
+print("    first entity:", json.dumps(parsed["entities"]["entity"][0]))
+print("    parsed['relationships']['relationship'][0]:", json.dumps(parsed["relationships"]["relationship"][0]))
+```
+
+`reproduce/scripts/stage5_step2_inputs.py`
+
+```python
+"""Stage 5, step 2: from the start of the stage up to the moment the chunks are handed to the batch
+processor. Runs stages 1 to 5 on docs5 with the stand-in model. Line tracing is switched on when the
+stage 5 work starts and switched off at the hand-over (step 3 onward runs untraced). Afterwards the
+prompt filled in for the first chunk is printed in full.
+Usage: python stage5_step2_inputs.py   (answers.json with the stage 5 answers should be present)"""
+import logging, sys
+from pathlib import Path
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.domain.models import PipelineConfig, PipelineStageType as T
+from unified_kg_rag.domain.ingestion.base_processor import BaseProcessor
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.application.ingestion.pipeline import DataIngestionPipeline as DIP
+from unified_kg_rag.application.ingestion import pipeline_stages as PS
+from unified_kg_rag.adapters.ingestion.graph_extractor import GraphExtractor
+from unified_kg_rag.shared.utils.langchain import BatchProcessor
+from fake_llm import HandAnsweredFactory
+from linetrace import trace, default_describe
+
+def describe(v):
+    n = type(v).__name__
+    if n == "TextUnit":
+        return f"TextUnit(id={v.id[:8]}.., file={v.attributes.get('file_name')}, text={v.text[:40]!r}..., translated_texts={v.translated_texts})"
+    if n == "PipelineContext":
+        return f"PipelineContext(text_units: {len(v.text_units)}, translated_units: {len(v.translated_units)}, entities: {len(v.entities)})"
+    if n == "GraphExtractionConfig":
+        return f"GraphExtractionConfig(max_entities_per_chunk={v.max_entities_per_chunk}, max_relationships_per_chunk={v.max_relationships_per_chunk}, entity_types: {len(v.entity_types)} items, ...)"
+    if n == "ExtractionStats":
+        return f"ExtractionStats(num_total_units={v.num_total_units}, other counters all 0)"
+    if isinstance(v, dict) and "input_text" in v:
+        return "{" + ", ".join(f"{k}: {default_describe(x)}" for k, x in v.items()) + "}"
+    if isinstance(v, list) and v and isinstance(v[0], dict) and "input_text" in v[0]:
+        return f"list of {len(v)} prompt-input dicts"
+    if isinstance(v, list) and v and type(v[0]).__name__ == "TextUnit":
+        return f"list of {len(v)} TextUnit"
+    if isinstance(v, float) and v > 1e9:
+        return f"{v:.3f} (clock time, seconds)"
+    return default_describe(v)
+
+tracer = trace([PS.GraphExtractionStage._execute_core, GraphExtractor.extract_from_text_units,
+                GraphExtractor._prepare_extraction_inputs, GraphExtractor._format_entity_types,
+                BaseProcessor.get_text_for_processing], describe)
+
+orig_exec = PS.GraphExtractionStage._execute_core
+def exec_traced(self, ctx):
+    sys.settrace(tracer)
+    try: return orig_exec(self, ctx)
+    finally: sys.settrace(None)
+PS.GraphExtractionStage._execute_core = exec_traced
+
+orig_batch = BatchProcessor.execute_with_fallback
+def handover(self, **k):
+    sys.settrace(None)     # step 2 ends here
+    print("\n  ========== HAND-OVER TO THE BATCH PROCESSOR: step 3 starts here; tracing stops ==========")
+    for key, val in k.items():
+        shown = getattr(val, "__qualname__", None) or describe(val)
+        if key == "run_config": shown = f"dict with {len(val)} keys"
+        print(f"      {key} = {shown}")
+    return orig_batch(self, **k)
+BatchProcessor.execute_with_fallback = handover
+
+config = get_config()
+factory = HandAnsweredFactory(config)
+providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
+on = (T.DOCUMENT_PARSING, T.DOCUMENT_LOADING, T.TEXT_CHUNKING, T.TRANSLATION, T.GRAPH_EXTRACTION)
+pc = PipelineConfig(stages_enabled={t: t in on for t in T}, local_directory=Path("cache5"))
+p = DIP(config=config, pipeline_config=pc, source_directory=Path("docs5"), providers=providers)
+ctx = p.run("docs5", pipeline_id="stage5-step2")
+print("\n(stage 5 finished untraced; status:", [r.status.value for r in ctx.stage_results if r.stage_name == "graph_extraction"][0], ")")
+
+ex = [s for s in p.stages if s.name == "graph_extraction"][0].extractor
+print("\n" + "=" * 70)
+print("_prepare_extraction_inputs, traced on its own with the same 5 chunks.")
+print("(In the run it is not called by extract_from_text_units; it is passed to the batch processor, which calls it: step 3.)")
+sys.settrace(tracer)
+prepared = ex._prepare_extraction_inputs(ctx.text_units)
+sys.settrace(None)
+print("\n" + "=" * 70)
+print("THE PROMPT AS FILLED IN FOR THE FIRST CHUNK")
+unit = ctx.text_units[0]
+inputs = ex._prepare_extraction_inputs([unit])[0]
+msgs = ex.graph_extractor.bound.steps[0].invoke(inputs).to_messages()
+sysmsg, human = msgs[0].content, msgs[1].content
+a = sysmsg.index("## Entity Categories"); b = sysmsg.index("## Entity Naming")
+print(f"--- system message: {len(sysmsg)} characters; the part where {{entity_types}} was filled in:")
+print(sysmsg[a:b].rstrip())
+print(f"--- human message: {len(human)} characters, in full:")
+print(human)
+```
+
+`reproduce/scripts/stage5_step3a_batch.py`
+
+```python
+"""Stage 5, step 3a: inside the batch processor on the normal path (every model call succeeds).
+Runs stages 1 to 5 on docs5 with the stand-in model and traces BatchProcessor.execute_with_fallback
+line by line, including the helpers defined inside it. The call to the chain itself runs in a worker
+thread; the tracer is installed for new threads too (threading.settrace) so those lines show as well.
+_prepare_extraction_inputs is not traced again (step 2); only what it returns is shown.
+Usage: python stage5_step3a_batch.py   (answers.json with the stage 5 answers must be present)"""
+import logging, sys, threading
+from pathlib import Path
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.domain.models import PipelineConfig, PipelineStageType as T
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.application.ingestion.pipeline import DataIngestionPipeline as DIP
+from unified_kg_rag.application.ingestion import pipeline_stages as PS
+from unified_kg_rag.shared.utils.langchain import BatchProcessor as BP
+from fake_llm import HandAnsweredFactory
+from linetrace import trace, inner_code, default_describe
+
+def describe(v):
+    n = type(v).__name__
+    if n == "TextUnit": return f"TextUnit({v.attributes.get('file_name')})"
+    if isinstance(v, dict) and "input_text" in v: return f"prompt-input dict for {v['input_text'][:30]!r}..."
+    if isinstance(v, dict) and set(v) >= {"entities"}: return f"parsed reply dict, keys {list(v)}"
+    if isinstance(v, list) and v and isinstance(v[0], dict) and "input_text" in v[0]: return f"list of {len(v)} prompt-input dicts"
+    if isinstance(v, list) and v and isinstance(v[0], dict) and "entities" in v[0]: return f"list of {len(v)} parsed reply dicts (keys {list(v[0])})"
+    if isinstance(v, list) and v and type(v[0]).__name__ == "TextUnit": return f"list of {len(v)} TextUnit: {[x.attributes.get('file_name') for x in v]}"
+    if isinstance(v, list) and v and isinstance(v[0], tuple) and len(v[0]) == 2 and isinstance(v[0][1], list):
+        return f"list of {len(v)} (chunk number, items) pairs: " + str([(a, len(b)) for a, b in v]) + "  <- (number, how many chunks of text)"
+    if isinstance(v, dict) and v and all(isinstance(k, int) for k in v): return "{" + ", ".join(f"{k}: {describe(x)}" for k, x in v.items()) + "}"
+    if n == "dict" and "max_concurrency" in v:
+        return "processing settings: " + str({k: v[k] for k in ("max_concurrency", "batch_size", "chunk_concurrency", "max_attempts")}) + f" + {len(v) - 4} other keys"
+    if n == "RunnableConfig" or (isinstance(v, dict) and "max_concurrency" in v): return f"{v}"
+    if isinstance(v, dict) and "return_exceptions" in v: return str(v)
+    if callable(v) and hasattr(v, "__qualname__"): return f"function {v.__qualname__}"
+    return default_describe(v)
+
+EWF = BP.execute_with_fallback
+tracer = trace([EWF, inner_code(EWF, "timed_sequential_func"), inner_code(EWF, "process_chunk"),
+                inner_code(inner_code(EWF, "process_chunk"), "run_batch"),
+                BP._create_batch_func, inner_code(BP._create_batch_func, "_batch_func"),
+                BP._batch_kwargs, BP._run_with_timeout, BP._failed_indices], describe)
+
+orig_exec = PS.GraphExtractionStage._execute_core
+def exec_traced(self, ctx):
+    print("BatchProcessor fields before the call:", {k: getattr(self.extractor.batch_processor, k) for k in
+          ("max_concurrency", "batch_size", "chunk_concurrency", "max_attempts", "retry_multiplier", "retry_max_wait", "call_timeout_seconds")})
+    sys.settrace(tracer); threading.settrace(tracer)
+    try: return orig_exec(self, ctx)
+    finally: sys.settrace(None); threading.settrace(None)
+PS.GraphExtractionStage._execute_core = exec_traced
+
+config = get_config()
+factory = HandAnsweredFactory(config)
+providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
+on = (T.DOCUMENT_PARSING, T.DOCUMENT_LOADING, T.TEXT_CHUNKING, T.TRANSLATION, T.GRAPH_EXTRACTION)
+pc = PipelineConfig(stages_enabled={t: t in on for t in T}, local_directory=Path("cache5"))
+p = DIP(config=config, pipeline_config=pc, source_directory=Path("docs5"), providers=providers)
+ctx = p.run("docs5", pipeline_id="stage5-step3a")
+r = [x for x in ctx.stage_results if x.stage_name == "graph_extraction"][0]
+print("stage 5 status:", r.status.value, "| entities:", len(ctx.entities), "| relationships:", len(ctx.relationships))
+```
+
+`reproduce/scripts/stage5_step3b_failures.py`
+
+```python
+"""Stage 5, step 3b: the batch processor's failure paths. Usage: python stage5_step3b_failures.py MODE
+
+Only the chunk from 05_investor.txt misbehaves; the other four get their normal hand-written answers.
+  throttle-once    AWS-style ThrottlingException on the first call for that chunk, then a normal reply
+  denied-always    AWS-style AccessDeniedException on every call for that chunk
+  throttle-always  AWS-style ThrottlingException on every call for that chunk
+  (set IGNORE_ERRORS=on to switch processing.ignore_errors on)
+  hang-once        the first call for that chunk sleeps 4 s; the group time limit is set to 2 s
+
+Changes made by THIS SCRIPT (not by the repo), so the runs finish quickly:
+  batch_processor.retry_multiplier = 1.0, retry_max_wait = 2   (repo: 30.0 and 120 seconds)
+  hang-once only: batch_processor.call_timeout_seconds = 2     (repo: 300 seconds)
+These are fields of the BatchProcessor object; the config file cannot set them (step 3a).
+"""
+import collections, json, logging, sys, threading, time
+from pathlib import Path
+import boto3
+from botocore.exceptions import ClientError
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.domain.models import PipelineConfig, PipelineStageType as T
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.application.ingestion.pipeline import DataIngestionPipeline as DIP
+from unified_kg_rag.application.ingestion import pipeline_stages as PS
+from unified_kg_rag.shared.utils.langchain import BatchProcessor as BP, BATCH_ITEM_FAILED
+import fake_llm
+from fake_llm import HandAnsweredFactory, HandAnsweredModel, PROMPTS
+from linetrace import trace, inner_code, default_describe
+
+MODE = sys.argv[1]
+CALLS = collections.Counter(); LOCK = threading.Lock()
+EVENTS = []   # (seconds since start, what happened), printed at the end
+
+class TroubledModel(HandAnsweredModel):
+    def _generate(self, messages, stop=None, run_manager=None, **kwargs):
+        text = messages[-1].content
+        if "Banyan Capital invested" in text:
+            with LOCK: CALLS["05"] += 1; n = CALLS["05"]
+            EVENTS.append((round(time.monotonic() - T0, 2), f"model called for chunk 05, call #{n}"))
+            if MODE == "throttle-once" and n == 1 or MODE == "throttle-always":
+                raise ClientError({"Error": {"Code": "ThrottlingException", "Message": "Rate exceeded"}}, "Converse")
+            if MODE == "denied-always":
+                raise ClientError({"Error": {"Code": "AccessDeniedException", "Message": "not allowed"}}, "Converse")
+            if MODE == "hang-once" and n == 1:
+                time.sleep(4)
+                EVENTS.append((round(time.monotonic() - T0, 2), "chunk 05 call #1 finally finished sleeping (in the abandoned thread)"))
+        else:
+            with LOCK: CALLS["others"] += 1
+        return super()._generate(messages, stop, run_manager, **kwargs)
+
+class TroubledFactory(HandAnsweredFactory):
+    def get_model(self, model_id, **kwargs):
+        return TroubledModel(model_id=str(getattr(model_id, "value", model_id)))
+
+def describe(v):
+    n = type(v).__name__
+    if v is BATCH_ITEM_FAILED: return "BATCH_ITEM_FAILED"
+    if isinstance(v, BaseException): return f"{n}: {str(v)[:70]}"
+    if n == "TextUnit": return f"TextUnit({v.attributes.get('file_name')})"
+    if isinstance(v, dict) and "input_text" in v: return f"prompt-input for {v['input_text'][:22]!r}..."
+    if isinstance(v, dict) and "entities" in v: return "parsed reply dict"
+    if isinstance(v, list) and v and all(isinstance(x, dict) and "input_text" in x for x in v): return f"list of {len(v)} prompt-inputs"
+    if isinstance(v, list) and v and type(v[0]).__name__ == "TextUnit": return f"list of {len(v)} TextUnit"
+    if isinstance(v, list): return "[" + ", ".join(describe(x) for x in v) + "]"
+    if isinstance(v, dict) and v and all(isinstance(k, int) for k in v): return "{" + ", ".join(f"{k}: {describe(x)}" for k, x in v.items()) + "}"
+    if callable(v) and hasattr(v, "__qualname__"): return f"function {v.__qualname__.split('.')[-1]}"
+    return default_describe(v)
+
+EWF = BP.execute_with_fallback
+tracer = trace([inner_code(EWF, "process_chunk"), inner_code(EWF, "timed_sequential_func"),
+                BP._failed_indices, BP._log_partial_failure, BP._process_sequentially_with_fallback,
+                BP._splice_retried, BP._is_retryable, inner_code(BP._create_retry_log_callback, "log_retry")], describe)
+
+orig_exec = PS.GraphExtractionStage._execute_core
+def exec_traced(self, ctx):
+    bp = self.extractor.batch_processor
+    bp.retry_multiplier, bp.retry_max_wait = 1.0, 2
+    if MODE == "hang-once": bp.call_timeout_seconds = 2
+    print("batch processor timing used for this run:", {k: getattr(bp, k) for k in ("retry_multiplier", "retry_max_wait", "call_timeout_seconds", "max_attempts")})
+    sys.settrace(tracer); threading.settrace(tracer)
+    try: return orig_exec(self, ctx)
+    finally: sys.settrace(None); threading.settrace(None)
+PS.GraphExtractionStage._execute_core = exec_traced
+
+config = get_config()
+import os
+if os.environ.get("IGNORE_ERRORS") == "on": config.processing.ignore_errors = True
+print("config.processing.ignore_errors =", config.processing.ignore_errors)
+factory = TroubledFactory(config)
+providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=factory)
+on = (T.DOCUMENT_PARSING, T.DOCUMENT_LOADING, T.TEXT_CHUNKING, T.TRANSLATION, T.GRAPH_EXTRACTION)
+pc = PipelineConfig(stages_enabled={t: t in on for t in T}, local_directory=Path("cache5"))
+p = DIP(config=config, pipeline_config=pc, source_directory=Path("docs5"), providers=providers)
+T0 = time.monotonic()
+ctx = p.run("docs5", pipeline_id=f"stage5-step3b-{MODE}")
+time.sleep(5 if MODE == "hang-once" else 0)   # let an abandoned call finish, so it is counted
+print("\n========== SUMMARY ==========")
+print("model calls for chunk 05:", CALLS["05"], "| model calls for the other four chunks:", CALLS["others"])
+for t, e in EVENTS: print(f"  t={t:>5}s  {e}")
+r = [x for x in ctx.stage_results if x.stage_name == "graph_extraction"][0]
+print("stage 5 status:", r.status.value, "| failed_units:", r.metrics.get("failed_units"),
+      "| entities:", len(ctx.entities), "| relationships:", len(ctx.relationships))
+unit_file = {u.id: u.attributes["file_name"] for u in ctx.text_units}
+print("failed chunks:", [unit_file[i] for i in ctx.failed_text_unit_ids.get("graph_extraction", [])])
+```
+
 ### Appendix H. Self-extraction test
 
 **[RAN]** Every file was extracted from this document by the rules in section 0.5 and compared with the original.
 
 ```text
 $ python build/extract.py HANDOFF.md extract_test
-33 files written
+42 files written
 $ diff -r reproduce extract_test/reproduce
-(no differences: all 33 files identical, byte for byte)
+(no differences: all 42 files identical, byte for byte)
 ```
