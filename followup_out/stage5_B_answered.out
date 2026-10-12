@@ -1,0 +1,87 @@
+settings: max_entities_per_chunk=50 | max_relationships_per_chunk=50 | entity_confidence_threshold=0.0 | grounding enabled=False action=drop | ignore_errors=False
+stages built: ['document_parsing', 'document_loading', 'text_chunking', 'translation', 'graph_extraction']
+CHECKPOINT -> GraphExtractionStage._execute_core
+CHECKPOINT -> GraphExtractor.extract_from_text_units
+CHECKPOINT -> GraphExtractor._prepare_extraction_inputs
+           returned: "5 prompt inputs, keys ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chun...
+CHECKPOINT -> GraphExtractor._process_extraction_results
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 01_acme.txt: 5 entities, 3 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 02_meera.txt: 4 entities, 2 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 03_orbit.txt: 6 entities, 3 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 04_product.txt: 3 entities, 2 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 05_investor.txt: 5 entities, 4 relationships'
+CHECKPOINT -> GraphExtractor._merge_entities
+           returned: '23 in -> 16 out'
+CHECKPOINT -> GraphExtractor._merge_relationships
+           returned: '14 in -> 14 out'
+CHECKPOINT -> GraphExtractor._materialize_relationship_endpoints
+           returned: '16 in -> 16 out'
+CHECKPOINT -> GraphExtractor._filter_entities_by_confidence
+           returned: '16 kept, 0 removed'
+           returned: '16 entities, 14 relationships'
+           returned: '16 entities, 14 relationships'
+           returned: (5, 30, {'text_units_processed': 5, 'entities_extracted': 16, 'relationships_extracted': 14, 'failed_units'...
+
+model calls made: 5 ['hand-written answer', 'hand-written answer', 'hand-written answer', 'hand-written answer', 'hand-written answer']
+stage result: status = completed | in = 5 | out = 30
+stages run: [('document_parsing', 'completed'), ('document_loading', 'completed'), ('text_chunking', 'completed'), ('translation', 'completed'), ('graph_extraction', 'completed')]
+stage metrics: {'text_units_processed': 5, 'entities_extracted': 16, 'relationships_extracted': 14, 'failed_units': 0}
+extraction_stats: {'num_total_units': 5, 'num_successful_extractions': 5, 'num_failed_extractions': 0, 'failed_text_unit_ids': [], 'total_entities_extracted': 16, 'total_relationships_extracted': 14, 'entities_filtered_by_confidence': 0, 'relationships_filtered_by_confidence': 0, 'average_entity_confidence': 0.94, 'confidence_threshold_applied': 0.0, 'entities_ungrounded': 0, 'relationships_ungrounded': 0, 'relationships_dropped_ungrounded_endpoint': 0}
+failed_text_unit_ids: []
+
+ENTITIES (16)
+  Acme Robotics              type=organization  conf=1.0 freq=4 from=['01_acme.txt', '02_meera.txt', '03_orbit.txt', '05_investor.txt']
+                             description: 'A company based in Pune that builds warehouse robots and has 120 employees.; A company Meera Shah was at after Orbit...
+  Pune                       type=location      conf=1.0 freq=1 from=['01_acme.txt']
+                             description: 'The city where Acme Robotics is based.'
+  Meera Shah                 type=person        conf=1.0 freq=2 from=['01_acme.txt', '02_meera.txt']
+                             description: 'The founder of Acme Robotics.; A person who studied engineering at IIT Bombay and worked at Orbit Logistics as a har...
+  2015                       type=temporal      conf=0.9 freq=1 from=['01_acme.txt']
+                             description: 'The year Acme Robotics was founded.'
+  warehouse robots           type=object        conf=0.8 freq=1 from=['01_acme.txt']
+                             description: 'The products Acme Robotics builds.'
+  IIT Bombay                 type=organization  conf=1.0 freq=1 from=['02_meera.txt']
+                             description: 'The institution where Meera Shah studied engineering.'
+  Orbit Logistics            type=organization  conf=1.0 freq=3 from=['02_meera.txt', '03_orbit.txt', '04_product.txt']
+                             description: 'A company where Meera Shah worked as a hardware lead before Acme Robotics.; A company that runs warehouses in Mumbai...
+  Mumbai                     type=location      conf=1.0 freq=1 from=['03_orbit.txt']
+                             description: 'A city where Orbit Logistics runs warehouses.'
+  Chennai                    type=location      conf=1.0 freq=2 from=['03_orbit.txt', '04_product.txt']
+                             description: 'A city where Orbit Logistics runs warehouses.; The city of the Orbit Logistics warehouse where the Picker X2 is used.'
+  supply contract            type=object        conf=0.8 freq=1 from=['03_orbit.txt']
+                             description: 'The contract signed between Orbit Logistics and Acme Robotics in 2022.'
+  2022                       type=temporal      conf=0.9 freq=1 from=['03_orbit.txt']
+                             description: 'The year the supply contract was signed.'
+  Acme Picker X2             type=object        conf=1.0 freq=1 from=['04_product.txt']
+                             description: 'A warehouse robot that lifts up to 40 kg, used by Orbit Logistics in its Chennai warehouse.'
+  Banyan Capital             type=organization  conf=1.0 freq=1 from=['05_investor.txt']
+                             description: 'An investor in Acme Robotics since 2019.'
+  2019                       type=temporal      conf=0.9 freq=1 from=['05_investor.txt']
+                             description: 'The year Banyan Capital invested in Acme Robotics.'
+  Ravi Menon                 type=person        conf=1.0 freq=1 from=['05_investor.txt']
+                             description: 'A partner at Banyan Capital who sits on the Acme board.'
+  Acme board                 type=organization  conf=0.7 freq=1 from=['05_investor.txt']
+                             description: 'The board of Acme Robotics, on which Ravi Menon sits.'
+
+RELATIONSHIPS (14)
+  Acme Robotics --LOCATED_IN--> Pune  weight=9.0 from=['01_acme.txt']
+  Meera Shah --FOUNDED--> Acme Robotics  weight=10.0 from=['01_acme.txt']
+  Acme Robotics --CREATES--> warehouse robots  weight=9.0 from=['01_acme.txt']
+  Meera Shah --STUDIED_AT--> IIT Bombay  weight=8.0 from=['02_meera.txt']
+  Meera Shah --WORKED_AT--> Orbit Logistics  weight=7.0 from=['02_meera.txt']
+  Orbit Logistics --OPERATES--> Mumbai  weight=8.0 from=['03_orbit.txt']
+  Orbit Logistics --OPERATES--> Chennai  weight=8.0 from=['03_orbit.txt']
+  Orbit Logistics --PARTNERS_WITH--> Acme Robotics  weight=8.0 from=['03_orbit.txt']
+  Orbit Logistics --USES--> Acme Picker X2  weight=9.0 from=['04_product.txt']
+  Acme Picker X2 --LOCATED_IN--> Chennai  weight=6.0 from=['04_product.txt']
+  Banyan Capital --INVESTED_IN--> Acme Robotics  weight=9.0 from=['05_investor.txt']
+  Ravi Menon --PART_OF--> Banyan Capital  weight=8.0 from=['05_investor.txt']
+  Ravi Menon --PART_OF--> Acme board  weight=8.0 from=['05_investor.txt']
+  Acme board --PART_OF--> Acme Robotics  weight=7.0 from=['05_investor.txt']
+
+cache files: ['stage5-answered/cache_index.json', 'stage5-answered/document_loading/documents-0842cedc0821.json', 'stage5-answered/document_parsing/documents-54cf4641e850.json', 'stage5-answered/graph_extraction/entities-6c874c6a9e71.json', 'stage5-answered/graph_extraction/relationships-6c874c6a9e71.json', 'stage5-answered/pipeline_metadata.json', 'stage5-answered/text_chunking/text_units-9fcbd193c678.json', 'stage5-answered/translation/translated_units-64bc0bc08eed.json']

@@ -1,0 +1,37 @@
+settings: max_entities_per_chunk=50 | max_relationships_per_chunk=50 | entity_confidence_threshold=0.0 | grounding enabled=False action=drop | ignore_errors=False
+stages built: ['document_parsing', 'document_loading', 'text_chunking', 'translation', 'graph_extraction']
+CHECKPOINT -> GraphExtractionStage._execute_core
+CHECKPOINT -> GraphExtractor.extract_from_text_units
+CHECKPOINT -> GraphExtractor._prepare_extraction_inputs
+           returned: "5 prompt inputs, keys ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chun...
+CHECKPOINT -> GraphExtractor._process_extraction_results
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._merge_entities
+           returned: '0 in -> 0 out'
+CHECKPOINT -> GraphExtractor._merge_relationships
+           returned: '0 in -> 0 out'
+CHECKPOINT -> GraphExtractor._materialize_relationship_endpoints
+           returned: '0 in -> 0 out'
+CHECKPOINT -> GraphExtractor._filter_entities_by_confidence
+           returned: '0 kept, 0 removed'
+           returned: '0 entities, 0 relationships'
+           returned: '0 entities, 0 relationships'
+           returned: (5, 0, {'text_units_processed': 5, 'entities_extracted': 0, 'relationships_extracted': 0, 'failed_units': 5...
+
+model calls made: 5 ['PLACEHOLDER', 'PLACEHOLDER', 'PLACEHOLDER', 'PLACEHOLDER', 'PLACEHOLDER']
+stage result: status = failed | in = 0 | out = 0
+stage error_message: Critical stage 'graph_extraction' processed 5 inputs but produced 0 outputs. Check the stage configuration and input data quality.
+stages run: [('document_parsing', 'completed'), ('document_loading', 'completed'), ('text_chunking', 'completed'), ('translation', 'completed'), ('graph_extraction', 'failed')]
+stage metrics: {}
+extraction_stats: {}
+failed_text_unit_ids: ['7625b4ab-91a2-55fb-abb8-321474c04dd0', '6fde1112-1dcf-5110-8e50-795c54b6dfc3', '85b2d41d-9629-5279-8be3-205a8c56929b', 'e242d857-6c30-57ec-a587-a8f6ad5776bc', '9fa25aaf-29ca-53f0-90ad-c1ac4f389c23']
+
+ENTITIES (0)
+
+RELATIONSHIPS (0)
+
+cache files: ['stage5-capture/cache_index.json', 'stage5-capture/document_loading/documents-0842cedc0821.json', 'stage5-capture/document_parsing/documents-54cf4641e850.json', 'stage5-capture/pipeline_metadata.json', 'stage5-capture/text_chunking/text_units-9fcbd193c678.json', 'stage5-capture/translation/translated_units-64bc0bc08eed.json']

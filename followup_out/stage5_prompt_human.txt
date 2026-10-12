@@ -1,0 +1,29 @@
+Extract entities and relationships from the following text using the exact specifications
+provided.
+
+## SOURCE TEXT:
+Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.
+Acme has 120 employees.
+
+## EXTRACTION LIMITS:
+- Maximum Entities: 50
+- Maximum Relationships: 50
+
+## STEP-BY-STEP PROCESS:
+1. Read the text carefully and identify all significant entities
+2. Classify each entity using the specified types
+3. Create clear descriptions for each entity
+4. Assign confidence scores based on extraction certainty (1-10 scale)
+5. Identify meaningful relationships between entities
+6. Assign appropriate relationship types and strength scores
+7. Verify entity name consistency between sections
+8. Format output using the exact XML structure
+
+## CRITICAL REMINDERS:
+- Use ONLY the entity types specified in the system prompt
+- Ensure entity names are IDENTICAL in both entities and relationships sections
+- All relationships must connect entities that exist in your entities list
+- Stay within the specified limits for entities and relationships
+- Use the exact XML format provided
+
+Begin extraction now:
