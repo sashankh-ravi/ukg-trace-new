@@ -1,0 +1,74 @@
+
+>>> ENTER create_robust_xml_output_parser  (adapters/aws/chain_factory.py)
+          factory = HandAnsweredFactory
+          enable_output_fixing = True
+          output_fixing_model_id = 'anthropic.claude-sonnet-5-5'
+          model_purpose = <ModelPurpose.INGESTION: 'ingestion'>
+          min_output_tokens = 32768
+  create_r:244     base_parser = RobustXMLOutputParser()
+          base_parser = RobustXMLOutputParser
+  create_r:245     if not enable_output_fixing:
+  create_r:248     try:
+  create_r:249         fixing_llm = factory.get_model(
+  create_r:250             model_id=output_fixing_model_id,
+  create_r:251             model_purpose=model_purpose,
+  create_r:252             min_output_tokens=min_output_tokens,
+  create_r:249         fixing_llm = factory.get_model(
+          fixing_llm = HandAnsweredModel
+  create_r:254         logger.info(
+  create_r:255             "Created OutputFixingParser with model: '%s'", output_fixing_model_id
+  create_r:254         logger.info(
+  create_r:257         return OutputFixingParser.from_llm(parser=base_parser, llm=fixing_llm)
+  create_robust_xml_output_parser RETURNS OutputFixingParser(parser=RobustXMLOutputParser, max_retries=1, retry_chain=prompt|HandAnsweredModel|...)
+
+
+>>> ENTER setup_chain  (adapters/aws/chain_factory.py)
+          factory = HandAnsweredFactory
+          model_id = 'anthropic.claude-sonnet-5-5'
+          prompt_class = GraphExtractionPrompt
+          parser = OutputFixingParser(parser=RobustXMLOutputParser, max_retries=1, retry_chain=prompt|HandAnsweredModel|...)
+          custom_prompts = CustomPromptConfig
+          model_purpose = <ModelPurpose.INGESTION: 'ingestion'>
+          kwargs = dict
+  setup_ch:287     try:
+  setup_ch:288         llm = factory.get_model(
+  setup_ch:289             model_id=model_id,
+  setup_ch:290             model_purpose=model_purpose,
+  setup_ch:291             min_output_tokens=prompt_class.min_output_tokens,
+  setup_ch:288         llm = factory.get_model(
+  setup_ch:292             **kwargs,
+  setup_ch:288         llm = factory.get_model(
+          llm = HandAnsweredModel
+  setup_ch:294         model_info = factory.get_model_info(model_id)
+          model_info = None
+  setup_ch:295         resolved = prompt_class.resolve(custom_prompts=custom_prompts)
+          resolved = ResolvedPrompt(system_prompt_template: 4526 chars, human_prompt_template: 1085 chars)
+  setup_ch:296         prompt = _build_chat_prompt(
+  setup_ch:297             resolved, _prompt_cache_marker(llm, model_info, resolved)
+  setup_ch:296         prompt = _build_chat_prompt(
+          prompt = ChatPromptTemplate(messages=['SystemMessagePromptTemplate', 'HumanMessagePromptTemplate'], input_variables=['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chunk'])
+  setup_ch:301         chain: Runnable = (prompt | llm | parser).with_config(
+  setup_ch:302             run_name=prompt_class.__name__
+  setup_ch:301         chain: Runnable = (prompt | llm | parser).with_config(
+          chain = RunnableBinding(bound=ChatPromptTemplate | HandAnsweredModel | OutputFixingParser, config={'run_name': 'GraphExtractionPrompt'})
+  setup_ch:304         logger.debug("Successfully created LLM chain with model: '%s'", model_id)
+  setup_ch:307             if model_purpose is ModelPurpose.QUERY
+  setup_ch:309             else None
+  setup_ch:305         retry = (
+          retry = None
+  setup_ch:311         return with_transient_retry(chain, operation=prompt_class.__name__, retry=retry)
+  setup_chain RETURNS RunnableBinding(bound=ChatPromptTemplate | HandAnsweredModel | OutputFixingParser, config={'run_name': 'GraphExtractionPrompt'})
+
+======================================================================
+WHY THE READER IS NEEDED: one chunk through the finished chain, one step at a time
+step 1, prompt template -> returns ChatPromptValue with 2 messages
+step 2, model           -> returns AIMessage ; its .content is a str of 1983 characters, starting:
+    <entities>
+    <entity>
+    <name>Acme Robotics</name>
+    <type>ORGANIZATION</type>
+    <description>A company based in Pune that builds warehouse robots and has 120 employees
+step 3, reader          -> returns dict with keys ['entities', 'relationships']
+    parsed['entities']['entity'] is a list of 5
+    first entity: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune that builds warehouse robots and has 120 employees.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}
+    parsed['relationships']['relationship'][0]: {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme Robotics is based in Pune.", "strength": "9", "source_text": "Acme Robotics is a company based in Pune."}
