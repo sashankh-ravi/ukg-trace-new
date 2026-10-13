@@ -1,0 +1,15 @@
+reply cut to 1495 of 1983 characters; it ends:
+h>9</strength>
+<source_text>Acme Robotics is a company based in Pune.</source_text>
+</relationship>
+<relationship>
+<source>Meera Shah</source>
+<target>Acme Robo
+
+RESULT: top-level keys ['entities', 'relationship', 'source'] | entities: 5 | relationships: 0
+relationships kept: None
+
+_parse_extraction_result on this dict ( cache5/stage5-answered/text_chunking/text_units-9fcbd193c678.json ):
+  raised an error: no
+  entities: ['Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots']
+  relationships: []

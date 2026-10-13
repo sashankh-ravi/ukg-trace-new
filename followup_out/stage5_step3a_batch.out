@@ -1,4 +1,5 @@
 BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 'chunk_concurrency': 4, 'max_attempts': 5, 'retry_multiplier': 30.0, 'retry_max_wait': 120, 'call_timeout_seconds': 300}
+
   >>> ENTER BatchProcessor.execute_with_fallback   (shared/utils/langchain.py)
               items_to_process = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
               prepare_inputs_func = function GraphExtractor._prepare_extraction_inputs
@@ -17,19 +18,23 @@ BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 
     line 209              self.chunk_concurrency = run_config.get(
     line 212              self.max_attempts = run_config.get("max_attempts", self.max_attempts)
     line 214          prepared_batch_func = self._create_batch_func(batch_func)
+
   >>> ENTER BatchProcessor._create_batch_func   (shared/utils/langchain.py)
               batch_func = function RunnableBindingBase.batch
     line 372          batch_kwargs = self._batch_kwargs()
+
   >>> ENTER BatchProcessor._batch_kwargs   (shared/utils/langchain.py)
     line 340              "config": RunnableConfig(max_concurrency=self.max_concurrency),
     line 341              "return_exceptions": True,
     line 339          return {
   <<< BatchProcessor._batch_kwargs RETURNS {'config': {'max_concurrency': 20}, 'return_exceptions': True}
+
               batch_kwargs = {'config': {'max_concurrency': 20}, 'return_exceptions': True}
     line 374          def _batch_func(inputs: list[dict[str, Any]]) -> list[Any]:
               _batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
     line 377          return _batch_func
   <<< BatchProcessor._create_batch_func RETURNS function BatchProcessor._create_batch_func.<locals>._batch_func
+
               prepared_batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
     line 218          def timed_sequential_func(single_input: dict[str, Any]) -> Any:
               timed_sequential_func = function BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func
@@ -67,6 +72,7 @@ BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 
               chunk_num = 1
               chunk_items = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
     line 309                  chunk_results_by_idx[chunk_num] = process_chunk(chunk_num, chunk_items)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk   (shared/utils/langchain.py)
               chunk_num = 1
               chunk_items = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
@@ -86,6 +92,7 @@ BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 
     line 262                          self.call_timeout_seconds,
     line 263                          f"{task_name} batch chunk {chunk_num}",
     line 260                      self._run_with_timeout(
+
   >>> ENTER BatchProcessor._run_with_timeout   (shared/utils/langchain.py)
               func = function BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch
               timeout_seconds = 300
@@ -93,35 +100,44 @@ BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 
     line 169          pool = ContextThreadPoolExecutor(max_workers=1)
               pool = ContextThreadPoolExecutor
     line 170          future = pool.submit(func)
-  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch   (shared/utils/langchain.py)
+
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch   (shared/utils/langchain.py)              future = Future
+    line 171          try:
               inputs = list of 5 prompt-input dicts
               prepared_batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
     line 257                      return prepared_batch_func(inputs)
-  >>> ENTER BatchProcessor._create_batch_func.<locals>._batch_func   (shared/utils/langchain.py)              future = Future
-    line 171          try:
-    line 172              result = future.result(timeout=timeout_seconds)
+
+  >>> ENTER BatchProcessor._create_batch_func.<locals>._batch_func   (shared/utils/langchain.py)
               inputs = list of 5 prompt-input dicts
               batch_func = function RunnableBindingBase.batch
               batch_kwargs = {'config': {'max_concurrency': 20}, 'return_exceptions': True}
     line 375              return batch_func(inputs, **batch_kwargs)
+
+    line 172              result = future.result(timeout=timeout_seconds)
   <<< BatchProcessor._create_batch_func.<locals>._batch_func RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
   <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
               result = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
     line 188              pool.shutdown(wait=False)
     line 189              return result
   <<< BatchProcessor._run_with_timeout RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
     line 259                  results: list[Any] = list(
               results = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
     line 283              failed = self._failed_indices(results)
+
   >>> ENTER BatchProcessor._failed_indices   (shared/utils/langchain.py)
               results = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
     line 346          return [i for i, res in enumerate(results) if isinstance(res, BaseException)]
   <<< BatchProcessor._failed_indices RETURNS list of 0: []
+
               failed = list of 0: []
     line 284              if not failed:
     line 285                  logger.debug("Chunk %s processed successfully in batch mode", chunk_num)
     line 286                  return results
   <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
               chunk_results_by_idx = {1: list of 5 parsed reply dicts (keys ['entities', 'relationships'])}
     line 310                  progress.update(len(chunk_items))
     line 304              for chunk_num, chunk_items in tqdm(
@@ -135,4 +151,5 @@ BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 
     line 333          logger.info("Completed '%s': processed %s results", task_name, len(all_results))
     line 334          return all_results
   <<< BatchProcessor.execute_with_fallback RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
 stage 5 status: completed | entities: 16 | relationships: 14

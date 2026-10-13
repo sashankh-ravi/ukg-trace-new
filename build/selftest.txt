@@ -1,4 +1,4 @@
 $ python build/extract.py HANDOFF.md extract_test
-42 files written
+45 files written
 $ diff -r reproduce extract_test/reproduce
-(no differences: all 42 files identical, byte for byte)
+(no differences: all 45 files identical, byte for byte)

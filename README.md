@@ -8,8 +8,8 @@ This is an independent study log. It is not affiliated with or endorsed by AWS o
 
 | File | What it is |
 |---|---|
-| [`HANDOFF.md`](HANDOFF.md) | The full record: what has been read, what was run, the trace of stages 1 to 4, open questions, corrections. Self-contained: every script and sample document is in its appendices. |
-| [`POTENTIAL_BUGS.md`](POTENTIAL_BUGS.md) | The bug tracker. Nine entries agreed during the session (1 to 4 and 7 to 11) and two candidates not yet decided (5 and 6). None has been reported to the maintainers. |
+| [`HANDOFF.md`](HANDOFF.md) | The full record: what has been read, what was run, the trace of stages 1 to 5, open questions, corrections. Self-contained: every script and sample document is in its appendices. |
+| [`POTENTIAL_BUGS.md`](POTENTIAL_BUGS.md) | The bug tracker. Thirteen entries agreed during the session (1 to 4 and 7 to 15) and two candidates not yet decided (5 and 6). None has been reported to the maintainers. |
 | [`SESSION_LOG.md`](SESSION_LOG.md) | The conversation that produced all this: every question asked, quoted exactly, with a short note of what was done and where the result lives. |
 | [`chat/TRANSCRIPT.md`](chat/TRANSCRIPT.md) | The full chat, copied from its history: every message and every written reply word for word, with each tool call shortened to one line. |
 
@@ -23,7 +23,7 @@ This is an independent study log. It is not affiliated with or endorsed by AWS o
 | 2. Document loading | Traced and run |
 | 3. Text chunking | Traced and run, with Claude answering the model's prompts by hand |
 | 4. Translation | Traced and run, with hand-written Spanish translations |
-| 5. Graph extraction | Next |
+| 5. Graph extraction | Steps 1 to 4b traced line by line and run: construction, inputs, batch processor (normal and failure paths), reading a reply, turning it into objects. Next: merging across chunks |
 | 6 to 12 | Not started |
 
 ## How the evidence works
@@ -37,10 +37,11 @@ The model calls were not made to Amazon Bedrock. A stand-in model (`reproduce/sc
 | Path | Contents |
 |---|---|
 | `reproduce/run_all.sh` | Re-runs the stage 1 to 3 experiments against a local checkout of the awslabs repository (about 5 minutes). |
+| `reproduce/run_stage5.sh` | Re-runs every stage 5 experiment (about 4 minutes). |
 | `reproduce/scripts/` | Every tracing script, the stand-in model, the hand-written answers, and helpers. |
 | `reproduce/docs_original/`, `reproduce/docs_added/` | The seven made-up sample documents. |
 | `reproduce_output_fresh.txt` | Full output of `run_all.sh` from 11 October 2026. |
-| `followup_out/` | Outputs of the scripts run by hand: stage 3 follow-ups and stage 4. |
+| `followup_out/` | Outputs of the scripts run outside `run_all.sh`: stage 3 follow-ups, stage 4, and stage 5 (`stage5_*`, from `run_stage5.sh` on 13 October 2026). |
 | `evidence_9oct/` | Logs, captured prompts and the cache folder left by the first session on 9 October 2026. |
 | `chat/` | The chat transcript. |
 | `build/` | Templates and the script that assembles `HANDOFF.md` and `POTENTIAL_BUGS.md` from code and outputs, the self-extraction test, and `transcript_from_history.py`, which turned saved pages of the chat history into transcript text. |
@@ -52,6 +53,7 @@ git clone https://github.com/awslabs/unified-kg-rag-on-aws.git
 cd unified-kg-rag-on-aws && git checkout 37ef4a7df28bdd19a5f277d30aff026ddf8cbd50 && uv sync && cd ..
 bash <this repo>/reproduce/run_all.sh unified-kg-rag-on-aws > my_output.txt 2>&1
 unified-kg-rag-on-aws/.venv/bin/python <this repo>/reproduce/scripts/check_expected.py my_output.txt
+bash <this repo>/reproduce/run_stage5.sh unified-kg-rag-on-aws my_stage5_out
 ```
 
 `HANDOFF.md` sections 0.5 and 0.6 have the details. It was tested on Linux with Python 3.11.
@@ -61,6 +63,8 @@ To rebuild the two documents after changing a template or an output: `python3 bu
 ## Credits and licence
 
 `HANDOFF.md` and `POTENTIAL_BUGS.md` quote short excerpts of code from [awslabs/unified-kg-rag-on-aws](https://github.com/awslabs/unified-kg-rag-on-aws), Copyright Amazon.com, Inc. or its affiliates, licensed under the Apache License 2.0, with file names and line numbers. No other part of that repository is included here.
+
+The same two files also quote short excerpts from two libraries installed in that repository's environment, with file names and line numbers: [langchain-aws](https://github.com/langchain-ai/langchain-aws) 1.8.0 and [langchain-classic](https://github.com/langchain-ai/langchain) 1.0.8, both Copyright LangChain, Inc., MIT License.
 
 No licence has been chosen yet for the rest of this repository.
 

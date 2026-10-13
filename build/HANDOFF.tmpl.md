@@ -35,6 +35,7 @@ Every non-trivial claim carries one of these:
 - **Program output** was copied in by a script from one complete re-run of every experiment, done on 11 October 2026 in a clean folder (`reproduce_output_fresh.txt` in this bundle). It was not retyped.
 - **The narrative between them** was written by Claude from the session. It can contain mistakes. Where narrative and excerpt disagree, the excerpt wins.
 - The 11 October re-run produced the same fingerprints, file names, prompt keys and chunk sizes as the 9 October session. A checker script compared 24 recorded values and found all 24 (Appendix F). Run IDs and clock times differ between the two days, because run IDs contain the time.
+- **Stage 5 output** (section 9.2) was copied in by the same script from a complete re-run of every stage 5 experiment by `reproduce/run_stage5.sh`, done on 13 October 2026 in a clean folder (outputs in `followup_out/stage5_*`). Apart from clock times, retry waits and the order in which two threads printed, it matched the runs made during the 12 October session line for line.
 - Section 12 lists statements made during the 9 October session that turned out to be imprecise or incomplete. Read it.
 
 ### 0.4 What is in this bundle
@@ -42,13 +43,16 @@ Every non-trivial claim carries one of these:
 | Path | What it is |
 |---|---|
 | `HANDOFF.md` | This file. |
-| `POTENTIAL_BUGS.md` | The running bug log: the four entries agreed with the person, plus two candidates not yet approved. |
-| `reproduce/run_all.sh` | Re-runs every experiment from scratch against a checkout of the repo. |
+| `POTENTIAL_BUGS.md` | The running bug log: entries 1 to 4 and 7 to 15 agreed with the person, plus candidates 5 and 6 not yet decided. |
+| `reproduce/run_all.sh` | Re-runs the stage 1 to 3 experiments from scratch against a checkout of the repo. |
+| `reproduce/run_stage5.sh` | Re-runs every stage 5 experiment from scratch (section 9.2). |
 | `reproduce/scripts/` | The tracing scripts used in the session, plus small helpers. |
 | `reproduce/docs_original/` | The five made-up source documents, as first written. |
 | `reproduce/docs_added/` | Two longer made-up documents added for stage 3. |
 | `reproduce_output_fresh.txt` | Full output of `run_all.sh` from 11 October 2026. |
 | `evidence_9oct/` | Files left on disk by the 9 October session: logs, captured prompts, the cache folder. |
+| `followup_out/` | Outputs of the scripts run outside `run_all.sh`: stage 3 follow-ups, stage 4, and stage 5 (from `run_stage5.sh`). |
+| `chat/TRANSCRIPT.md` | The chat itself, copied from its history. |
 
 All sample documents are invented. They describe a fictional company. Nothing in the bundle comes from a real customer or a real AWS account.
 
@@ -57,6 +61,7 @@ All sample documents are invented. They describe a fictional company. Nothing in
 This file contains every file needed to re-run the experiments. If only `HANDOFF.md` and `POTENTIAL_BUGS.md` were carried over, rebuild the `reproduce/` folder from the appendices:
 
 - Appendix B holds `reproduce/run_all.sh`, the five `step*.py` scripts, `fake_llm.py` and `answers_handwritten.json`.
+- Appendix B also holds `reproduce/run_stage5.sh`; Appendix G also holds every stage 4 and stage 5 script, `linetrace.py` and `answers_stage5.json`.
 - Appendix E holds the seven sample documents.
 - Appendix G holds the helper scripts.
 
@@ -87,6 +92,7 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
    /path/to/unified-kg-rag-on-aws/.venv/bin/python /path/to/bundle/reproduce/scripts/check_expected.py my_output.txt
    ```
    The whole run took about 5 minutes in the session.
+   For stage 5 (section 9.2), run `bash /path/to/bundle/reproduce/run_stage5.sh /path/to/unified-kg-rag-on-aws my_stage5_out`. It took about 4 minutes on 13 October 2026 and writes every output quoted in section 9.2 into `my_stage5_out/`.
 3. `run_all.sh` is a bash script. On Windows it needs Git Bash or WSL. It looks for the interpreter at `.venv/bin/python` and falls back to `.venv/Scripts/python.exe`; the fallback has **[NOT CHECKED]** status, since the session ran on Linux only.
 
 **AWS safety.** Nothing in the kit needs AWS. `run_all.sh` deliberately blanks the AWS environment variables and points the AWS config files at `/dev/null`, so that the one step that exercises Bedrock code (section 4.3, the constructor with all 12 stages) cannot reach a real account from a machine that has credentials. **[INFERRED]** On a machine with working AWS credentials and those blanking lines removed, that step would behave differently from what is recorded here.
@@ -106,11 +112,11 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
 | 7 | Stage 3, text chunking, with Claude answering the model's prompt by hand | Done, run |
 | 7b | Follow-up questions on stage 3: size checks, overlap, wrong or invented model replies | Done, run (section 8.6) |
 | 8 | Stage 4, translation | Done, run with checkpoints and hand-written Spanish translations (section 9.1) |
-| 9 | Stage 5, graph extraction | **In progress** (12 October). Steps 1 to 3 traced line by line: construction, inputs, batch processor normal and failure paths. Outputs in `followup_out/stage5_*.out`; not yet written up in this file. **Next:** step 4, reading each reply (XML reader, repair model, `_parse_extraction_result`). |
+| 9 | Stage 5, graph extraction | **In progress.** Steps 1 to 4b traced line by line and run (section 9.2): construction, inputs, batch processor (normal and failure paths), reading a reply, turning it into objects. **Next:** the merge across chunks, `_process_extraction_results` (section 9.2.8). |
 | 9b | Stages 6 to 12 | Not started. |
 | 10 | The other four commands (`run-rag`, `run-eval`, `run-visualization`, `run-prompt-tuning`) | Not started. |
 
-Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day. Bug 11 (stage 5) was approved and added on 12 October.
+Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day. Bug 11 (stage 5) was approved and added on 12 October, and bugs 12 to 15 (stage 5) on 13 October.
 
 ---
 
@@ -139,11 +145,12 @@ The person asked at the start for the whole repository to be read before any exp
 
 **Read in part [READ]:**
 
-- `unified_kg_rag/application/ingestion/pipeline_stages.py`: lines 1 to 760 of 1,639. This covers the stage base class and the parsing, loading, chunking and translation stages. The eight later stage classes (from line 758) have **not** been read.
-- `unified_kg_rag/domain/prompts/data_processing.py`: lines 1 to 130 (the chunking prompt).
+- `unified_kg_rag/application/ingestion/pipeline_stages.py`: lines 1 to 808 of 1,639. This covers the stage base class and the parsing, loading, chunking, translation and graph extraction stages. The seven later stage classes (from line 810) have **not** been read.
+- `unified_kg_rag/domain/prompts/data_processing.py`: in full (273 lines; chunking, description summarization and translation prompts).
 - `unified_kg_rag/domain/models/config.py`: only the pieces found by searching (chunking, translation, fixing, cache TTL, stage list, a few processing fields). The file is 2,702 lines.
 - `unified_kg_rag/domain/models/cache.py`: the `is_expired` property only.
-- `unified_kg_rag/shared/utils/common.py`: `compute_hash` only.
+- `unified_kg_rag/shared/utils/common.py`: `compute_hash`, and lines 95 to 204 (stage 5 helpers: `ensure_list`, `generate_stable_id`, `clean_display_name`, `entity_key`).
+- Stage 5 files listed at the start of section 9.2: `graph_extractor.py`, `base_processor.py` and `domain/prompts/graph_extraction.py` in full; parts of `bedrock_retry.py` and `config.py`.
 - `pyproject.toml`: lines 1 to 140.
 
 **Not read at all [NOT CHECKED]:** everything else. That is about 36,000 of the package's 43,812 lines, including every later-stage adapter (`graph_extractor.py`, `gleaner.py`, `community_detector.py`, the indexers), all of retrieval and search, evaluation, visualization, the infrastructure code under `iac/`, the tests, and the two design documents under `docs/`.
@@ -645,7 +652,7 @@ Human message:
 
 ---
 
-## 9. Stage 4, and what is known about later stages
+## 9. Stages 4 and 5, and what is known about later stages
 
 ### 9.1 Stage 4, translation (traced 12 October)
 
@@ -716,7 +723,272 @@ Human message:
 
 **[NOT CHECKED] What later stages read.** A search (not a full read) shows later stages use `context.translated_units or context.text_units` (`pipeline_stages.py` lines 777, 827, 985, 1296, 1311; line 1188 has the opposite order), and that helpers such as `domain/ingestion/base_processor.py` lines 46 to 48 read `translated_texts.get(target_language, text)`. If that holds, the translation, not the original, is what the graph is built from when translation is on. To be confirmed in stage 5.
 
-### 9.2 Files behind the remaining stages
+### 9.2 Stage 5, graph extraction (traced 12 and 13 October)
+
+Traced at the person's request "line by line, like checkpointing the code", after a first quick pass (12 October) that they said went too fast. Every run below comes from `reproduce/run_stage5.sh`, which rebuilds the five-document folder and runs all stage 5 scripts in order; the outputs quoted here are its output of 13 October 2026, in `followup_out/stage5_*`. The line traces were made with `reproduce/scripts/linetrace.py`, which uses Python's built-in line tracer: every executed line of a watched function is printed with its line number, followed by any local variable that line created or changed.
+
+**Files read for this stage [READ]:**
+
+- `adapters/ingestion/graph_extractor.py`, in full (721 lines)
+- `domain/ingestion/base_processor.py`, in full (380 lines)
+- `domain/prompts/graph_extraction.py`, in full (582 lines; the extraction prompt is lines 12 to 154)
+- `application/ingestion/pipeline_stages.py`, lines 61 to 256 (stage base class) and 758 to 808 (`GraphExtractionStage`)
+- `shared/utils/langchain.py` (already listed in section 2) and `adapters/aws/chain_factory.py` (same), read again for this stage
+- `adapters/aws/bedrock_retry.py`, lines 1 to 66 of 159
+- `domain/models/config.py`, lines 816 to 1001 (grounding, graph extraction, gleaning, claim extraction, processing settings)
+- `shared/utils/common.py`, lines 95 to 204
+- Outside the repo, in its virtual environment: `langchain_classic/output_parsers/fix.py` lines 30 to 105 and `prompts.py` in full (langchain-classic 1.0.8); `langchain_aws/chat_models/bedrock_converse.py` lines 1425 to 1445, 1505 to 1520 and 2320 to 2348 (langchain-aws 1.8.0)
+
+**Not read:** `domain/ingestion/entity_grounding.py` (`is_grounded`, used only when grounding is switched on), `adapters/aws/bedrock.py` beyond the search hits quoted in 9.2.5.
+
+**The documents.** The five short documents from section 4, with the sentence "Acme has 120 employees." appended to `01_acme.txt` (as scenario D of `step4.py` leaves it). Stage 3 makes one chunk per document under default settings; stage 4 does nothing (English to English).
+
+**The model.** The stand-in from section 8.3. Claude wrote one answer per chunk, by hand, in the format the prompt asks for (`reproduce/scripts/make_answers5.py`, which writes `answers_stage5.json`). These are Claude's answers, not the configured model's.
+
+#### 9.2.1 The two whole runs
+
+**Run A: no answers on file [RAN].** The stand-in replied to all five prompts with its placeholder (leftover chunking XML):
+
+@@txt followup_out/stage5_A_capture.out@@
+
+**Run B: Claude's answers [RAN]:**
+
+@@txt followup_out/stage5_B_answered.out@@
+
+The prompt as sent for the first chunk. System message:
+
+@@txt followup_out/stage5_prompt_system.txt@@
+
+Human message:
+
+@@txt followup_out/stage5_prompt_human.txt@@
+
+#### 9.2.2 Step 1: what is built when the stage is created
+
+@@code unified_kg_rag/application/ingestion/pipeline_stages.py 758-768@@
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 108-141@@
+
+Checkpoints on the constructor (`stage5_step1_build.py`) [RAN]:
+
+@@txt followup_out/stage5_step1_build.out@@
+
+The two functions it calls:
+
+@@code unified_kg_rag/adapters/aws/chain_factory.py 230-264@@
+
+@@code unified_kg_rag/adapters/aws/chain_factory.py 267-316@@
+
+Both traced line by line (`stage5_step1b_inside_setup.py`). At the end the finished chain is run for chunk 1 one station at a time, to show why a reader is needed: the model returns text, later code needs a dictionary [RAN]:
+
+@@txt followup_out/stage5_step1b_inside_setup.out@@
+
+What this shows:
+
+- **[RAN]** The chain is `ChatPromptTemplate | model | OutputFixingParser`. The factory is asked for a model twice: once for extraction, once for the repair model inside `OutputFixingParser`, because `config.fixing.enabled` is `True` by default.
+- **[RAN]** `retry = None`: the chain gets no retry wrapper for ingestion (`chain_factory.py` lines 305 to 311); retries are left to the batch processor.
+- **[RAN]** Prompt caching is not marked, because the stand-in reports no model information. **[NOT CHECKED]** whether it is marked with the real Bedrock model.
+
+#### 9.2.3 Step 2: from the start of the stage to the hand-over
+
+@@code unified_kg_rag/application/ingestion/pipeline_stages.py 770-807@@
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 143-183@@
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 185-261@@
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 45-49@@
+
+Traced during the real run of stages 1 to 5 (`stage5_step2_inputs.py`); tracing is switched off at the hand-over [RAN]:
+
+@@lines followup_out/stage5_step2_inputs.out 1-38@@
+
+`_prepare_extraction_inputs` is not called by `extract_from_text_units`: line 158 passes the function itself to the batch processor. So it was traced on its own afterwards, with the same five chunks. The first chunk, and the end [RAN]:
+
+@@lines followup_out/stage5_step2_inputs.out 40-55@@
+
+@@lines followup_out/stage5_step2_inputs.out 128-151@@
+
+@@lines followup_out/stage5_step2_inputs.out 236-257@@
+
+The full trace (all seven entity types and all five chunks) is in `followup_out/stage5_step2_inputs.out`.
+
+What this shows:
+
+- **[RAN]** Line 777: the translated chunk list is empty after a no-op stage 4, so `[] or context.text_units` picks the original chunks.
+- **[RAN]** Per chunk, `get_text_for_processing` (base_processor.py lines 46 to 49) uses the chunk's translation into the target language if it has one, else the original text. With translation on, the translation is what stage 5 reads; this confirms the [NOT CHECKED] note under bug 9 as far as the code path goes. **[NOT CHECKED]** with translation actually switched on.
+- **[READ]** The limits "50 entities, 50 relationships" are only written into the prompt. No code in `graph_extractor.py` or `base_processor.py` counts against them.
+
+#### 9.2.4 Step 3a: the batch processor when every call succeeds
+
+@@code unified_kg_rag/shared/utils/langchain.py 191-334@@
+
+@@code unified_kg_rag/shared/utils/langchain.py 336-346@@
+
+The settings it uses come partly from the config and partly from its own field defaults:
+
+@@code unified_kg_rag/domain/models/config.py 962-987@@
+
+@@code unified_kg_rag/shared/utils/langchain.py 93-141@@
+
+Traced during the real run (`stage5_step3a_batch.py`). The chain call runs in a worker thread; the tracer is installed for new threads too, so a few lines from the two threads are printed interleaved (around lines 104 to 112 of the output) [RAN]:
+
+@@txt followup_out/stage5_step3a_batch.out@@
+
+What this shows:
+
+- **[RAN]** `max_concurrency` becomes 20, `batch_size` 10, `chunk_concurrency` 4 and `max_attempts` 5 from the config (lines 204 to 212). **[READ]** `retry_multiplier` (30), `retry_max_wait` (120 s) and `call_timeout_seconds` (300 s) are not taken from `run_config`, and `ProcessingConfig` has no fields for them, so they cannot be set from the config file.
+- **[RAN]** In this file "chunk" means a group of up to `batch_size` text chunks. The five text chunks form one group (`chunk_specs = [(1, 5)]`).
+- **[RAN]** `prepare_inputs_func` (step 2) is called at line 248, once per group.
+- **[RAN]** The whole chain (fill the prompt, call the model, read the reply) runs inside `batch_func` at line 375, so the results are already dictionaries.
+- **[READ]** The 300 s limit in `_run_with_timeout` applies to the whole group call, and per item in the one-at-a-time path.
+
+#### 9.2.5 Step 3b: the batch processor when calls fail
+
+@@code unified_kg_rag/shared/utils/langchain.py 379-398@@
+
+@@code unified_kg_rag/shared/utils/langchain.py 413-448@@
+
+@@code unified_kg_rag/adapters/aws/bedrock_retry.py 41-58@@
+
+How the AWS library passes Bedrock errors on (Converse path), from the repo's virtual environment, langchain-aws 1.8.0:
+
+@@code .venv/lib/python3.11/site-packages/langchain_aws/chat_models/bedrock_converse.py 1431-1436@@
+
+@@code .venv/lib/python3.11/site-packages/langchain_aws/chat_models/bedrock_converse.py 2320-2348@@
+
+**[READ]** A Bedrock error other than the one `InvokeTool` permission case is re-raised unchanged, so `is_transient_bedrock_error` sees the original error code. **[NOT CHECKED]** the other chat class the factory can build, `ChatBedrock` (`adapters/aws/bedrock.py` line 543: `model_class = ChatBedrockConverse if use_converse else ChatBedrock`).
+
+Four runs of `stage5_step3b_failures.py`. Only the chunk from `05_investor.txt` misbehaves. To keep the runs short, the script (not the repo) sets the batch processor's `retry_multiplier` to 1.0 and `retry_max_wait` to 2 s, and, for the hang run only, `call_timeout_seconds` to 2 s.
+
+**B1, `ThrottlingException` once, then a normal reply [RAN].** Group result, partial-failure path, and summary:
+
+@@lines followup_out/stage5_step3b_throttle-once.out 24-39@@
+
+@@lines followup_out/stage5_step3b_throttle-once.out 96-123@@
+
+**B2, `AccessDeniedException` every time [RAN].** The one-at-a-time attempt, the retry decision, and the summary:
+
+@@lines followup_out/stage5_step3b_denied-always.out 84-134@@
+
+**B3, `ThrottlingException` every time [RAN].** The retry decisions and waits, then the summary:
+
+@@lines followup_out/stage5_step3b_throttle-always.out 84-125@@
+
+@@from followup_out/stage5_step3b_throttle-always.out SUMMARY@@
+
+**B4, the group call hangs [RAN].** The fallback for the whole group, and the summary:
+
+@@lines followup_out/stage5_step3b_hang-once.out 14-45@@
+
+@@from followup_out/stage5_step3b_hang-once.out SUMMARY@@
+
+The full traces are in `followup_out/stage5_step3b_*.out`.
+
+What this shows:
+
+- **[RAN]** Only the failed slot is re-sent when one item of a group fails (B1, B2, B3). When the group call itself fails or times out, every item of the group is re-sent one at a time (B4: the four healthy chunks were called 8 times instead of 4).
+- **[RAN]** A non-transient error is not retried but is still sent once more on its own: 2 calls in B2.
+- **[RAN]** A transient error is tried 5 times on its own after the group call: 6 calls in B3. **[READ]** With the repo's settings each wait is random and capped at 120 s.
+- **[RAN]** A timed-out call is abandoned, not stopped: in B4 it finished in the background 2 s after the re-sent call. **[READ]** The code's comment (`langchain.py` lines 154 to 159) says such calls keep running and billing.
+- **[RAN]** A chunk that fails every attempt is replaced by `BATCH_ITEM_FAILED`; the stage still ends `completed`, with the loss counted in `failed_units` and in the failed-chunk list.
+- **[RAN]** `processing.ignore_errors` makes no difference to this: bug 11. Outputs `followup_out/stage5_step3b_ignore_off.out` and `stage5_step3b_ignore_on.out`.
+
+#### 9.2.6 Step 4a: reading a reply
+
+The reader:
+
+@@code unified_kg_rag/shared/utils/langchain.py 597-663@@
+
+@@code unified_kg_rag/shared/utils/langchain.py 665-707@@
+
+The repair wrapper around it, from the repo's virtual environment, langchain-classic 1.0.8:
+
+@@code .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/fix.py 69-105@@
+
+@@code .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/prompts.py 1-21@@
+
+Three cases (`stage5_step4a_reader.py`).
+
+**Our real reply for chunk 1, traced [RAN]:**
+
+@@txt followup_out/stage5_step4a_real.out@@
+
+**The same reply cut off in the middle of the second relationship, then passed to `_parse_extraction_result` [RAN]:**
+
+@@txt followup_out/stage5_bug12_cut_summary.txt@@
+
+The trace is in `followup_out/stage5_step4a_cut.out`.
+
+**A reply with no tags at all, in a real run of stages 1 to 5 [RAN]:**
+
+@@txt followup_out/stage5_step4a_prose.out@@
+
+What this shows:
+
+- **[RAN]** The prompt asks for two top-level sections, `<entities>` and `<relationships>`. The XML library (lxml) keeps only the first, so every well-formed reply is rejected by the "sections preserved" check and read by the second method, `_extract_xml_fallback`.
+- **[RAN]** A cut-off reply loses all its relationships, including complete ones, with no error: bug 12.
+- **[RAN]** The repair model is called only when all four reading methods fail. Its prompt has the broken reply, the error and generic XML advice with the tags given as `None`; it has neither the chunk's text nor the extraction instructions: bug 13.
+- **[RAN]** The stand-in answered the repair prompt with its placeholder, which is readable but has no entity list, so the chunk then failed in `_parse_extraction_result` and was counted as failed. **[NOT CHECKED]** what a real model answers to that repair prompt.
+
+#### 9.2.7 Step 4b: from the reply's dictionary to Entity and Relationship objects
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 333-381@@
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 475-529@@
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 51-113@@
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 136-240@@
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 242-285@@
+
+@@code unified_kg_rag/shared/utils/common.py 103-117@@
+
+@@code unified_kg_rag/shared/utils/common.py 146-189@@
+
+The main function for chunk 1 (`stage5_step4b_parse.py main`): the start, one pass of the grounding loop, and the result [RAN]:
+
+@@lines followup_out/stage5_step4b_main.out 1-30@@
+
+@@lines followup_out/stage5_step4b_main.out 63-86@@
+
+@@from followup_out/stage5_step4b_main.out ^=====@@
+
+One entity through every helper (`stage5_step4b_parse.py entity`), from the ID onward, and the finished object [RAN]:
+
+@@lines followup_out/stage5_step4b_entity.out 33-60@@
+
+@@lines followup_out/stage5_step4b_entity.out 92-111@@
+
+@@from followup_out/stage5_step4b_entity.out ^=====@@
+
+One relationship (`stage5_step4b_parse.py relationship`): the IDs, and the finished object [RAN]:
+
+@@lines followup_out/stage5_step4b_relationship.out 105-110@@
+
+@@lines followup_out/stage5_step4b_relationship.out 148-149@@
+
+@@from followup_out/stage5_step4b_relationship.out ^=====@@
+
+Edge cases (`stage5_step4b_parse.py edge`): the first entity with one field changed [RAN]:
+
+@@txt followup_out/stage5_step4b_edge.out@@
+
+What this shows:
+
+- **[RAN]** The `entities` section must be present or the chunk fails (line 356); a missing `relationships` section is quietly read as empty (line 352). The docstring says the latter is deliberate.
+- **[RAN]** With grounding off (the default), `is_grounded` is never called, and the evidence quote is removed from the entity (`.pop`, line 496) either way, so stored entities keep no quote (`attributes={}`). The docstring says not storing it is intended.
+- **[RAN]** An entity's ID is a hash of its name's identity key only (lower case, quote marks, commas and a final full stop removed). A relationship's ID is a hash of source key, target key and type, so the same pair with two different type words gives two relationships.
+- **[RAN]** Confidence 1 to 10 becomes 0.1 to 1.0; an unreadable or missing confidence becomes 1.0: bug 14. Strength stays on the 1 to 10 scale (`weight=9.0`).
+- **[RAN]** A type outside the seven listed is kept as written: bug 15.
+- **[READ]** A relationship endpoint that is not in the chunk's entity list gets an ID derived from its name (lines 171 to 176); `_materialize_relationship_endpoints` later adds such names as entities.
+
+#### 9.2.8 Not yet traced in stage 5
+
+What happens after every chunk is parsed: `_process_extraction_results` (graph_extractor.py lines 263 to 331), that is merging entities across chunks, merging relationships, adding entities named only in relationships, and the confidence filter. It was run (run B: 23 entities became 16, 14 relationships stayed 14, all merged types became lower case) and read, but not traced line by line. This is the next step.
+
+### 9.3 Files behind the remaining stages
 
 **[READ]** Found by searching each stage class's own lines in `pipeline_stages.py` for the helper classes it constructs. File locations are from the map in Appendix A.
 
@@ -733,11 +1005,11 @@ Human message:
 
 **[NOT CHECKED]** This table says only which helper each stage constructs. None of these classes or files has been read, so what they do is unknown.
 
-### 9.3 Suggested order of work
+### 9.4 Suggested order of work
 
-1. Stage 4 is done (section 9.1).
-2. Read `GraphExtractionStage` and `adapters/ingestion/graph_extractor.py` in full, and the extraction prompt in `domain/prompts/graph_extraction.py`.
-3. Run stage 5 with the stand-in model: capture the prompts, answer them by hand, feed the answers back. The stand-in's placeholder reply is chunking XML, so it must be changed or made per-prompt first.
+1. Stages 4 and 5 are done up to section 9.2.8.
+2. Trace `_process_extraction_results` line by line on the run B replies (section 9.2.8): merging, endpoint materialization, confidence filter.
+3. Then stage 6, gleaning (`adapters/ingestion/gleaner.py`), with the same method: read in full, run with the stand-in model, answer the prompts by hand.
 4. Continue stage by stage. Stage 12 writes to Neptune and OpenSearch; decide with the person whether to use the in-memory fakes under `tests/fixtures/fakes/` (mentioned in the repo's `CLAUDE.md`, not yet looked at) or real services.
 
 ---
@@ -758,7 +1030,11 @@ Full text is in `POTENTIAL_BUGS.md`. Summary:
 | 8 | The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12 | Logged 12 October | **[RAN]** section 9.1 |
 | 9 | Any non-empty model reply is stored as the translation | Logged 12 October | **[RAN]** section 9.1 |
 | 10 | Stage 4 reports `completed` when every translation call failed | Logged 12 October | **[RAN]** section 9.1 |
-| 11 | The `ignore_errors` setting has no effect on chunks that fail in graph extraction | Logged 12 October | **[RAN]** `followup_out/step3b_ignore_off.out`, `step3b_ignore_on.out` |
+| 11 | The `ignore_errors` setting has no effect on chunks that fail in graph extraction | Logged 12 October | **[RAN]** section 9.2.5 |
+| 12 | A graph extraction reply that is cut off loses all its relationships, silently | Logged 13 October | **[RAN]** section 9.2.6, hand-cut reply |
+| 13 | The repair model for unreadable replies is given no source text and no instructions | Logged 13 October | **[RAN]** section 9.2.6; **[NOT CHECKED]** with a real model |
+| 14 | An unreadable confidence score becomes 1.0, the highest | Logged 13 October | **[RAN]** section 9.2.7 |
+| 15 | Entity types outside the allowed list are accepted | Logged 13 October | **[RAN]** section 9.2.7 |
 
 None of these has been reported to the maintainers, and none has been checked against the repo's issue tracker or its unit tests.
 
@@ -780,6 +1056,11 @@ Collected from the sections above. All **[NOT CHECKED]** unless marked.
 10. Behaviour on Windows and on Python 3.10 or 3.12.
 11. Everything about the four other commands.
 12. **[INFERRED]** Is the batch processor's fixed 300-second call limit (`shared/utils/langchain.py` line 127, not settable from the config) long enough for a graph extraction reply? The prompt allows up to 32,768 output tokens. A call that legitimately takes longer would time out, be retried up to 5 times, and each abandoned call would keep running and be billed (lines 154 to 159). Real reply times have not been measured.
+13. What does a real model answer to the repair prompt of bug 13? Does it return an empty shell, or invent entities?
+14. How often are real extraction replies cut off (bug 12)?
+15. Does any later stage read the pipeline's failed-chunk list (bug 11) and react?
+16. Does the `ChatBedrock` (non-Converse) path pass Bedrock errors on unchanged, so that the retry rule recognises them (section 9.2.5)?
+17. Do the gleaning and claim stages, which use the same batch processor and reader, behave the same way as in bugs 11 to 13?
 
 ---
 
@@ -804,6 +1085,8 @@ These are places where what was told to the person was imprecise, incomplete, or
 - They want code shown, with file names and line numbers, and then a plain-language reading of it.
 - When they say they are confused, go slower and smaller, and use a concrete story with the sample data.
 - They decide what goes in the bug log. Ask, then add.
+- When tracing, go line by line with checkpoints and show the code, the output and the flow. On 12 October they said a first pass at stage 5 went too fast.
+- Formatting on their screen: short code blocks, output in a separate block, plain-language meaning outside the blocks. Wide blocks that mix code, output and notes render badly for them.
 - The bug log was kept as a document in their personal Claude account. On the work machine, `POTENTIAL_BUGS.md` in this bundle is the copy to continue from.
 
 ---
@@ -849,6 +1132,10 @@ These are places where what was told to the person was imprecise, incomplete, or
 `reproduce/run_all.sh`: the driver.
 
 @@file reproduce/run_all.sh bash@@
+
+`reproduce/run_stage5.sh`
+
+@@file reproduce/run_stage5.sh bash@@
 
 ### Appendix C. The chunking stage class
 
@@ -1003,6 +1290,14 @@ Small scripts called by `run_all.sh`, followed by scripts run by hand: three sta
 `reproduce/scripts/stage5_step3b_failures.py`
 
 @@file reproduce/scripts/stage5_step3b_failures.py python@@
+
+`reproduce/scripts/stage5_step4a_reader.py`
+
+@@file reproduce/scripts/stage5_step4a_reader.py python@@
+
+`reproduce/scripts/stage5_step4b_parse.py`
+
+@@file reproduce/scripts/stage5_step4b_parse.py python@@
 
 ### Appendix H. Self-extraction test
 

@@ -1,4 +1,6 @@
+config.processing.ignore_errors = False
 batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_wait': 2, 'call_timeout_seconds': 2, 'max_attempts': 5}
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk   (shared/utils/langchain.py)
               chunk_num = 1
               chunk_items = list of 5 TextUnit
@@ -30,6 +32,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 276                      f"{task_name} (chunk {chunk_num})",
     line 277                      show_progress=show_progress,
     line 273                  return self._process_sequentially_with_fallback(
+
   >>> ENTER BatchProcessor._process_sequentially_with_fallback   (shared/utils/langchain.py)
               inputs = list of 5 prompt-inputs
               sequential_func = function timed_sequential_func
@@ -45,6 +48,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
               single_input = prompt-input for 'Acme Robotics is a com'...
     line 429              try:
     line 430                  result = sequential_func(single_input)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
               single_input = prompt-input for 'Acme Robotics is a com'...
               sequential_func = function invoke
@@ -54,6 +58,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 222                  f"{task_name} item",
     line 219              return self._run_with_timeout(
   <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+
               result = parsed reply dict
     line 431                  results.append(result)
               results = [parsed reply dict]
@@ -63,6 +68,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
               single_input = prompt-input for 'Meera Shah studied eng'...
     line 429              try:
     line 430                  result = sequential_func(single_input)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
               single_input = prompt-input for 'Meera Shah studied eng'...
               sequential_func = function invoke
@@ -72,6 +78,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 222                  f"{task_name} item",
     line 219              return self._run_with_timeout(
   <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+
               result = parsed reply dict
     line 431                  results.append(result)
               results = [parsed reply dict, parsed reply dict]
@@ -81,6 +88,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
               single_input = prompt-input for 'Orbit Logistics runs w'...
     line 429              try:
     line 430                  result = sequential_func(single_input)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
               single_input = prompt-input for 'Orbit Logistics runs w'...
               sequential_func = function invoke
@@ -90,6 +98,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 222                  f"{task_name} item",
     line 219              return self._run_with_timeout(
   <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+
               result = parsed reply dict
     line 431                  results.append(result)
               results = [parsed reply dict, parsed reply dict, parsed reply dict]
@@ -99,6 +108,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
               single_input = prompt-input for 'The Acme Picker X2 is '...
     line 429              try:
     line 430                  result = sequential_func(single_input)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
               single_input = prompt-input for 'The Acme Picker X2 is '...
               sequential_func = function invoke
@@ -108,6 +118,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 222                  f"{task_name} item",
     line 219              return self._run_with_timeout(
   <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+
               result = parsed reply dict
     line 431                  results.append(result)
               results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
@@ -117,6 +128,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
               single_input = prompt-input for 'Banyan Capital investe'...
     line 429              try:
     line 430                  result = sequential_func(single_input)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
               single_input = prompt-input for 'Banyan Capital investe'...
               sequential_func = function invoke
@@ -126,6 +138,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 222                  f"{task_name} item",
     line 219              return self._run_with_timeout(
   <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+
               result = parsed reply dict
     line 431                  results.append(result)
               results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
@@ -140,11 +153,14 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 442          logger.info(
     line 448          return results
   <<< BatchProcessor._process_sequentially_with_fallback RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+
   <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+
+
 ========== SUMMARY ==========
 model calls for chunk 05: 2 | model calls for the other four chunks: 8
-  t= 0.08s  model called for chunk 05, call #1
-  t= 2.06s  model called for chunk 05, call #2
-  t= 4.08s  chunk 05 call #1 finally finished sleeping (in the abandoned thread)
+  t= 0.04s  model called for chunk 05, call #1
+  t= 2.04s  model called for chunk 05, call #2
+  t= 4.04s  chunk 05 call #1 finally finished sleeping (in the abandoned thread)
 stage 5 status: completed | failed_units: 0 | entities: 16 | relationships: 14
 failed chunks: []

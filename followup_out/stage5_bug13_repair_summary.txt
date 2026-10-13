@@ -1,0 +1,11 @@
+reply for 05_investor.txt set to: 'I could not find any entities in this text.'
+model calls recorded: 6
+  call 1: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 2: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 3: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 4: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 5: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 6: OTHER prompt, roles ['human'], reply used: PLACEHOLDER
+does it contain the chunk's text ('Banyan Capital invested in Acme Robotics in 2019')? False
+does it contain the extraction instructions ('Entity Categories')? False
+stage 5: completed | failed_units: 1 | entities: 12 | failed chunks: ['05_investor.txt']

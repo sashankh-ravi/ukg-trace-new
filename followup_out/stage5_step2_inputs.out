@@ -13,7 +13,7 @@
   >>> ENTER GraphExtractor.extract_from_text_units   (adapters/ingestion/graph_extractor.py)
               text_units = list of 5 TextUnit
     line 146          start_time = time.time()
-              start_time = 1791821093.201 (clock time, seconds)
+              start_time = 1791864000.699 (clock time, seconds)
     line 148          if not text_units:
     line 152          self.stats = ExtractionStats(num_total_units=len(text_units))
     line 153          logger.info("Starting graph extraction from %s text units", len(text_units))

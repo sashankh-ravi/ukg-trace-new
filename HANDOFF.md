@@ -35,6 +35,7 @@ Every non-trivial claim carries one of these:
 - **Program output** was copied in by a script from one complete re-run of every experiment, done on 11 October 2026 in a clean folder (`reproduce_output_fresh.txt` in this bundle). It was not retyped.
 - **The narrative between them** was written by Claude from the session. It can contain mistakes. Where narrative and excerpt disagree, the excerpt wins.
 - The 11 October re-run produced the same fingerprints, file names, prompt keys and chunk sizes as the 9 October session. A checker script compared 24 recorded values and found all 24 (Appendix F). Run IDs and clock times differ between the two days, because run IDs contain the time.
+- **Stage 5 output** (section 9.2) was copied in by the same script from a complete re-run of every stage 5 experiment by `reproduce/run_stage5.sh`, done on 13 October 2026 in a clean folder (outputs in `followup_out/stage5_*`). Apart from clock times, retry waits and the order in which two threads printed, it matched the runs made during the 12 October session line for line.
 - Section 12 lists statements made during the 9 October session that turned out to be imprecise or incomplete. Read it.
 
 ### 0.4 What is in this bundle
@@ -42,13 +43,16 @@ Every non-trivial claim carries one of these:
 | Path | What it is |
 |---|---|
 | `HANDOFF.md` | This file. |
-| `POTENTIAL_BUGS.md` | The running bug log: the four entries agreed with the person, plus two candidates not yet approved. |
-| `reproduce/run_all.sh` | Re-runs every experiment from scratch against a checkout of the repo. |
+| `POTENTIAL_BUGS.md` | The running bug log: entries 1 to 4 and 7 to 15 agreed with the person, plus candidates 5 and 6 not yet decided. |
+| `reproduce/run_all.sh` | Re-runs the stage 1 to 3 experiments from scratch against a checkout of the repo. |
+| `reproduce/run_stage5.sh` | Re-runs every stage 5 experiment from scratch (section 9.2). |
 | `reproduce/scripts/` | The tracing scripts used in the session, plus small helpers. |
 | `reproduce/docs_original/` | The five made-up source documents, as first written. |
 | `reproduce/docs_added/` | Two longer made-up documents added for stage 3. |
 | `reproduce_output_fresh.txt` | Full output of `run_all.sh` from 11 October 2026. |
 | `evidence_9oct/` | Files left on disk by the 9 October session: logs, captured prompts, the cache folder. |
+| `followup_out/` | Outputs of the scripts run outside `run_all.sh`: stage 3 follow-ups, stage 4, and stage 5 (from `run_stage5.sh`). |
+| `chat/TRANSCRIPT.md` | The chat itself, copied from its history. |
 
 All sample documents are invented. They describe a fictional company. Nothing in the bundle comes from a real customer or a real AWS account.
 
@@ -57,6 +61,7 @@ All sample documents are invented. They describe a fictional company. Nothing in
 This file contains every file needed to re-run the experiments. If only `HANDOFF.md` and `POTENTIAL_BUGS.md` were carried over, rebuild the `reproduce/` folder from the appendices:
 
 - Appendix B holds `reproduce/run_all.sh`, the five `step*.py` scripts, `fake_llm.py` and `answers_handwritten.json`.
+- Appendix B also holds `reproduce/run_stage5.sh`; Appendix G also holds every stage 4 and stage 5 script, `linetrace.py` and `answers_stage5.json`.
 - Appendix E holds the seven sample documents.
 - Appendix G holds the helper scripts.
 
@@ -87,6 +92,7 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
    /path/to/unified-kg-rag-on-aws/.venv/bin/python /path/to/bundle/reproduce/scripts/check_expected.py my_output.txt
    ```
    The whole run took about 5 minutes in the session.
+   For stage 5 (section 9.2), run `bash /path/to/bundle/reproduce/run_stage5.sh /path/to/unified-kg-rag-on-aws my_stage5_out`. It took about 4 minutes on 13 October 2026 and writes every output quoted in section 9.2 into `my_stage5_out/`.
 3. `run_all.sh` is a bash script. On Windows it needs Git Bash or WSL. It looks for the interpreter at `.venv/bin/python` and falls back to `.venv/Scripts/python.exe`; the fallback has **[NOT CHECKED]** status, since the session ran on Linux only.
 
 **AWS safety.** Nothing in the kit needs AWS. `run_all.sh` deliberately blanks the AWS environment variables and points the AWS config files at `/dev/null`, so that the one step that exercises Bedrock code (section 4.3, the constructor with all 12 stages) cannot reach a real account from a machine that has credentials. **[INFERRED]** On a machine with working AWS credentials and those blanking lines removed, that step would behave differently from what is recorded here.
@@ -106,11 +112,11 @@ Not contained in this file: the `evidence_9oct/` folder (logs and cache left by 
 | 7 | Stage 3, text chunking, with Claude answering the model's prompt by hand | Done, run |
 | 7b | Follow-up questions on stage 3: size checks, overlap, wrong or invented model replies | Done, run (section 8.6) |
 | 8 | Stage 4, translation | Done, run with checkpoints and hand-written Spanish translations (section 9.1) |
-| 9 | Stage 5, graph extraction | **In progress** (12 October). Steps 1 to 3 traced line by line: construction, inputs, batch processor normal and failure paths. Outputs in `followup_out/stage5_*.out`; not yet written up in this file. **Next:** step 4, reading each reply (XML reader, repair model, `_parse_extraction_result`). |
+| 9 | Stage 5, graph extraction | **In progress.** Steps 1 to 4b traced line by line and run (section 9.2): construction, inputs, batch processor (normal and failure paths), reading a reply, turning it into objects. **Next:** the merge across chunks, `_process_extraction_results` (section 9.2.8). |
 | 9b | Stages 6 to 12 | Not started. |
 | 10 | The other four commands (`run-rag`, `run-eval`, `run-visualization`, `run-prompt-tuning`) | Not started. |
 
-Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day. Bug 11 (stage 5) was approved and added on 12 October.
+Open with the person: should the "merged pieces lose the gap between them" finding (candidate 5 in `POTENTIAL_BUGS.md`) be added to the bug log? They had not answered. Candidate 6 has not been shown to them. Bug 7 was approved and added on 11 October. Three stage 4 findings (bugs 8, 9 and 10) were shown to them on 12 October and approved and added the same day. Bug 11 (stage 5) was approved and added on 12 October, and bugs 12 to 15 (stage 5) on 13 October.
 
 ---
 
@@ -139,11 +145,12 @@ The person asked at the start for the whole repository to be read before any exp
 
 **Read in part [READ]:**
 
-- `unified_kg_rag/application/ingestion/pipeline_stages.py`: lines 1 to 760 of 1,639. This covers the stage base class and the parsing, loading, chunking and translation stages. The eight later stage classes (from line 758) have **not** been read.
-- `unified_kg_rag/domain/prompts/data_processing.py`: lines 1 to 130 (the chunking prompt).
+- `unified_kg_rag/application/ingestion/pipeline_stages.py`: lines 1 to 808 of 1,639. This covers the stage base class and the parsing, loading, chunking, translation and graph extraction stages. The seven later stage classes (from line 810) have **not** been read.
+- `unified_kg_rag/domain/prompts/data_processing.py`: in full (273 lines; chunking, description summarization and translation prompts).
 - `unified_kg_rag/domain/models/config.py`: only the pieces found by searching (chunking, translation, fixing, cache TTL, stage list, a few processing fields). The file is 2,702 lines.
 - `unified_kg_rag/domain/models/cache.py`: the `is_expired` property only.
-- `unified_kg_rag/shared/utils/common.py`: `compute_hash` only.
+- `unified_kg_rag/shared/utils/common.py`: `compute_hash`, and lines 95 to 204 (stage 5 helpers: `ensure_list`, `generate_stable_id`, `clean_display_name`, `entity_key`).
+- Stage 5 files listed at the start of section 9.2: `graph_extractor.py`, `base_processor.py` and `domain/prompts/graph_extraction.py` in full; parts of `bedrock_retry.py` and `config.py`.
 - `pyproject.toml`: lines 1 to 140.
 
 **Not read at all [NOT CHECKED]:** everything else. That is about 36,000 of the package's 43,812 lines, including every later-stage adapter (`graph_extractor.py`, `gleaner.py`, `community_detector.py`, the indexers), all of retrieval and search, evaluation, visualization, the infrastructure code under `iac/`, the tests, and the two design documents under `docs/`.
@@ -3705,7 +3712,7 @@ Provide ONLY the XML output with no additional text or explanations.
 
 ---
 
-## 9. Stage 4, and what is known about later stages
+## 9. Stages 4 and 5, and what is known about later stages
 
 ### 9.1 Stage 4, translation (traced 12 October)
 
@@ -4278,7 +4285,2670 @@ stand-alone enum, python 3.12.3 -> 'L.ES'
 
 **[NOT CHECKED] What later stages read.** A search (not a full read) shows later stages use `context.translated_units or context.text_units` (`pipeline_stages.py` lines 777, 827, 985, 1296, 1311; line 1188 has the opposite order), and that helpers such as `domain/ingestion/base_processor.py` lines 46 to 48 read `translated_texts.get(target_language, text)`. If that holds, the translation, not the original, is what the graph is built from when translation is on. To be confirmed in stage 5.
 
-### 9.2 Files behind the remaining stages
+### 9.2 Stage 5, graph extraction (traced 12 and 13 October)
+
+Traced at the person's request "line by line, like checkpointing the code", after a first quick pass (12 October) that they said went too fast. Every run below comes from `reproduce/run_stage5.sh`, which rebuilds the five-document folder and runs all stage 5 scripts in order; the outputs quoted here are its output of 13 October 2026, in `followup_out/stage5_*`. The line traces were made with `reproduce/scripts/linetrace.py`, which uses Python's built-in line tracer: every executed line of a watched function is printed with its line number, followed by any local variable that line created or changed.
+
+**Files read for this stage [READ]:**
+
+- `adapters/ingestion/graph_extractor.py`, in full (721 lines)
+- `domain/ingestion/base_processor.py`, in full (380 lines)
+- `domain/prompts/graph_extraction.py`, in full (582 lines; the extraction prompt is lines 12 to 154)
+- `application/ingestion/pipeline_stages.py`, lines 61 to 256 (stage base class) and 758 to 808 (`GraphExtractionStage`)
+- `shared/utils/langchain.py` (already listed in section 2) and `adapters/aws/chain_factory.py` (same), read again for this stage
+- `adapters/aws/bedrock_retry.py`, lines 1 to 66 of 159
+- `domain/models/config.py`, lines 816 to 1001 (grounding, graph extraction, gleaning, claim extraction, processing settings)
+- `shared/utils/common.py`, lines 95 to 204
+- Outside the repo, in its virtual environment: `langchain_classic/output_parsers/fix.py` lines 30 to 105 and `prompts.py` in full (langchain-classic 1.0.8); `langchain_aws/chat_models/bedrock_converse.py` lines 1425 to 1445, 1505 to 1520 and 2320 to 2348 (langchain-aws 1.8.0)
+
+**Not read:** `domain/ingestion/entity_grounding.py` (`is_grounded`, used only when grounding is switched on), `adapters/aws/bedrock.py` beyond the search hits quoted in 9.2.5.
+
+**The documents.** The five short documents from section 4, with the sentence "Acme has 120 employees." appended to `01_acme.txt` (as scenario D of `step4.py` leaves it). Stage 3 makes one chunk per document under default settings; stage 4 does nothing (English to English).
+
+**The model.** The stand-in from section 8.3. Claude wrote one answer per chunk, by hand, in the format the prompt asks for (`reproduce/scripts/make_answers5.py`, which writes `answers_stage5.json`). These are Claude's answers, not the configured model's.
+
+#### 9.2.1 The two whole runs
+
+**Run A: no answers on file [RAN].** The stand-in replied to all five prompts with its placeholder (leftover chunking XML):
+
+```text
+settings: max_entities_per_chunk=50 | max_relationships_per_chunk=50 | entity_confidence_threshold=0.0 | grounding enabled=False action=drop | ignore_errors=False
+stages built: ['document_parsing', 'document_loading', 'text_chunking', 'translation', 'graph_extraction']
+CHECKPOINT -> GraphExtractionStage._execute_core
+CHECKPOINT -> GraphExtractor.extract_from_text_units
+CHECKPOINT -> GraphExtractor._prepare_extraction_inputs
+           returned: "5 prompt inputs, keys ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chun...
+CHECKPOINT -> GraphExtractor._process_extraction_results
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+CHECKPOINT -> GraphExtractor._merge_entities
+           returned: '0 in -> 0 out'
+CHECKPOINT -> GraphExtractor._merge_relationships
+           returned: '0 in -> 0 out'
+CHECKPOINT -> GraphExtractor._materialize_relationship_endpoints
+           returned: '0 in -> 0 out'
+CHECKPOINT -> GraphExtractor._filter_entities_by_confidence
+           returned: '0 kept, 0 removed'
+           returned: '0 entities, 0 relationships'
+           returned: '0 entities, 0 relationships'
+           returned: (5, 0, {'text_units_processed': 5, 'entities_extracted': 0, 'relationships_extracted': 0, 'failed_units': 5...
+
+model calls made: 5 ['PLACEHOLDER', 'PLACEHOLDER', 'PLACEHOLDER', 'PLACEHOLDER', 'PLACEHOLDER']
+stage result: status = failed | in = 0 | out = 0
+stage error_message: Critical stage 'graph_extraction' processed 5 inputs but produced 0 outputs. Check the stage configuration and input data quality.
+stages run: [('document_parsing', 'completed'), ('document_loading', 'completed'), ('text_chunking', 'completed'), ('translation', 'completed'), ('graph_extraction', 'failed')]
+stage metrics: {}
+extraction_stats: {}
+failed_text_unit_ids: ['7625b4ab-91a2-55fb-abb8-321474c04dd0', '6fde1112-1dcf-5110-8e50-795c54b6dfc3', '85b2d41d-9629-5279-8be3-205a8c56929b', 'e242d857-6c30-57ec-a587-a8f6ad5776bc', '9fa25aaf-29ca-53f0-90ad-c1ac4f389c23']
+
+ENTITIES (0)
+
+RELATIONSHIPS (0)
+
+cache files: ['stage5-capture/cache_index.json', 'stage5-capture/document_loading/documents-0842cedc0821.json', 'stage5-capture/document_parsing/documents-54cf4641e850.json', 'stage5-capture/pipeline_metadata.json', 'stage5-capture/text_chunking/text_units-9fcbd193c678.json', 'stage5-capture/translation/translated_units-64bc0bc08eed.json']
+```
+
+**Run B: Claude's answers [RAN]:**
+
+```text
+settings: max_entities_per_chunk=50 | max_relationships_per_chunk=50 | entity_confidence_threshold=0.0 | grounding enabled=False action=drop | ignore_errors=False
+stages built: ['document_parsing', 'document_loading', 'text_chunking', 'translation', 'graph_extraction']
+CHECKPOINT -> GraphExtractionStage._execute_core
+CHECKPOINT -> GraphExtractor.extract_from_text_units
+CHECKPOINT -> GraphExtractor._prepare_extraction_inputs
+           returned: "5 prompt inputs, keys ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chun...
+CHECKPOINT -> GraphExtractor._process_extraction_results
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 01_acme.txt: 5 entities, 3 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 02_meera.txt: 4 entities, 2 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 03_orbit.txt: 6 entities, 3 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 04_product.txt: 3 entities, 2 relationships'
+CHECKPOINT -> GraphExtractor._parse_extraction_result
+           returned: 'chunk 05_investor.txt: 5 entities, 4 relationships'
+CHECKPOINT -> GraphExtractor._merge_entities
+           returned: '23 in -> 16 out'
+CHECKPOINT -> GraphExtractor._merge_relationships
+           returned: '14 in -> 14 out'
+CHECKPOINT -> GraphExtractor._materialize_relationship_endpoints
+           returned: '16 in -> 16 out'
+CHECKPOINT -> GraphExtractor._filter_entities_by_confidence
+           returned: '16 kept, 0 removed'
+           returned: '16 entities, 14 relationships'
+           returned: '16 entities, 14 relationships'
+           returned: (5, 30, {'text_units_processed': 5, 'entities_extracted': 16, 'relationships_extracted': 14, 'failed_units'...
+
+model calls made: 5 ['hand-written answer', 'hand-written answer', 'hand-written answer', 'hand-written answer', 'hand-written answer']
+stage result: status = completed | in = 5 | out = 30
+stages run: [('document_parsing', 'completed'), ('document_loading', 'completed'), ('text_chunking', 'completed'), ('translation', 'completed'), ('graph_extraction', 'completed')]
+stage metrics: {'text_units_processed': 5, 'entities_extracted': 16, 'relationships_extracted': 14, 'failed_units': 0}
+extraction_stats: {'num_total_units': 5, 'num_successful_extractions': 5, 'num_failed_extractions': 0, 'failed_text_unit_ids': [], 'total_entities_extracted': 16, 'total_relationships_extracted': 14, 'entities_filtered_by_confidence': 0, 'relationships_filtered_by_confidence': 0, 'average_entity_confidence': 0.94, 'confidence_threshold_applied': 0.0, 'entities_ungrounded': 0, 'relationships_ungrounded': 0, 'relationships_dropped_ungrounded_endpoint': 0}
+failed_text_unit_ids: []
+
+ENTITIES (16)
+  Acme Robotics              type=organization  conf=1.0 freq=4 from=['01_acme.txt', '02_meera.txt', '03_orbit.txt', '05_investor.txt']
+                             description: 'A company based in Pune that builds warehouse robots and has 120 employees.; A company Meera Shah was at after Orbit...
+  Pune                       type=location      conf=1.0 freq=1 from=['01_acme.txt']
+                             description: 'The city where Acme Robotics is based.'
+  Meera Shah                 type=person        conf=1.0 freq=2 from=['01_acme.txt', '02_meera.txt']
+                             description: 'The founder of Acme Robotics.; A person who studied engineering at IIT Bombay and worked at Orbit Logistics as a har...
+  2015                       type=temporal      conf=0.9 freq=1 from=['01_acme.txt']
+                             description: 'The year Acme Robotics was founded.'
+  warehouse robots           type=object        conf=0.8 freq=1 from=['01_acme.txt']
+                             description: 'The products Acme Robotics builds.'
+  IIT Bombay                 type=organization  conf=1.0 freq=1 from=['02_meera.txt']
+                             description: 'The institution where Meera Shah studied engineering.'
+  Orbit Logistics            type=organization  conf=1.0 freq=3 from=['02_meera.txt', '03_orbit.txt', '04_product.txt']
+                             description: 'A company where Meera Shah worked as a hardware lead before Acme Robotics.; A company that runs warehouses in Mumbai...
+  Mumbai                     type=location      conf=1.0 freq=1 from=['03_orbit.txt']
+                             description: 'A city where Orbit Logistics runs warehouses.'
+  Chennai                    type=location      conf=1.0 freq=2 from=['03_orbit.txt', '04_product.txt']
+                             description: 'A city where Orbit Logistics runs warehouses.; The city of the Orbit Logistics warehouse where the Picker X2 is used.'
+  supply contract            type=object        conf=0.8 freq=1 from=['03_orbit.txt']
+                             description: 'The contract signed between Orbit Logistics and Acme Robotics in 2022.'
+  2022                       type=temporal      conf=0.9 freq=1 from=['03_orbit.txt']
+                             description: 'The year the supply contract was signed.'
+  Acme Picker X2             type=object        conf=1.0 freq=1 from=['04_product.txt']
+                             description: 'A warehouse robot that lifts up to 40 kg, used by Orbit Logistics in its Chennai warehouse.'
+  Banyan Capital             type=organization  conf=1.0 freq=1 from=['05_investor.txt']
+                             description: 'An investor in Acme Robotics since 2019.'
+  2019                       type=temporal      conf=0.9 freq=1 from=['05_investor.txt']
+                             description: 'The year Banyan Capital invested in Acme Robotics.'
+  Ravi Menon                 type=person        conf=1.0 freq=1 from=['05_investor.txt']
+                             description: 'A partner at Banyan Capital who sits on the Acme board.'
+  Acme board                 type=organization  conf=0.7 freq=1 from=['05_investor.txt']
+                             description: 'The board of Acme Robotics, on which Ravi Menon sits.'
+
+RELATIONSHIPS (14)
+  Acme Robotics --LOCATED_IN--> Pune  weight=9.0 from=['01_acme.txt']
+  Meera Shah --FOUNDED--> Acme Robotics  weight=10.0 from=['01_acme.txt']
+  Acme Robotics --CREATES--> warehouse robots  weight=9.0 from=['01_acme.txt']
+  Meera Shah --STUDIED_AT--> IIT Bombay  weight=8.0 from=['02_meera.txt']
+  Meera Shah --WORKED_AT--> Orbit Logistics  weight=7.0 from=['02_meera.txt']
+  Orbit Logistics --OPERATES--> Mumbai  weight=8.0 from=['03_orbit.txt']
+  Orbit Logistics --OPERATES--> Chennai  weight=8.0 from=['03_orbit.txt']
+  Orbit Logistics --PARTNERS_WITH--> Acme Robotics  weight=8.0 from=['03_orbit.txt']
+  Orbit Logistics --USES--> Acme Picker X2  weight=9.0 from=['04_product.txt']
+  Acme Picker X2 --LOCATED_IN--> Chennai  weight=6.0 from=['04_product.txt']
+  Banyan Capital --INVESTED_IN--> Acme Robotics  weight=9.0 from=['05_investor.txt']
+  Ravi Menon --PART_OF--> Banyan Capital  weight=8.0 from=['05_investor.txt']
+  Ravi Menon --PART_OF--> Acme board  weight=8.0 from=['05_investor.txt']
+  Acme board --PART_OF--> Acme Robotics  weight=7.0 from=['05_investor.txt']
+
+cache files: ['stage5-answered/cache_index.json', 'stage5-answered/document_loading/documents-0842cedc0821.json', 'stage5-answered/document_parsing/documents-54cf4641e850.json', 'stage5-answered/graph_extraction/entities-6c874c6a9e71.json', 'stage5-answered/graph_extraction/relationships-6c874c6a9e71.json', 'stage5-answered/pipeline_metadata.json', 'stage5-answered/text_chunking/text_units-9fcbd193c678.json', 'stage5-answered/translation/translated_units-64bc0bc08eed.json']
+```
+
+The prompt as sent for the first chunk. System message:
+
+```text
+You are a world-class knowledge graph extraction expert with unparalleled expertise in
+transforming unstructured text into precise, comprehensive knowledge graphs.
+
+MISSION: Extract entities and relationships from text with maximum accuracy and completeness while strictly adhering to
+output format requirements.
+
+# ENTITY EXTRACTION RULES
+
+## Entity Categories (STRICT - use only these types):
+- **PERSON**: Names, individuals, roles, titles
+- **ORGANIZATION**: Companies, institutions, departments, groups
+- **LOCATION**: Places, addresses, geographic areas, facilities
+- **CONCEPT**: Ideas, theories, methodologies, frameworks, principles
+- **OBJECT**: Documents, tools, products, systems, technologies
+- **EVENT**: Meetings, projects, activities, processes, incidents
+- **TEMPORAL**: Dates, time periods, schedules, deadlines
+
+## Entity Naming Requirements:
+- Use EXACT names as they appear in source text
+- Maintain original capitalization and formatting
+- Use full names over abbreviations when possible
+- Ensure perfect consistency across all mentions
+
+## Entity Descriptions:
+- Write 1-2 clear, concise sentences
+- Define the entity's nature and significance
+- Include relevant context from the text
+- Avoid speculation or external knowledge
+
+## Entity Provenance (REQUIRED):
+- For every entity, copy a SHORT VERBATIM span (a phrase or sentence) directly
+  from the source text where the entity appears. Do NOT paraphrase this span.
+- The span is the evidence the entity is in the document. If you cannot find a
+  verbatim span, DO NOT invent the entity — omit it entirely.
+- Never introduce entities from general domain knowledge that are not present in
+  the source text (e.g. standard contract clauses, typical values).
+
+## Entity Confidence Scoring (1-10 scale):
+Assign a confidence score based on how clearly the entity is identified in the text:
+- **9-10**: Explicitly named and clearly defined in text, unambiguous identification
+- **7-8**: Clearly mentioned with sufficient context, minor ambiguity possible
+- **5-6**: Mentioned but requires inference from context, moderate certainty
+- **3-4**: Implied or partially referenced, significant inference required
+- **1-2**: Weakly implied, high uncertainty in identification
+
+# RELATIONSHIP EXTRACTION RULES
+
+## Relationship Types (be specific and descriptive):
+- **HIERARCHICAL**: MANAGES, REPORTS_TO, OWNS, CONTAINS, PART_OF
+- **COLLABORATIVE**: WORKS_WITH, PARTNERS_WITH, COLLABORATES_WITH
+- **OPERATIONAL**: USES, CREATES, OPERATES, DEPENDS_ON, PROCESSES
+- **TEMPORAL**: OCCURS_BEFORE, OCCURS_AFTER, SCHEDULED_FOR
+- **SPATIAL**: LOCATED_IN, NEAR, CONTAINS_LOCATION
+- **INFORMATIONAL**: COMMUNICATES_WITH, INFORMS, REPORTS_TO
+
+## Strength Scoring (1-10 scale):
+- **9-10**: Direct dependencies, ownership, core operations
+- **7-8**: Strong partnerships, key collaborations, regular interaction
+- **5-6**: Clear functional relationships, coordination
+- **3-4**: Moderate connections, occasional interaction
+- **1-2**: Weak associations, minimal connection
+
+## Critical Requirements:
+- Extract ONLY relationships between extracted entities
+- Use entity names EXACTLY as listed in entities section
+- Ensure source and target entities exist in your entity list
+- Base relationships only on explicit text content
+
+## Relationship Provenance (REQUIRED):
+- For every relationship, copy a SHORT VERBATIM span from the source text that
+  states the connection. Do NOT paraphrase it. If no verbatim span supports the
+  relationship, DO NOT emit it — never infer relationships from domain knowledge.
+
+# OUTPUT FORMAT REQUIREMENTS
+
+MANDATORY: Use this exact XML structure with no deviations:
+
+<entities>
+<entity>
+<name>EXACT_ENTITY_NAME</name>
+<type>ENTITY_TYPE</type>
+<description>Clear description of entity role and significance in the text.</description>
+<confidence>NUMERIC_VALUE_1_TO_10</confidence>
+<source_text>Verbatim span copied from the source text where this entity appears.</source_text>
+</entity>
+</entities>
+
+<relationships>
+<relationship>
+<source>SOURCE_ENTITY_NAME</source>
+<target>TARGET_ENTITY_NAME</target>
+<type>SPECIFIC_RELATIONSHIP_TYPE</type>
+<description>Clear explanation of the relationship between entities.</description>
+<strength>NUMERIC_VALUE</strength>
+<source_text>Verbatim span copied from the source text that states this relationship.</source_text>
+</relationship>
+</relationships>
+
+# QUALITY CONTROL CHECKLIST
+✓ Entity names match exactly between entities and relationships sections
+✓ All relationship entities exist in the entities section
+✓ Only factual information from source text is included
+✓ Entity limits and relationship limits are respected
+✓ XML format is followed precisely
+✓ No external knowledge or assumptions added
+✓ Every entity has a verbatim source_text span copied from the input
+✓ Confidence scores accurately reflect extraction certainty (1-10 scale)
+
+Focus on accuracy over quantity. Extract meaningful, verifiable information only.
+```
+
+Human message:
+
+```text
+Extract entities and relationships from the following text using the exact specifications
+provided.
+
+## SOURCE TEXT:
+Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.
+Acme has 120 employees.
+
+## EXTRACTION LIMITS:
+- Maximum Entities: 50
+- Maximum Relationships: 50
+
+## STEP-BY-STEP PROCESS:
+1. Read the text carefully and identify all significant entities
+2. Classify each entity using the specified types
+3. Create clear descriptions for each entity
+4. Assign confidence scores based on extraction certainty (1-10 scale)
+5. Identify meaningful relationships between entities
+6. Assign appropriate relationship types and strength scores
+7. Verify entity name consistency between sections
+8. Format output using the exact XML structure
+
+## CRITICAL REMINDERS:
+- Use ONLY the entity types specified in the system prompt
+- Ensure entity names are IDENTICAL in both entities and relationships sections
+- All relationships must connect entities that exist in your entities list
+- Stay within the specified limits for entities and relationships
+- Use the exact XML format provided
+
+Begin extraction now:
+```
+
+#### 9.2.2 Step 1: what is built when the stage is created
+
+```python
+# unified_kg_rag/application/ingestion/pipeline_stages.py, lines 758-768
+class GraphExtractionStage(PipelineStage):
+    def __init__(
+        self,
+        config: Config,
+        boto_session: boto3.Session | None = None,
+        providers: Providers | None = None,
+    ):
+        super().__init__(
+            PipelineStageType.GRAPH_EXTRACTION, config, boto_session, providers
+        )
+        self.extractor = GraphExtractor(self.config, providers=self.providers)
+```
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 108-141
+class GraphExtractor(BaseProcessor):
+    def __init__(
+        self,
+        config: Config,
+        boto_session: boto3.Session | None = None,
+        *,
+        providers: Providers | None = None,
+    ) -> None:
+        super().__init__(config)
+        self.providers = Providers.resolve(config, providers, boto_session)
+        self.boto_session = self.providers.boto_session
+        self.ignore_errors = self.config.processing.ignore_errors
+        self.factory = self.providers.llm_factory
+        self.batch_processor = BatchProcessor(
+            is_transient_error=is_transient_bedrock_error
+        )
+
+        robust_xml_output_parser = create_robust_xml_output_parser(
+            model_purpose=ModelPurpose.INGESTION,
+            enable_output_fixing=self.config.fixing.enabled,
+            output_fixing_model_id=self.config.fixing.fixing_model_id,
+            factory=self.factory,
+            min_output_tokens=GraphExtractionPrompt.min_output_tokens,
+        )
+        self.graph_extractor = setup_chain(
+            model_purpose=ModelPurpose.INGESTION,
+            factory=self.factory,
+            model_id=self.extraction_config.extraction_model_id,
+            prompt_class=GraphExtractionPrompt,
+            parser=robust_xml_output_parser,
+            custom_prompts=self.config.custom_prompts,
+        )
+
+        self.stats: ExtractionStats = ExtractionStats()
+```
+
+Checkpoints on the constructor (`stage5_step1_build.py`) [RAN]:
+
+```text
+settings read by the constructor:
+  config.processing.ignore_errors             = False
+  config.fixing.enabled                       = True
+  config.fixing.fixing_model_id               = anthropic.claude-sonnet-5-5
+  graph_extraction.extraction_model_id        = anthropic.claude-sonnet-5-5
+  GraphExtractionPrompt.min_output_tokens     = 32768
+  config.custom_prompts                       = graph_extraction_system=None graph_extraction_human=None claim_extraction_system=None claim_extraction_human=None description_summarization_system=None description_summarization_human=None graph_refinement_system=None graph_refinement_human=None community_report_system=None community_report_human=None answer_generation_system=None answer_generation_human=None context_building_system=None context_building_human=None entity_extraction_system=None entity_extraction_human=None keywords_extraction_system=None keywords_extraction_human=None corpus_profile_system=None corpus_profile_human=None drift_primer_system=None drift_primer_human=None keyword_expansion_system=None keyword_expansion_human=None query_refinement_system=None query_refinement_human=None strategy_selection_system=None strategy_selection_human=None global_map_system=None global_map_human=None
+
+>>> GraphExtractionStage(config, providers=providers)
+CHECKPOINT -> create_robust_xml_output_parser  called with {'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'enable_output_fixing': True, 'output_fixing_model_id': 'anthropic.claude-sonnet-5-5', 'factory': 'HandAnsweredFactory', 'min_output_tokens': 32768}
+CHECKPOINT -> factory.get_model  called with {'model_id': 'anthropic.claude-sonnet-5-5', 'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'min_output_tokens': 32768}
+           returned: HandAnsweredModel
+           returned: OutputFixingParser
+CHECKPOINT -> setup_chain  called with {'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'factory': 'HandAnsweredFactory', 'model_id': 'anthropic.claude-sonnet-5-5', 'prompt_class': 'GraphExtractionPrompt', 'parser': 'OutputFixingParser', 'custom_prompts': 'CustomPromptConfig'}
+CHECKPOINT -> factory.get_model  called with {'model_id': 'anthropic.claude-sonnet-5-5', 'model_purpose': <ModelPurpose.INGESTION: 'ingestion'>, 'min_output_tokens': 32768}
+           returned: HandAnsweredModel
+           returned: RunnableBinding
+
+after construction:
+  stage.name                 = graph_extraction
+  stage.extractor            = GraphExtractor
+  extractor.ignore_errors    = False
+  extractor.factory          = HandAnsweredFactory (the stand-in; normally the Bedrock factory)
+  extractor.batch_processor  = BatchProcessor
+  extractor.stats            = num_total_units=0 num_successful_extractions=0 num_failed_extractions=0 failed_text_unit_ids=[] total_entities_extracted=0 total_relationships_extracted=0 total_processing_time=0.0 entities_filtered_by_confidence=0 relationships_filtered_by_confidence=0 average_entity_confidence=0.0 confidence_threshold_applied=0.0 entities_ungrounded=0 relationships_ungrounded=0 relationships_dropped_ungrounded_endpoint=0
+  extractor.graph_extractor  = RunnableBinding named 'GraphExtractionPrompt'
+     step 1: ChatPromptTemplate
+     step 2: HandAnsweredModel
+     step 3: OutputFixingParser
+  prompt messages            = ['SystemMessagePromptTemplate', 'HumanMessagePromptTemplate']
+  prompt variables to fill   = ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chunk']
+  models asked for           = [('anthropic.claude-sonnet-5-5', {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '32768'}), ('anthropic.claude-sonnet-5-5', {'model_purpose': 'ModelPurpose.INGESTION', 'min_output_tokens': '32768'})]
+```
+
+The two functions it calls:
+
+```python
+# unified_kg_rag/adapters/aws/chain_factory.py, lines 230-264
+def create_robust_xml_output_parser(
+    factory: LLMFactoryPort,
+    enable_output_fixing: bool,
+    output_fixing_model_id: str,
+    model_purpose: ModelPurpose = ModelPurpose.QUERY,
+    min_output_tokens: int = 0,
+) -> BaseOutputParser:
+    """Build the XML parser, optionally wrapped in an LLM output fixer.
+
+    ``model_purpose`` is forwarded to the fixing LLM so it gets the same
+    per-path policy (e.g. guardrail scope) as the chain it repairs, and
+    ``min_output_tokens`` (the repaired prompt's output floor) so a long
+    output can be re-emitted in full.
+    """
+    base_parser = RobustXMLOutputParser()
+    if not enable_output_fixing:
+        return base_parser
+
+    try:
+        fixing_llm = factory.get_model(
+            model_id=output_fixing_model_id,
+            model_purpose=model_purpose,
+            min_output_tokens=min_output_tokens,
+        )
+        logger.info(
+            "Created OutputFixingParser with model: '%s'", output_fixing_model_id
+        )
+        return OutputFixingParser.from_llm(parser=base_parser, llm=fixing_llm)
+    except Exception as e:
+        logger.error(
+            "Failed to create OutputFixingParser with model %s: %s",
+            output_fixing_model_id,
+            e,
+        )
+        raise GraphRAGException(f"Failed to create OutputFixingParser: {e}") from e
+```
+
+```python
+# unified_kg_rag/adapters/aws/chain_factory.py, lines 267-316
+def setup_chain(
+    factory: LLMFactoryPort,
+    model_id: str,
+    prompt_class: type[BasePrompt],
+    parser: BaseOutputParser,
+    custom_prompts: CustomPromptConfig | None = None,
+    model_purpose: ModelPurpose = ModelPurpose.QUERY,
+    **kwargs: Any,
+) -> Runnable:
+    """Build ``prompt | llm | parser`` with the policies of ``model_purpose``.
+
+    ``QUERY`` (the default, so an unmarked call site stays on the guarded,
+    conservative side) gets the query guardrail scope (``guardrail.apply_to``,
+    applied by the factory) and, on a Bedrock factory, a transient-error retry
+    around the whole chain. Ingestion and evaluation call sites pass their
+    purpose explicitly: they run unguarded under ``apply_to: query`` and get no
+    chain-level retry, because ``BatchProcessor`` already retries them and a
+    second layer would multiply the attempts. A non-Bedrock factory owns its
+    own retry policy.
+    """
+    try:
+        llm = factory.get_model(
+            model_id=model_id,
+            model_purpose=model_purpose,
+            min_output_tokens=prompt_class.min_output_tokens,
+            **kwargs,
+        )
+        model_info = factory.get_model_info(model_id)
+        resolved = prompt_class.resolve(custom_prompts=custom_prompts)
+        prompt = _build_chat_prompt(
+            resolved, _prompt_cache_marker(llm, model_info, resolved)
+        )
+        # Named after the prompt, so a trace shows "AnswerGenerationPrompt"
+        # instead of an anonymous "RunnableSequence".
+        chain: Runnable = (prompt | llm | parser).with_config(
+            run_name=prompt_class.__name__
+        )
+        logger.debug("Successfully created LLM chain with model: '%s'", model_id)
+        retry = (
+            factory.config.aws.bedrock.transient_retry
+            if model_purpose is ModelPurpose.QUERY
+            and isinstance(factory, BedrockLanguageModelFactory)
+            else None
+        )
+        return with_transient_retry(chain, operation=prompt_class.__name__, retry=retry)
+    except Exception as e:
+        logger.error("Failed to setup LLM chain with model '%s': %s", model_id, e)
+        raise GraphRAGException(
+            f"Failed to setup LLM chain with model '{model_id}': {e}"
+        ) from e
+```
+
+Both traced line by line (`stage5_step1b_inside_setup.py`). At the end the finished chain is run for chunk 1 one station at a time, to show why a reader is needed: the model returns text, later code needs a dictionary [RAN]:
+
+```text
+
+>>> ENTER create_robust_xml_output_parser  (adapters/aws/chain_factory.py)
+          factory = HandAnsweredFactory
+          enable_output_fixing = True
+          output_fixing_model_id = 'anthropic.claude-sonnet-5-5'
+          model_purpose = <ModelPurpose.INGESTION: 'ingestion'>
+          min_output_tokens = 32768
+  create_r:244     base_parser = RobustXMLOutputParser()
+          base_parser = RobustXMLOutputParser
+  create_r:245     if not enable_output_fixing:
+  create_r:248     try:
+  create_r:249         fixing_llm = factory.get_model(
+  create_r:250             model_id=output_fixing_model_id,
+  create_r:251             model_purpose=model_purpose,
+  create_r:252             min_output_tokens=min_output_tokens,
+  create_r:249         fixing_llm = factory.get_model(
+          fixing_llm = HandAnsweredModel
+  create_r:254         logger.info(
+  create_r:255             "Created OutputFixingParser with model: '%s'", output_fixing_model_id
+  create_r:254         logger.info(
+  create_r:257         return OutputFixingParser.from_llm(parser=base_parser, llm=fixing_llm)
+  create_robust_xml_output_parser RETURNS OutputFixingParser(parser=RobustXMLOutputParser, max_retries=1, retry_chain=prompt|HandAnsweredModel|...)
+
+
+>>> ENTER setup_chain  (adapters/aws/chain_factory.py)
+          factory = HandAnsweredFactory
+          model_id = 'anthropic.claude-sonnet-5-5'
+          prompt_class = GraphExtractionPrompt
+          parser = OutputFixingParser(parser=RobustXMLOutputParser, max_retries=1, retry_chain=prompt|HandAnsweredModel|...)
+          custom_prompts = CustomPromptConfig
+          model_purpose = <ModelPurpose.INGESTION: 'ingestion'>
+          kwargs = dict
+  setup_ch:287     try:
+  setup_ch:288         llm = factory.get_model(
+  setup_ch:289             model_id=model_id,
+  setup_ch:290             model_purpose=model_purpose,
+  setup_ch:291             min_output_tokens=prompt_class.min_output_tokens,
+  setup_ch:288         llm = factory.get_model(
+  setup_ch:292             **kwargs,
+  setup_ch:288         llm = factory.get_model(
+          llm = HandAnsweredModel
+  setup_ch:294         model_info = factory.get_model_info(model_id)
+          model_info = None
+  setup_ch:295         resolved = prompt_class.resolve(custom_prompts=custom_prompts)
+          resolved = ResolvedPrompt(system_prompt_template: 4526 chars, human_prompt_template: 1085 chars)
+  setup_ch:296         prompt = _build_chat_prompt(
+  setup_ch:297             resolved, _prompt_cache_marker(llm, model_info, resolved)
+  setup_ch:296         prompt = _build_chat_prompt(
+          prompt = ChatPromptTemplate(messages=['SystemMessagePromptTemplate', 'HumanMessagePromptTemplate'], input_variables=['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chunk'])
+  setup_ch:301         chain: Runnable = (prompt | llm | parser).with_config(
+  setup_ch:302             run_name=prompt_class.__name__
+  setup_ch:301         chain: Runnable = (prompt | llm | parser).with_config(
+          chain = RunnableBinding(bound=ChatPromptTemplate | HandAnsweredModel | OutputFixingParser, config={'run_name': 'GraphExtractionPrompt'})
+  setup_ch:304         logger.debug("Successfully created LLM chain with model: '%s'", model_id)
+  setup_ch:307             if model_purpose is ModelPurpose.QUERY
+  setup_ch:309             else None
+  setup_ch:305         retry = (
+          retry = None
+  setup_ch:311         return with_transient_retry(chain, operation=prompt_class.__name__, retry=retry)
+  setup_chain RETURNS RunnableBinding(bound=ChatPromptTemplate | HandAnsweredModel | OutputFixingParser, config={'run_name': 'GraphExtractionPrompt'})
+
+======================================================================
+WHY THE READER IS NEEDED: one chunk through the finished chain, one step at a time
+step 1, prompt template -> returns ChatPromptValue with 2 messages
+step 2, model           -> returns AIMessage ; its .content is a str of 1983 characters, starting:
+    <entities>
+    <entity>
+    <name>Acme Robotics</name>
+    <type>ORGANIZATION</type>
+    <description>A company based in Pune that builds warehouse robots and has 120 employees
+step 3, reader          -> returns dict with keys ['entities', 'relationships']
+    parsed['entities']['entity'] is a list of 5
+    first entity: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune that builds warehouse robots and has 120 employees.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}
+    parsed['relationships']['relationship'][0]: {"source": "Acme Robotics", "target": "Pune", "type": "LOCATED_IN", "description": "Acme Robotics is based in Pune.", "strength": "9", "source_text": "Acme Robotics is a company based in Pune."}
+```
+
+What this shows:
+
+- **[RAN]** The chain is `ChatPromptTemplate | model | OutputFixingParser`. The factory is asked for a model twice: once for extraction, once for the repair model inside `OutputFixingParser`, because `config.fixing.enabled` is `True` by default.
+- **[RAN]** `retry = None`: the chain gets no retry wrapper for ingestion (`chain_factory.py` lines 305 to 311); retries are left to the batch processor.
+- **[RAN]** Prompt caching is not marked, because the stand-in reports no model information. **[NOT CHECKED]** whether it is marked with the real Bedrock model.
+
+#### 9.2.3 Step 2: from the start of the stage to the hand-over
+
+```python
+# unified_kg_rag/application/ingestion/pipeline_stages.py, lines 770-807
+    def _execute_core(
+        self, context: PipelineContext
+    ) -> tuple[int, int, dict[str, Any] | None]:
+        logger.info("=" * 60)
+        logger.info("GRAPH EXTRACTION STAGE - STARTED")
+        logger.info("=" * 60)
+
+        text_units = context.translated_units or context.text_units
+
+        entities, relationships, stats = self.extractor.extract_from_text_units(
+            text_units
+        )
+        context.entities = entities
+        context.relationships = relationships
+        context.failed_text_unit_ids[self.name] = (
+            stats.failed_text_unit_ids if stats else []
+        )
+
+        entities_count = len(context.entities)
+        relationships_count = len(context.relationships)
+
+        metrics = {
+            "text_units_processed": len(text_units),
+            "entities_extracted": entities_count,
+            "relationships_extracted": relationships_count,
+            "failed_units": stats.num_failed_extractions if stats else 0,
+            "extraction_stats": self._stats_to_dict(stats),
+        }
+
+        logger.info("=" * 60)
+        logger.info(
+            "GRAPH EXTRACTION STAGE - COMPLETED (%s entities, %s relationships)",
+            entities_count,
+            relationships_count,
+        )
+        logger.info("=" * 60)
+
+        return len(text_units), entities_count + relationships_count, metrics
+```
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 143-183
+    def extract_from_text_units(
+        self, text_units: list[TextUnit]
+    ) -> tuple[list[Entity], list[Relationship], ExtractionStats]:
+        start_time = time.time()
+
+        if not text_units:
+            logger.warning("No text units provided for graph extraction")
+            return [], [], ExtractionStats()
+
+        self.stats = ExtractionStats(num_total_units=len(text_units))
+        logger.info("Starting graph extraction from %s text units", len(text_units))
+
+        try:
+            extraction_results = self.batch_processor.execute_with_fallback(
+                items_to_process=text_units,
+                prepare_inputs_func=self._prepare_extraction_inputs,
+                batch_func=self.graph_extractor.batch,
+                sequential_func=self.graph_extractor.invoke,
+                task_name="Graph Extraction",
+                run_config=self.config.processing.model_dump(),
+                show_progress=self.show_progress,
+            )
+        except Exception as e:
+            if not self.ignore_errors:
+                raise
+            logger.error("Error during graph extraction: %s", e)
+            self.stats.num_failed_extractions = len(text_units)
+            self.stats.failed_text_unit_ids = [unit.id for unit in text_units]
+            return [], [], self.stats
+
+        all_entities, all_relationships = self._process_extraction_results(
+            text_units, extraction_results
+        )
+
+        self.stats.total_entities_extracted = len(all_entities)
+        self.stats.total_relationships_extracted = len(all_relationships)
+        self.stats.total_processing_time = time.time() - start_time
+
+        self._log_completion_summary(self.stats)
+
+        return all_entities, all_relationships, self.stats
+```
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 185-261
+    @staticmethod
+    def _format_entity_types(entity_types: list[str]) -> str:
+        """Render config entity types into the prompt's category block.
+
+        Each item is rendered as ``- **LABEL**: description`` (the description
+        after the first ':' is optional). An empty list lets the model choose
+        any relevant types — the prompt slot then says so explicitly.
+        """
+        if not entity_types:
+            return "Use any entity types relevant to the document's domain."
+        lines = []
+        for item in entity_types:
+            label, sep, desc = item.partition(":")
+            label = label.strip()
+            if not label:
+                continue
+            lines.append(f"- **{label}**:{desc.rstrip()}" if sep else f"- **{label}**")
+        return "\n".join(lines)
+
+    def _prepare_extraction_inputs(
+        self, text_units: list[TextUnit]
+    ) -> list[dict[str, str]]:
+        inputs = []
+        graph_extraction_config = self.extraction_config
+        failed_preparations = 0
+        entity_types_block = self._format_entity_types(
+            graph_extraction_config.entity_types
+        )
+
+        for text_unit in text_units:
+            try:
+                inputs.append(
+                    {
+                        "input_text": self.get_text_for_processing(text_unit),
+                        "max_entities_per_chunk": str(
+                            graph_extraction_config.max_entities_per_chunk
+                        ),
+                        "max_relationships_per_chunk": str(
+                            graph_extraction_config.max_relationships_per_chunk
+                        ),
+                        "entity_types": entity_types_block,
+                    }
+                )
+            except Exception as e:
+                failed_preparations += 1
+                logger.error(
+                    "Failed to prepare input for text unit '%s': %s",
+                    text_unit.id,
+                    str(e),
+                )
+                # Append a sentinel (empty input) rather than skipping, so the
+                # returned inputs stay 1:1 with text_units. execute_with_fallback
+                # returns results aligned to prepared inputs, and the downstream
+                # `zip(text_units, results, strict=True)` would otherwise raise on
+                # a length mismatch and crash the whole extraction stage (the same
+                # latent bug fixed in the gleaner). The empty input yields an
+                # empty extraction for that unit, which _process_extraction_results
+                # already handles.
+                inputs.append(
+                    {
+                        "input_text": "",
+                        "max_entities_per_chunk": str(
+                            graph_extraction_config.max_entities_per_chunk
+                        ),
+                        "max_relationships_per_chunk": str(
+                            graph_extraction_config.max_relationships_per_chunk
+                        ),
+                        "entity_types": entity_types_block,
+                    }
+                )
+
+        if failed_preparations > 0:
+            logger.warning(
+                "Failed to prepare inputs for %s text units", failed_preparations
+            )
+
+        return inputs
+```
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 45-49
+    def get_text_for_processing(self, text_unit: TextUnit) -> str:
+        if text_unit.translated_texts:
+            target_language = self.config.processing.translation.target_language.value
+            return text_unit.translated_texts.get(target_language, text_unit.text)
+        return text_unit.text
+```
+
+Traced during the real run of stages 1 to 5 (`stage5_step2_inputs.py`); tracing is switched off at the hand-over [RAN]:
+
+```text
+[followup_out/stage5_step2_inputs.out, lines 1-38 of 286]
+
+  >>> ENTER GraphExtractionStage._execute_core   (application/ingestion/pipeline_stages.py)
+              context = PipelineContext(text_units: 5, translated_units: 0, entities: 0)
+    line 773          logger.info("=" * 60)
+    line 774          logger.info("GRAPH EXTRACTION STAGE - STARTED")
+    line 775          logger.info("=" * 60)
+    line 777          text_units = context.translated_units or context.text_units
+              text_units = list of 5 TextUnit
+    line 779          entities, relationships, stats = self.extractor.extract_from_text_units(
+    line 780              text_units
+    line 779          entities, relationships, stats = self.extractor.extract_from_text_units(
+
+  >>> ENTER GraphExtractor.extract_from_text_units   (adapters/ingestion/graph_extractor.py)
+              text_units = list of 5 TextUnit
+    line 146          start_time = time.time()
+              start_time = 1791864000.699 (clock time, seconds)
+    line 148          if not text_units:
+    line 152          self.stats = ExtractionStats(num_total_units=len(text_units))
+    line 153          logger.info("Starting graph extraction from %s text units", len(text_units))
+    line 155          try:
+    line 156              extraction_results = self.batch_processor.execute_with_fallback(
+    line 157                  items_to_process=text_units,
+    line 158                  prepare_inputs_func=self._prepare_extraction_inputs,
+    line 159                  batch_func=self.graph_extractor.batch,
+    line 160                  sequential_func=self.graph_extractor.invoke,
+    line 162                  run_config=self.config.processing.model_dump(),
+    line 163                  show_progress=self.show_progress,
+    line 156              extraction_results = self.batch_processor.execute_with_fallback(
+
+  ========== HAND-OVER TO THE BATCH PROCESSOR: step 3 starts here; tracing stops ==========
+      items_to_process = list of 5 TextUnit
+      prepare_inputs_func = GraphExtractor._prepare_extraction_inputs
+      batch_func = RunnableBindingBase.batch
+      sequential_func = RunnableBindingBase.invoke
+      run_config = dict with 15 keys
+      show_progress = True
+
+(stage 5 finished untraced; status: completed )
+```
+
+`_prepare_extraction_inputs` is not called by `extract_from_text_units`: line 158 passes the function itself to the batch processor. So it was traced on its own afterwards, with the same five chunks. The first chunk, and the end [RAN]:
+
+```text
+[followup_out/stage5_step2_inputs.out, lines 40-55 of 286]
+======================================================================
+_prepare_extraction_inputs, traced on its own with the same 5 chunks.
+(In the run it is not called by extract_from_text_units; it is passed to the batch processor, which calls it: step 3.)
+
+  >>> ENTER GraphExtractor._prepare_extraction_inputs   (adapters/ingestion/graph_extractor.py)
+              text_units = list of 5 TextUnit
+    line 207          inputs = []
+              inputs = list of 0: []
+    line 208          graph_extraction_config = self.extraction_config
+              graph_extraction_config = GraphExtractionConfig(max_entities_per_chunk=50, max_relationships_per_chunk=50, entity_types: 7 items, ...)
+    line 209          failed_preparations = 0
+              failed_preparations = 0
+    line 210          entity_types_block = self._format_entity_types(
+    line 211              graph_extraction_config.entity_types
+    line 210          entity_types_block = self._format_entity_types(
+
+```
+
+```text
+[followup_out/stage5_step2_inputs.out, lines 128-151 of 286]
+
+              entity_types_block = '- **PERSON**: Names, individuals, roles, titles\n- **ORGANIZATION**: Companies, institutions, de...
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=7625b4ab.., file=01_acme.txt, text='Acme Robotics is a company based in Pune'..., translated_texts=None)
+    line 215              try:
+    line 216                  inputs.append(
+    line 218                          "input_text": self.get_text_for_processing(text_unit),
+
+  >>> ENTER BaseProcessor.get_text_for_processing   (domain/ingestion/base_processor.py)
+              text_unit = TextUnit(id=7625b4ab.., file=01_acme.txt, text='Acme Robotics is a company based in Pune'..., translated_texts=None)
+    line 46           if text_unit.translated_texts:
+    line 49           return text_unit.text
+  <<< BaseProcessor.get_text_for_processing RETURNS 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds ware...
+
+    line 219                          "max_entities_per_chunk": str(
+    line 220                              graph_extraction_config.max_entities_per_chunk
+    line 219                          "max_entities_per_chunk": str(
+    line 222                          "max_relationships_per_chunk": str(
+    line 223                              graph_extraction_config.max_relationships_per_chunk
+    line 222                          "max_relationships_per_chunk": str(
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 1 prompt-input dicts
+```
+
+```text
+[followup_out/stage5_step2_inputs.out, lines 236-257 of 286]
+    line 225                          "entity_types": entity_types_block,
+    line 217                      {
+    line 216                  inputs.append(
+              inputs = list of 5 prompt-input dicts
+    line 214          for text_unit in text_units:
+    line 256          if failed_preparations > 0:
+    line 261          return inputs
+  <<< GraphExtractor._prepare_extraction_inputs RETURNS list of 5 prompt-input dicts
+
+
+======================================================================
+THE PROMPT AS FILLED IN FOR THE FIRST CHUNK
+--- system message: 4946 characters; the part where {entity_types} was filled in:
+## Entity Categories (STRICT - use only these types):
+- **PERSON**: Names, individuals, roles, titles
+- **ORGANIZATION**: Companies, institutions, departments, groups
+- **LOCATION**: Places, addresses, geographic areas, facilities
+- **CONCEPT**: Ideas, theories, methodologies, frameworks, principles
+- **OBJECT**: Documents, tools, products, systems, technologies
+- **EVENT**: Meetings, projects, activities, processes, incidents
+- **TEMPORAL**: Dates, time periods, schedules, deadlines
+--- human message: 1157 characters, in full:
+```
+
+The full trace (all seven entity types and all five chunks) is in `followup_out/stage5_step2_inputs.out`.
+
+What this shows:
+
+- **[RAN]** Line 777: the translated chunk list is empty after a no-op stage 4, so `[] or context.text_units` picks the original chunks.
+- **[RAN]** Per chunk, `get_text_for_processing` (base_processor.py lines 46 to 49) uses the chunk's translation into the target language if it has one, else the original text. With translation on, the translation is what stage 5 reads; this confirms the [NOT CHECKED] note under bug 9 as far as the code path goes. **[NOT CHECKED]** with translation actually switched on.
+- **[READ]** The limits "50 entities, 50 relationships" are only written into the prompt. No code in `graph_extractor.py` or `base_processor.py` counts against them.
+
+#### 9.2.4 Step 3a: the batch processor when every call succeeds
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 191-334
+    def execute_with_fallback(
+        self,
+        items_to_process: list[Any],
+        prepare_inputs_func: Callable[[list[Any]], list[dict[str, Any]]],
+        batch_func: Callable[..., list[Any]],
+        sequential_func: Callable[..., Any],
+        task_name: str,
+        run_config: dict[str, Any] | None = None,
+        show_progress: bool = True,
+    ) -> list[Any]:
+        if not items_to_process:
+            return []
+
+        if run_config:
+            self.max_concurrency = run_config.get(
+                "max_concurrency", self.max_concurrency
+            )
+            self.batch_size = run_config.get("batch_size", self.batch_size)
+            self.chunk_concurrency = run_config.get(
+                "chunk_concurrency", self.chunk_concurrency
+            )
+            self.max_attempts = run_config.get("max_attempts", self.max_attempts)
+
+        prepared_batch_func = self._create_batch_func(batch_func)
+
+        # Bound each single-item call by the same wall-clock ceiling so a hung
+        # item aborts and is retried by the decorator instead of blocking.
+        def timed_sequential_func(single_input: dict[str, Any]) -> Any:
+            return self._run_with_timeout(
+                lambda: sequential_func(single_input),
+                self.call_timeout_seconds,
+                f"{task_name} item",
+            )
+
+        retrying_sequential_func = self._create_retry_decorator(task_name)(
+            timed_sequential_func
+        )
+
+        num_items = len(items_to_process)
+        num_chunks = math.ceil(num_items / self.batch_size)
+
+        logger.info(
+            "Starting processing for '%s': %s items in %s chunks (batch size: %s, "
+            "chunk concurrency: %s)",
+            task_name,
+            num_items,
+            num_chunks,
+            self.batch_size,
+            self.chunk_concurrency,
+        )
+
+        chunk_specs = [
+            (idx + 1, items_to_process[i : i + self.batch_size])
+            for idx, i in enumerate(range(0, num_items, self.batch_size))
+        ]
+
+        def process_chunk(chunk_num: int, chunk_items: list[Any]) -> list[Any]:
+            chunk_inputs = prepare_inputs_func(chunk_items)
+            if not chunk_inputs:
+                logger.warning(
+                    "No valid inputs prepared for chunk %s, skipping", chunk_num
+                )
+                return []
+            try:
+
+                def run_batch(inputs: list[dict[str, Any]] = chunk_inputs) -> Any:
+                    return prepared_batch_func(inputs)
+
+                results: list[Any] = list(
+                    self._run_with_timeout(
+                        run_batch,
+                        self.call_timeout_seconds,
+                        f"{task_name} batch chunk {chunk_num}",
+                    )
+                )
+            except Exception as e:
+                logger.warning(
+                    "Batch processing failed for chunk %s: %s. Falling back to "
+                    "sequential processing",
+                    chunk_num,
+                    e,
+                )
+                return self._process_sequentially_with_fallback(
+                    chunk_inputs,
+                    retrying_sequential_func,
+                    f"{task_name} (chunk {chunk_num})",
+                    show_progress=show_progress,
+                )
+
+            # The batch ran with return_exceptions=True: keep the successful
+            # results and retry ONLY the failed positions, so one bad item no
+            # longer re-pays every successful LLM call in its chunk.
+            failed = self._failed_indices(results)
+            if not failed:
+                logger.debug("Chunk %s processed successfully in batch mode", chunk_num)
+                return results
+            self._log_partial_failure(task_name, chunk_num, results, failed)
+            retried = self._process_sequentially_with_fallback(
+                [chunk_inputs[i] for i in failed],
+                retrying_sequential_func,
+                f"{task_name} (chunk {chunk_num} retry)",
+                show_progress=show_progress,
+            )
+            return self._splice_retried(results, failed, retried)
+
+        # Chunks are independent Bedrock-bound batches; run them concurrently so
+        # chunk N+1's LLM calls overlap chunk N's network wait instead of
+        # blocking on it (CPU/memory are near-idle during these stages). Results
+        # are reassembled in chunk order. chunk_concurrency=1 restores the old
+        # strictly-serial behaviour.
+        chunk_results_by_idx: dict[int, list[Any]] = {}
+        progress = ProgressLogger(task_name, num_items)
+        if self.chunk_concurrency <= 1 or len(chunk_specs) <= 1:
+            for chunk_num, chunk_items in tqdm(
+                chunk_specs,
+                desc=f"Processing: {task_name}",
+                disable=None if show_progress else True,
+            ):
+                chunk_results_by_idx[chunk_num] = process_chunk(chunk_num, chunk_items)
+                progress.update(len(chunk_items))
+        else:
+            workers = min(self.chunk_concurrency, len(chunk_specs))
+            chunk_sizes = {num: len(items) for num, items in chunk_specs}
+            with ContextThreadPoolExecutor(max_workers=workers) as executor:
+                future_to_num = {
+                    executor.submit(process_chunk, num, items): num
+                    for num, items in chunk_specs
+                }
+                for future in tqdm(
+                    concurrent.futures.as_completed(future_to_num),
+                    total=len(future_to_num),
+                    desc=f"Processing: {task_name}",
+                    disable=None if show_progress else True,
+                ):
+                    num = future_to_num[future]
+                    chunk_results_by_idx[num] = future.result()
+                    progress.update(chunk_sizes[num])
+
+        all_results: list[Any] = []
+        for chunk_num, _ in chunk_specs:
+            all_results.extend(chunk_results_by_idx.get(chunk_num, []))
+
+        logger.info("Completed '%s': processed %s results", task_name, len(all_results))
+        return all_results
+```
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 336-346
+    def _batch_kwargs(self) -> dict[str, Any]:
+        # batch_func follows the Runnable.batch/abatch signature; per-item
+        # exceptions come back in place so only the failed items are retried.
+        return {
+            "config": RunnableConfig(max_concurrency=self.max_concurrency),
+            "return_exceptions": True,
+        }
+
+    @staticmethod
+    def _failed_indices(results: list[Any]) -> list[int]:
+        return [i for i, res in enumerate(results) if isinstance(res, BaseException)]
+```
+
+The settings it uses come partly from the config and partly from its own field defaults:
+
+```python
+# unified_kg_rag/domain/models/config.py, lines 962-987
+class ProcessingConfig(BaseModel):
+    max_concurrency: int = Field(
+        default=20,
+        ge=1,
+        description="Maximum number of concurrent LLM operations within a batch. "
+        "These stages are Bedrock-I/O-bound (CPU/memory near-idle), so this can be "
+        "well above the CPU count.",
+    )
+    chunk_concurrency: int = Field(
+        default=4,
+        ge=1,
+        description="How many mini-batch chunks to run concurrently. Overlaps "
+        "chunks' Bedrock network waits instead of processing them serially; 1 = "
+        "legacy strictly-serial behaviour.",
+    )
+    batch_size: int = Field(
+        default=10,
+        ge=1,
+        description="Number of items to process in each batch for optimal memory usage and performance",
+    )
+    max_attempts: int = Field(
+        default=5,
+        ge=1,
+        description="Total attempts for an ingestion LLM item called on its own "
+        "after its batch call fails, including the first (1 disables the retry)",
+    )
+```
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 93-141
+class BatchProcessor(BaseModel):
+    max_concurrency: int = Field(
+        default=5,
+        ge=1,
+        description="Maximum number of operations that can run concurrently during batch processing",
+    )
+    retry_multiplier: float = Field(
+        default=30.0,
+        ge=1.0,
+        description="Base multiplier for exponential backoff retry delays in seconds",
+    )
+    retry_max_wait: int = Field(
+        default=120,
+        ge=0,
+        description="Maximum allowed wait time between retry attempts in seconds",
+    )
+    max_attempts: int = Field(
+        default=5,
+        ge=1,
+        description="Total attempts for an item called on its own after its "
+        "batch call fails, including the first (1 disables the retry)",
+    )
+    batch_size: int = Field(
+        default=10,
+        ge=1,
+        description="Size of each mini-batch when processing items in chunks for better memory management and performance",
+    )
+    chunk_concurrency: int = Field(
+        default=4,
+        ge=1,
+        description="How many mini-batch chunks to run concurrently. These stages "
+        "are Bedrock-I/O-bound (CPU/memory near-idle), so overlapping chunks' "
+        "network waits cuts wall-clock time. 1 = strictly serial (legacy).",
+    )
+    call_timeout_seconds: int = Field(
+        default=300,
+        ge=0,
+        description="Wall-clock timeout for a single batch/sequential LLM call. "
+        "botocore's read_timeout only measures the gap between bytes, so a server "
+        "that dribbles keep-alive data can hang a call indefinitely; this hard "
+        "ceiling forces such a call to abort (and fall back / retry). 0 disables.",
+    )
+    is_transient_error: Callable[[BaseException], bool] | None = Field(
+        default=None,
+        description="Classifies backend errors worth retrying (e.g. "
+        "adapters.aws.bedrock_retry.is_transient_bedrock_error); other errors "
+        "fail fast. Output-parse failures and call timeouts are always retried. "
+        "None retries every error, for callers that span several backends.",
+    )
+```
+
+Traced during the real run (`stage5_step3a_batch.py`). The chain call runs in a worker thread; the tracer is installed for new threads too, so a few lines from the two threads are printed interleaved (around lines 104 to 112 of the output) [RAN]:
+
+```text
+BatchProcessor fields before the call: {'max_concurrency': 5, 'batch_size': 10, 'chunk_concurrency': 4, 'max_attempts': 5, 'retry_multiplier': 30.0, 'retry_max_wait': 120, 'call_timeout_seconds': 300}
+
+  >>> ENTER BatchProcessor.execute_with_fallback   (shared/utils/langchain.py)
+              items_to_process = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
+              prepare_inputs_func = function GraphExtractor._prepare_extraction_inputs
+              batch_func = function RunnableBindingBase.batch
+              sequential_func = function RunnableBindingBase.invoke
+              run_config = processing settings: {'max_concurrency': 20, 'batch_size': 10, 'chunk_concurrency': 4, 'max_attempts': 5} + 11 other keys
+              show_progress = True
+    line 201          if not items_to_process:
+    line 204          if run_config:
+    line 205              self.max_concurrency = run_config.get(
+    line 206                  "max_concurrency", self.max_concurrency
+    line 205              self.max_concurrency = run_config.get(
+    line 208              self.batch_size = run_config.get("batch_size", self.batch_size)
+    line 209              self.chunk_concurrency = run_config.get(
+    line 210                  "chunk_concurrency", self.chunk_concurrency
+    line 209              self.chunk_concurrency = run_config.get(
+    line 212              self.max_attempts = run_config.get("max_attempts", self.max_attempts)
+    line 214          prepared_batch_func = self._create_batch_func(batch_func)
+
+  >>> ENTER BatchProcessor._create_batch_func   (shared/utils/langchain.py)
+              batch_func = function RunnableBindingBase.batch
+    line 372          batch_kwargs = self._batch_kwargs()
+
+  >>> ENTER BatchProcessor._batch_kwargs   (shared/utils/langchain.py)
+    line 340              "config": RunnableConfig(max_concurrency=self.max_concurrency),
+    line 341              "return_exceptions": True,
+    line 339          return {
+  <<< BatchProcessor._batch_kwargs RETURNS {'config': {'max_concurrency': 20}, 'return_exceptions': True}
+
+              batch_kwargs = {'config': {'max_concurrency': 20}, 'return_exceptions': True}
+    line 374          def _batch_func(inputs: list[dict[str, Any]]) -> list[Any]:
+              _batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
+    line 377          return _batch_func
+  <<< BatchProcessor._create_batch_func RETURNS function BatchProcessor._create_batch_func.<locals>._batch_func
+
+              prepared_batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
+    line 218          def timed_sequential_func(single_input: dict[str, Any]) -> Any:
+              timed_sequential_func = function BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func
+    line 225          retrying_sequential_func = self._create_retry_decorator(task_name)(
+    line 226              timed_sequential_func
+    line 225          retrying_sequential_func = self._create_retry_decorator(task_name)(
+              retrying_sequential_func = function BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func
+    line 229          num_items = len(items_to_process)
+              num_items = 5
+    line 230          num_chunks = math.ceil(num_items / self.batch_size)
+              num_chunks = 1
+    line 232          logger.info(
+    line 233              "Starting processing for '%s': %s items in %s chunks (batch size: %s, "
+    line 235              task_name,
+    line 236              num_items,
+    line 237              num_chunks,
+    line 238              self.batch_size,
+    line 239              self.chunk_concurrency,
+    line 232          logger.info(
+    line 242          chunk_specs = [
+    line 244              for idx, i in enumerate(range(0, num_items, self.batch_size))
+    line 242          chunk_specs = [
+              chunk_specs = list of 1 (chunk number, items) pairs: [(1, 5)]  <- (number, how many chunks of text)
+    line 247          def process_chunk(chunk_num: int, chunk_items: list[Any]) -> list[Any]:
+              process_chunk = function BatchProcessor.execute_with_fallback.<locals>.process_chunk
+    line 301          chunk_results_by_idx: dict[int, list[Any]] = {}
+              chunk_results_by_idx = dict with keys []
+    line 302          progress = ProgressLogger(task_name, num_items)
+              progress = ProgressLogger
+    line 303          if self.chunk_concurrency <= 1 or len(chunk_specs) <= 1:
+    line 304              for chunk_num, chunk_items in tqdm(
+    line 305                  chunk_specs,
+    line 307                  disable=None if show_progress else True,
+    line 304              for chunk_num, chunk_items in tqdm(
+              chunk_num = 1
+              chunk_items = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
+    line 309                  chunk_results_by_idx[chunk_num] = process_chunk(chunk_num, chunk_items)
+
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk   (shared/utils/langchain.py)
+              chunk_num = 1
+              chunk_items = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
+              prepare_inputs_func = function GraphExtractor._prepare_extraction_inputs
+              prepared_batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
+              retrying_sequential_func = function BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func
+              show_progress = True
+    line 248              chunk_inputs = prepare_inputs_func(chunk_items)
+              chunk_inputs = list of 5 prompt-input dicts
+    line 249              if not chunk_inputs:
+    line 254              try:
+    line 256                  def run_batch(inputs: list[dict[str, Any]] = chunk_inputs) -> Any:
+              run_batch = function BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch
+    line 259                  results: list[Any] = list(
+    line 260                      self._run_with_timeout(
+    line 261                          run_batch,
+    line 262                          self.call_timeout_seconds,
+    line 263                          f"{task_name} batch chunk {chunk_num}",
+    line 260                      self._run_with_timeout(
+
+  >>> ENTER BatchProcessor._run_with_timeout   (shared/utils/langchain.py)
+              func = function BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch
+              timeout_seconds = 300
+    line 161          if timeout_seconds <= 0:
+    line 169          pool = ContextThreadPoolExecutor(max_workers=1)
+              pool = ContextThreadPoolExecutor
+    line 170          future = pool.submit(func)
+
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch   (shared/utils/langchain.py)              future = Future
+    line 171          try:
+              inputs = list of 5 prompt-input dicts
+              prepared_batch_func = function BatchProcessor._create_batch_func.<locals>._batch_func
+    line 257                      return prepared_batch_func(inputs)
+
+  >>> ENTER BatchProcessor._create_batch_func.<locals>._batch_func   (shared/utils/langchain.py)
+              inputs = list of 5 prompt-input dicts
+              batch_func = function RunnableBindingBase.batch
+              batch_kwargs = {'config': {'max_concurrency': 20}, 'return_exceptions': True}
+    line 375              return batch_func(inputs, **batch_kwargs)
+
+    line 172              result = future.result(timeout=timeout_seconds)
+  <<< BatchProcessor._create_batch_func.<locals>._batch_func RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
+  <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk.<locals>.run_batch RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
+              result = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+    line 188              pool.shutdown(wait=False)
+    line 189              return result
+  <<< BatchProcessor._run_with_timeout RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
+    line 259                  results: list[Any] = list(
+              results = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+    line 283              failed = self._failed_indices(results)
+
+  >>> ENTER BatchProcessor._failed_indices   (shared/utils/langchain.py)
+              results = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+    line 346          return [i for i, res in enumerate(results) if isinstance(res, BaseException)]
+  <<< BatchProcessor._failed_indices RETURNS list of 0: []
+
+              failed = list of 0: []
+    line 284              if not failed:
+    line 285                  logger.debug("Chunk %s processed successfully in batch mode", chunk_num)
+    line 286                  return results
+  <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
+              chunk_results_by_idx = {1: list of 5 parsed reply dicts (keys ['entities', 'relationships'])}
+    line 310                  progress.update(len(chunk_items))
+    line 304              for chunk_num, chunk_items in tqdm(
+    line 329          all_results: list[Any] = []
+              all_results = list of 0: []
+    line 330          for chunk_num, _ in chunk_specs:
+              _ = list of 5 TextUnit: ['01_acme.txt', '02_meera.txt', '03_orbit.txt', '04_product.txt', '05_investor.txt']
+    line 331              all_results.extend(chunk_results_by_idx.get(chunk_num, []))
+              all_results = list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+    line 330          for chunk_num, _ in chunk_specs:
+    line 333          logger.info("Completed '%s': processed %s results", task_name, len(all_results))
+    line 334          return all_results
+  <<< BatchProcessor.execute_with_fallback RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+
+stage 5 status: completed | entities: 16 | relationships: 14
+```
+
+What this shows:
+
+- **[RAN]** `max_concurrency` becomes 20, `batch_size` 10, `chunk_concurrency` 4 and `max_attempts` 5 from the config (lines 204 to 212). **[READ]** `retry_multiplier` (30), `retry_max_wait` (120 s) and `call_timeout_seconds` (300 s) are not taken from `run_config`, and `ProcessingConfig` has no fields for them, so they cannot be set from the config file.
+- **[RAN]** In this file "chunk" means a group of up to `batch_size` text chunks. The five text chunks form one group (`chunk_specs = [(1, 5)]`).
+- **[RAN]** `prepare_inputs_func` (step 2) is called at line 248, once per group.
+- **[RAN]** The whole chain (fill the prompt, call the model, read the reply) runs inside `batch_func` at line 375, so the results are already dictionaries.
+- **[READ]** The 300 s limit in `_run_with_timeout` applies to the whole group call, and per item in the one-at-a-time path.
+
+#### 9.2.5 Step 3b: the batch processor when calls fail
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 379-398
+    def _is_retryable(self, exc: BaseException) -> bool:
+        # A malformed LLM response or a hung call can succeed on a new attempt.
+        if isinstance(exc, OutputParserException | TimeoutError):
+            return True
+        return self.is_transient_error is None or self.is_transient_error(exc)
+
+    def _create_retry_decorator(self, operation_name: str) -> Callable:
+        # Exponential backoff WITH jitter (wait_random_exponential) to spread
+        # concurrent retries and avoid hammering a throttled Bedrock endpoint in
+        # lock-step. Only retryable errors are retried, so a permanent failure
+        # (access denied, validation, missing model) fails fast.
+        return tenacity.retry(
+            retry=tenacity.retry_if_exception(self._is_retryable),
+            wait=tenacity.wait_random_exponential(
+                multiplier=self.retry_multiplier, max=self.retry_max_wait
+            ),
+            stop=tenacity.stop_after_attempt(self.max_attempts),
+            before_sleep=self._create_retry_log_callback(operation_name),
+            reraise=True,
+        )
+```
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 413-448
+    @staticmethod
+    def _process_sequentially_with_fallback(
+        inputs: list[dict[str, Any]],
+        sequential_func: Callable[[dict[str, Any]], Any],
+        task_name: str,
+        show_progress: bool = True,
+    ) -> list[Any]:
+        logger.info("Processing %s items sequentially for '%s'", len(inputs), task_name)
+
+        results = []
+        progress_desc = f"Sequential Processing: '{task_name}'"
+        successful_count = 0
+
+        for single_input in tqdm(
+            inputs, desc=progress_desc, disable=None if show_progress else True
+        ):
+            try:
+                result = sequential_func(single_input)
+                results.append(result)
+                successful_count += 1
+            except Exception as e:
+                logger.error(
+                    "Sequential processing failed for single item in '%s': %s",
+                    task_name,
+                    e,
+                )
+                # Keep results 1:1 with inputs so callers can zip them back.
+                results.append(BATCH_ITEM_FAILED)
+
+        logger.info(
+            "Sequential processing completed for '%s': %s/%s items processed successfully",
+            task_name,
+            successful_count,
+            len(inputs),
+        )
+        return results
+```
+
+```python
+# unified_kg_rag/adapters/aws/bedrock_retry.py, lines 41-58
+TRANSIENT_BEDROCK_ERROR_CODES: frozenset[str] = frozenset(
+    {
+        "ModelErrorException",
+        "ModelNotReadyException",
+        "ServiceUnavailableException",
+        "InternalServerException",
+        "ThrottlingException",
+    }
+)
+
+
+def is_transient_bedrock_error(exc: BaseException) -> bool:
+    """Return True if ``exc`` is a Bedrock/botocore failure worth retrying."""
+    if isinstance(exc, boto_exc.ClientError):
+        code = exc.response.get("Error", {}).get("Code", "")
+        return code in TRANSIENT_BEDROCK_ERROR_CODES
+    # Connect/read timeouts, endpoint-unreachable and dropped connections.
+    return isinstance(exc, boto_exc.ConnectionError | boto_exc.HTTPClientError)
+```
+
+How the AWS library passes Bedrock errors on (Converse path), from the repo's virtual environment, langchain-aws 1.8.0:
+
+```python
+# .venv/lib/python3.11/site-packages/langchain_aws/chat_models/bedrock_converse.py, lines 1431-1436
+        try:
+            response = self.client.converse(
+                messages=bedrock_messages, system=system, **params
+            )
+        except ClientError as e:
+            _handle_bedrock_error(e)
+```
+
+```python
+# .venv/lib/python3.11/site-packages/langchain_aws/chat_models/bedrock_converse.py, lines 2320-2348
+def _handle_bedrock_error(error: ClientError) -> None:
+    """Handle Bedrock API errors and provide enhanced error messages.
+
+    Args:
+        error: The ClientError from boto3
+
+    Raises:
+        ValueError: Enhanced error with helpful message for IAM permission issues
+        ClientError: Re-raises the original error if not a known case
+    """
+    error_code = error.response.get("Error", {}).get("Code", "")
+    error_message = str(error)
+
+    # Check for InvokeTool permission errors
+    if error_code == "AccessDeniedException" and "InvokeTool" in error_message:
+        raise ValueError(
+            "System tools require 'bedrock:InvokeTool' IAM permission. "
+            "Please add this permission to your IAM role/user policy. "
+            "Example policy statement:\n"
+            "{\n"
+            '  "Effect": "Allow",\n'
+            '  "Action": ["bedrock:InvokeModel"],\n'
+            '  "Resource": "arn:aws:bedrock:*::foundation-model/*"\n'
+            "}\n"
+            f"Original error: {error}"
+        ) from error
+
+    # Re-raise other errors unchanged
+    raise error
+```
+
+**[READ]** A Bedrock error other than the one `InvokeTool` permission case is re-raised unchanged, so `is_transient_bedrock_error` sees the original error code. **[NOT CHECKED]** the other chat class the factory can build, `ChatBedrock` (`adapters/aws/bedrock.py` line 543: `model_class = ChatBedrockConverse if use_converse else ChatBedrock`).
+
+Four runs of `stage5_step3b_failures.py`. Only the chunk from `05_investor.txt` misbehaves. To keep the runs short, the script (not the repo) sets the batch processor's `retry_multiplier` to 1.0 and `retry_max_wait` to 2 s, and, for the hang run only, `call_timeout_seconds` to 2 s.
+
+**B1, `ThrottlingException` once, then a normal reply [RAN].** Group result, partial-failure path, and summary:
+
+```text
+[followup_out/stage5_step3b_throttle-once.out, lines 24-39 of 123]
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
+    line 283              failed = self._failed_indices(results)
+
+  >>> ENTER BatchProcessor._failed_indices   (shared/utils/langchain.py)
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
+    line 346          return [i for i, res in enumerate(results) if isinstance(res, BaseException)]
+  <<< BatchProcessor._failed_indices RETURNS [4]
+
+              failed = [4]
+    line 284              if not failed:
+    line 287              self._log_partial_failure(task_name, chunk_num, results, failed)
+
+  >>> ENTER BatchProcessor._log_partial_failure   (shared/utils/langchain.py)
+              chunk_num = 1
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
+              failed = [4]
+```
+
+```text
+[followup_out/stage5_step3b_throttle-once.out, lines 96-123 of 123]
+  <<< BatchProcessor._process_sequentially_with_fallback RETURNS [parsed reply dict]
+
+              retried = [parsed reply dict]
+    line 294              return self._splice_retried(results, failed, retried)
+
+  >>> ENTER BatchProcessor._splice_retried   (shared/utils/langchain.py)
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
+              failed = [4]
+              retried = [parsed reply dict]
+    line 366          merged = list(results)
+              merged = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
+    line 367          for idx, res in zip(failed, retried, strict=True):
+              idx = 4
+              res = parsed reply dict
+    line 368              merged[idx] = res
+    line 367          for idx, res in zip(failed, retried, strict=True):
+    line 369          return merged
+  <<< BatchProcessor._splice_retried RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+
+  <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+
+
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 4
+  t= 0.05s  model called for chunk 05, call #1
+  t= 0.06s  model called for chunk 05, call #2
+stage 5 status: completed | failed_units: 0 | entities: 16 | relationships: 14
+failed chunks: []
+```
+
+**B2, `AccessDeniedException` every time [RAN].** The one-at-a-time attempt, the retry decision, and the summary:
+
+```text
+[followup_out/stage5_step3b_denied-always.out, lines 84-134 of 134]
+  >>> ENTER BatchProcessor._is_retryable   (shared/utils/langchain.py)
+              exc = ClientError: An error occurred (AccessDeniedException) when calling the Converse op
+    line 381          if isinstance(exc, OutputParserException | TimeoutError):
+    line 383          return self.is_transient_error is None or self.is_transient_error(exc)
+  <<< BatchProcessor._is_retryable RETURNS False
+
+    line 433              except Exception as e:
+              e = ClientError: An error occurred (AccessDeniedException) when calling the Converse op
+    line 434                  logger.error(
+    line 435                      "Sequential processing failed for single item in '%s': %s",
+    line 436                      task_name,
+    line 437                      e,
+    line 434                  logger.error(
+    line 440                  results.append(BATCH_ITEM_FAILED)
+              results = [BATCH_ITEM_FAILED]
+    line 426          for single_input in tqdm(
+    line 442          logger.info(
+    line 443              "Sequential processing completed for '%s': %s/%s items processed successfully",
+    line 444              task_name,
+    line 445              successful_count,
+    line 446              len(inputs),
+    line 442          logger.info(
+    line 448          return results
+  <<< BatchProcessor._process_sequentially_with_fallback RETURNS [BATCH_ITEM_FAILED]
+
+              retried = [BATCH_ITEM_FAILED]
+    line 294              return self._splice_retried(results, failed, retried)
+
+  >>> ENTER BatchProcessor._splice_retried   (shared/utils/langchain.py)
+              results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (AccessDeniedException) when calling the Converse op]
+              failed = [4]
+              retried = [BATCH_ITEM_FAILED]
+    line 366          merged = list(results)
+              merged = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (AccessDeniedException) when calling the Converse op]
+    line 367          for idx, res in zip(failed, retried, strict=True):
+              idx = 4
+              res = BATCH_ITEM_FAILED
+    line 368              merged[idx] = res
+    line 367          for idx, res in zip(failed, retried, strict=True):
+    line 369          return merged
+  <<< BatchProcessor._splice_retried RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, BATCH_ITEM_FAILED]
+
+  <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, BATCH_ITEM_FAILED]
+
+
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 4
+  t= 0.04s  model called for chunk 05, call #1
+  t= 0.04s  model called for chunk 05, call #2
+stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
+failed chunks: ['05_investor.txt']
+```
+
+**B3, `ThrottlingException` every time [RAN].** The retry decisions and waits, then the summary:
+
+```text
+[followup_out/stage5_step3b_throttle-always.out, lines 84-125 of 262]
+  >>> ENTER BatchProcessor._is_retryable   (shared/utils/langchain.py)
+              exc = ClientError: An error occurred (ThrottlingException) when calling the Converse oper
+    line 381          if isinstance(exc, OutputParserException | TimeoutError):
+    line 383          return self.is_transient_error is None or self.is_transient_error(exc)
+  <<< BatchProcessor._is_retryable RETURNS True
+
+
+  >>> ENTER BatchProcessor._create_retry_log_callback.<locals>.log_retry   (shared/utils/langchain.py)
+              retry_state = RetryCallState
+    line 403              wait_time = retry_state.next_action.sleep if retry_state.next_action else 0
+              wait_time = 0.8992864555754518
+    line 404              logger.warning(
+    line 405                  "Retrying '%s' (attempt %s failed). Waiting %.1fs",
+    line 406                  operation_name,
+    line 407                  retry_state.attempt_number,
+    line 408                  wait_time,
+    line 404              logger.warning(
+  <<< BatchProcessor._create_retry_log_callback.<locals>.log_retry RETURNS None
+
+
+  >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
+              single_input = prompt-input for 'Banyan Capital investe'...
+              sequential_func = function invoke
+    line 219              return self._run_with_timeout(
+    line 220                  lambda: sequential_func(single_input),
+    line 221                  self.call_timeout_seconds,
+    line 222                  f"{task_name} item",
+    line 219              return self._run_with_timeout(
+  <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS None
+
+
+  >>> ENTER BatchProcessor._is_retryable   (shared/utils/langchain.py)
+              exc = ClientError: An error occurred (ThrottlingException) when calling the Converse oper
+    line 381          if isinstance(exc, OutputParserException | TimeoutError):
+    line 383          return self.is_transient_error is None or self.is_transient_error(exc)
+  <<< BatchProcessor._is_retryable RETURNS True
+
+
+  >>> ENTER BatchProcessor._create_retry_log_callback.<locals>.log_retry   (shared/utils/langchain.py)
+              retry_state = RetryCallState
+    line 403              wait_time = retry_state.next_action.sleep if retry_state.next_action else 0
+              wait_time = 0.01949852835776955
+```
+
+```text
+[followup_out/stage5_step3b_throttle-always.out, lines 253-262 of 262]
+========== SUMMARY ==========
+model calls for chunk 05: 6 | model calls for the other four chunks: 4
+  t= 0.04s  model called for chunk 05, call #1
+  t= 0.05s  model called for chunk 05, call #2
+  t= 0.96s  model called for chunk 05, call #3
+  t= 0.98s  model called for chunk 05, call #4
+  t= 2.44s  model called for chunk 05, call #5
+  t=  3.2s  model called for chunk 05, call #6
+stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
+failed chunks: ['05_investor.txt']
+```
+
+**B4, the group call hangs [RAN].** The fallback for the whole group, and the summary:
+
+```text
+[followup_out/stage5_step3b_hang-once.out, lines 14-45 of 166]
+    line 254              try:
+    line 256                  def run_batch(inputs: list[dict[str, Any]] = chunk_inputs) -> Any:
+              run_batch = function run_batch
+    line 259                  results: list[Any] = list(
+    line 260                      self._run_with_timeout(
+    line 261                          run_batch,
+    line 262                          self.call_timeout_seconds,
+    line 263                          f"{task_name} batch chunk {chunk_num}",
+    line 260                      self._run_with_timeout(
+    line 266              except Exception as e:
+    line 267                  logger.warning(
+    line 268                      "Batch processing failed for chunk %s: %s. Falling back to "
+    line 270                      chunk_num,
+    line 271                      e,
+    line 267                  logger.warning(
+    line 273                  return self._process_sequentially_with_fallback(
+    line 274                      chunk_inputs,
+    line 275                      retrying_sequential_func,
+    line 276                      f"{task_name} (chunk {chunk_num})",
+    line 277                      show_progress=show_progress,
+    line 273                  return self._process_sequentially_with_fallback(
+
+  >>> ENTER BatchProcessor._process_sequentially_with_fallback   (shared/utils/langchain.py)
+              inputs = list of 5 prompt-inputs
+              sequential_func = function timed_sequential_func
+              show_progress = True
+    line 420          logger.info("Processing %s items sequentially for '%s'", len(inputs), task_name)
+    line 422          results = []
+              results = []
+    line 424          successful_count = 0
+              successful_count = 0
+    line 426          for single_input in tqdm(
+```
+
+```text
+[followup_out/stage5_step3b_hang-once.out, lines 160-166 of 166]
+========== SUMMARY ==========
+model calls for chunk 05: 2 | model calls for the other four chunks: 8
+  t= 0.04s  model called for chunk 05, call #1
+  t= 2.04s  model called for chunk 05, call #2
+  t= 4.04s  chunk 05 call #1 finally finished sleeping (in the abandoned thread)
+stage 5 status: completed | failed_units: 0 | entities: 16 | relationships: 14
+failed chunks: []
+```
+
+The full traces are in `followup_out/stage5_step3b_*.out`.
+
+What this shows:
+
+- **[RAN]** Only the failed slot is re-sent when one item of a group fails (B1, B2, B3). When the group call itself fails or times out, every item of the group is re-sent one at a time (B4: the four healthy chunks were called 8 times instead of 4).
+- **[RAN]** A non-transient error is not retried but is still sent once more on its own: 2 calls in B2.
+- **[RAN]** A transient error is tried 5 times on its own after the group call: 6 calls in B3. **[READ]** With the repo's settings each wait is random and capped at 120 s.
+- **[RAN]** A timed-out call is abandoned, not stopped: in B4 it finished in the background 2 s after the re-sent call. **[READ]** The code's comment (`langchain.py` lines 154 to 159) says such calls keep running and billing.
+- **[RAN]** A chunk that fails every attempt is replaced by `BATCH_ITEM_FAILED`; the stage still ends `completed`, with the loss counted in `failed_units` and in the failed-chunk list.
+- **[RAN]** `processing.ignore_errors` makes no difference to this: bug 11. Outputs `followup_out/stage5_step3b_ignore_off.out` and `stage5_step3b_ignore_on.out`.
+
+#### 9.2.6 Step 4a: reading a reply
+
+The reader:
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 597-663
+class RobustXMLOutputParser(XMLOutputParser):
+    """Parse LLM XML into nested dicts, recovering from malformed output.
+
+    Every path yields the same shape: an element's children keyed by tag, a
+    repeated tag as a list, a leaf as its text. ``XMLOutputParser.parse`` is
+    deliberately not used: it returns lists of one-key dicts
+    (``{"claims": [{"claim": [{"subject": ...}, ...]}]}``) that the
+    extractors cannot read, so a well-formed single-root response would parse
+    into a different shape than a recovered one.
+    """
+
+    def parse(self, text: str) -> dict[str, Any]:
+        original_sections = self._detect_xml_sections(text)
+
+        try:
+            cleaned_text = self._clean_xml_for_lxml(text)
+            result = self._try_lxml_recover_parse(cleaned_text)
+            if self._sections_preserved(original_sections, result):
+                return result
+            raise ValueError("Missing sections in lxml result")
+        except Exception as e:
+            logger.debug(
+                "LXML recovery parsing failed: %s: %s. Trying XML fallback...",
+                type(e).__name__,
+                e,
+            )
+
+        try:
+            fallback_result = self._extract_xml_fallback(text)
+            if fallback_result:
+                return fallback_result
+        except Exception as e:
+            logger.debug(
+                "XML fallback extraction failed: %s: %s. Trying tags fallback...",
+                type(e).__name__,
+                e,
+            )
+
+        try:
+            fallback_result = self._extract_tags_fallback(text)
+            if fallback_result:
+                return fallback_result
+        except Exception as e:
+            logger.debug(
+                "Tags fallback extraction failed: %s: %s. Trying list fallback...",
+                type(e).__name__,
+                e,
+            )
+
+        try:
+            fallback_result = self._extract_list_fallback(text)
+            if fallback_result:
+                return fallback_result
+        except Exception as e:
+            logger.debug(
+                "List fallback extraction failed: %s: %s. All methods exhausted.",
+                type(e).__name__,
+                e,
+            )
+
+        logger.error("All XML parsing attempts failed for content: '%s...'", text[:200])
+        # OutputParserException (a ValueError) is what OutputFixingParser
+        # catches to run its repair LLM; a bare ValueError bypassed it.
+        raise OutputParserException(
+            f"Failed to parse XML after multiple attempts. Content preview: '{text[:200]}...'",
+            llm_output=text,
+        )
+```
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 665-707
+    @staticmethod
+    def _detect_xml_sections(text: str) -> set[str]:
+        pattern = r"<([a-zA-Z0-9_]+)>.*?</\1>"
+        matches = re.findall(pattern, text, re.DOTALL)
+        return set(matches)
+
+    @staticmethod
+    def _sections_preserved(
+        original_sections: set[str], parsed_result: dict[str, Any]
+    ) -> bool:
+        if not original_sections:
+            return True
+
+        parsed_sections = (
+            set(parsed_result.keys()) if isinstance(parsed_result, dict) else set()
+        )
+        missing_sections = original_sections - parsed_sections
+
+        if missing_sections:
+            return False
+        return True
+
+    @staticmethod
+    def _extract_xml_fallback(text: str) -> dict[str, Any] | None:
+        result = {}
+
+        try:
+            section_pattern = r"<([a-zA-Z0-9_]+)>(.*?)</\1>"
+            section_matches = re.findall(section_pattern, text, re.DOTALL)
+
+            for section_name, section_content in section_matches:
+                section_result = RobustXMLOutputParser._parse_xml_section(
+                    section_content
+                )
+                # An empty section is an empty answer (e.g. a chunk with no
+                # relationships), kept as {} like the lxml path does, so a
+                # response of only empty sections still parses.
+                result[section_name] = {} if section_result is None else section_result
+
+            return result if result else None
+
+        except Exception:
+            return None
+```
+
+The repair wrapper around it, from the repo's virtual environment, langchain-classic 1.0.8:
+
+```python
+# .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/fix.py, lines 69-105
+    @override
+    def parse(self, completion: str) -> T:
+        retries = 0
+
+        while retries <= self.max_retries:
+            try:
+                return self.parser.parse(completion)
+            except OutputParserException as e:
+                if retries == self.max_retries:
+                    raise
+                retries += 1
+                if self.legacy and hasattr(self.retry_chain, "run"):
+                    completion = self.retry_chain.run(
+                        instructions=self.parser.get_format_instructions(),
+                        completion=completion,
+                        error=repr(e),
+                    )
+                else:
+                    try:
+                        completion = self.retry_chain.invoke(
+                            {
+                                "instructions": self.parser.get_format_instructions(),
+                                "completion": completion,
+                                "error": repr(e),
+                            },
+                        )
+                    except (NotImplementedError, AttributeError):
+                        # Case: self.parser does not have get_format_instructions
+                        completion = self.retry_chain.invoke(
+                            {
+                                "completion": completion,
+                                "error": repr(e),
+                            },
+                        )
+
+        msg = "Failed to parse"
+        raise OutputParserException(msg)
+```
+
+```python
+# .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/prompts.py, lines 1-21
+from langchain_core.prompts.prompt import PromptTemplate
+
+NAIVE_FIX = """Instructions:
+--------------
+{instructions}
+--------------
+Completion:
+--------------
+{completion}
+--------------
+
+Above, the Completion did not satisfy the constraints given in the Instructions.
+Error:
+--------------
+{error}
+--------------
+
+Please try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:"""  # noqa: E501
+
+
+NAIVE_FIX_PROMPT = PromptTemplate.from_template(NAIVE_FIX)
+```
+
+Three cases (`stage5_step4a_reader.py`).
+
+**Our real reply for chunk 1, traced [RAN]:**
+
+```text
+reply: 1983 characters, two top-level sections <entities> and <relationships>
+
+
+  >>> ENTER RobustXMLOutputParser.parse   (shared/utils/langchain.py)
+              text = str of 1983 chars: '<entities>\n<entity>\n<name>Acme Robotics</name'...'relationship>\n</relationships>'
+    line 609          original_sections = self._detect_xml_sections(text)
+              original_sections = set of 2: ['entities', 'relationships']
+    line 611          try:
+    line 612              cleaned_text = self._clean_xml_for_lxml(text)
+              cleaned_text = bytes of 1983 chars: '<entities>\n<entity>\n<name>Acme Robotics</name'...'relationship>\n</relationships>'
+    line 613              result = self._try_lxml_recover_parse(cleaned_text)
+              result = dict {'entities': "{'entity': list of 5}"}
+    line 614              if self._sections_preserved(original_sections, result):
+
+  >>> ENTER RobustXMLOutputParser._sections_preserved   (shared/utils/langchain.py)
+              original_sections = set of 2: ['entities', 'relationships']
+              parsed_result = dict {'entities': "{'entity': list of 5}"}
+    line 675          if not original_sections:
+    line 679              set(parsed_result.keys()) if isinstance(parsed_result, dict) else set()
+    line 678          parsed_sections = (
+              parsed_sections = set of 1: ['entities']
+    line 681          missing_sections = original_sections - parsed_sections
+              missing_sections = set of 1: ['relationships']
+    line 683          if missing_sections:
+    line 684              return False
+  <<< RobustXMLOutputParser._sections_preserved RETURNS False
+
+    line 616              raise ValueError("Missing sections in lxml result")
+    line 617          except Exception as e:
+              e = ValueError
+    line 618              logger.debug(
+    line 619                  "LXML recovery parsing failed: %s: %s. Trying XML fallback...",
+    line 620                  type(e).__name__,
+    line 621                  e,
+    line 618              logger.debug(
+    line 624          try:
+    line 625              fallback_result = self._extract_xml_fallback(text)
+
+  >>> ENTER RobustXMLOutputParser._extract_xml_fallback   (shared/utils/langchain.py)
+              text = str of 1983 chars: '<entities>\n<entity>\n<name>Acme Robotics</name'...'relationship>\n</relationships>'
+    line 689          result = {}
+              result = dict {}
+    line 691          try:
+    line 692              section_pattern = r"<([a-zA-Z0-9_]+)>(.*?)</\1>"
+              section_pattern = '<([a-zA-Z0-9_]+)>(.*?)</\\1>'
+    line 693              section_matches = re.findall(section_pattern, text, re.DOTALL)
+              section_matches = list of 2 (tag, content) pairs, tags ['entities', 'relationships']
+    line 695              for section_name, section_content in section_matches:
+              section_name = 'entities'
+              section_content = str of 1137 chars: '\n<entity>\n<name>Acme Robotics</name>\n<type>OR'...'bots.</source_text>\n</entity>\n'
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+    line 697                      section_content
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+              section_result = dict {'entity': 'list of 5'}
+    line 702                  result[section_name] = {} if section_result is None else section_result
+              result = dict {'entities': "{'entity': list of 5}"}
+    line 695              for section_name, section_content in section_matches:
+              section_name = 'relationships'
+              section_content = str of 792 chars: '\n<relationship>\n<source>Acme Robotics</source'...'/source_text>\n</relationship>\n'
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+    line 697                      section_content
+    line 696                  section_result = RobustXMLOutputParser._parse_xml_section(
+              section_result = dict {'relationship': 'list of 3'}
+    line 702                  result[section_name] = {} if section_result is None else section_result
+              result = dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+    line 695              for section_name, section_content in section_matches:
+    line 704              return result if result else None
+  <<< RobustXMLOutputParser._extract_xml_fallback RETURNS dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+
+              fallback_result = dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+    line 626              if fallback_result:
+    line 627                  return fallback_result
+  <<< RobustXMLOutputParser.parse RETURNS dict {'entities': "{'entity': list of 5}", 'relationships': "{'relationship': list of 3}"}
+
+
+RESULT: top-level keys ['entities', 'relationships'] | entities: 5 | relationships: 3
+```
+
+**The same reply cut off in the middle of the second relationship, then passed to `_parse_extraction_result` [RAN]:**
+
+```text
+reply cut to 1495 of 1983 characters; it ends:
+h>9</strength>
+<source_text>Acme Robotics is a company based in Pune.</source_text>
+</relationship>
+<relationship>
+<source>Meera Shah</source>
+<target>Acme Robo
+
+RESULT: top-level keys ['entities', 'relationship', 'source'] | entities: 5 | relationships: 0
+relationships kept: None
+
+_parse_extraction_result on this dict ( cache5/stage5-answered/text_chunking/text_units-9fcbd193c678.json ):
+  raised an error: no
+  entities: ['Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots']
+  relationships: []
+```
+
+The trace is in `followup_out/stage5_step4a_cut.out`.
+
+**A reply with no tags at all, in a real run of stages 1 to 5 [RAN]:**
+
+````text
+reply for 05_investor.txt set to: 'I could not find any entities in this text.'
+
+model calls recorded: 6
+  call 1: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 2: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 3: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 4: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 5: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 6: OTHER prompt, roles ['human'], reply used: PLACEHOLDER
+
+=== the repair prompt, in full ( 1138 characters ) ===
+Instructions:
+--------------
+The output should be formatted as a XML file.
+1. Output should conform to the tags below.
+2. If tags are not given, make them on your own.
+3. Remember to always open and close all the tags.
+
+As an example, for the tags ["foo", "bar", "baz"]:
+1. String "<foo>
+   <bar>
+      <baz></baz>
+   </bar>
+</foo>" is a well-formatted instance of the schema.
+2. String "<foo>
+   <bar>
+   </foo>" is a badly-formatted instance.
+3. String "<foo>
+   <tag>
+   </tag>
+</foo>" is a badly-formatted instance.
+
+Here are the output tags:
+```
+None
+```
+--------------
+Completion:
+--------------
+I could not find any entities in this text.
+--------------
+
+Above, the Completion did not satisfy the constraints given in the Instructions.
+Error:
+--------------
+OutputParserException("Failed to parse XML after multiple attempts. Content preview: 'I could not find any entities in this text....'\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE ")
+--------------
+
+Please try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:
+=== end ===
+does it contain the chunk's text ('Banyan Capital invested in Acme Robotics in 2019')? False
+does it contain the extraction instructions ('Entity Categories')? False
+
+stage 5: completed | failed_units: 1 | entities: 12 | failed chunks: ['05_investor.txt']
+````
+
+What this shows:
+
+- **[RAN]** The prompt asks for two top-level sections, `<entities>` and `<relationships>`. The XML library (lxml) keeps only the first, so every well-formed reply is rejected by the "sections preserved" check and read by the second method, `_extract_xml_fallback`.
+- **[RAN]** A cut-off reply loses all its relationships, including complete ones, with no error: bug 12.
+- **[RAN]** The repair model is called only when all four reading methods fail. Its prompt has the broken reply, the error and generic XML advice with the tags given as `None`; it has neither the chunk's text nor the extraction instructions: bug 13.
+- **[RAN]** The stand-in answered the repair prompt with its placeholder, which is readable but has no entity list, so the chunk then failed in `_parse_extraction_result` and was counted as failed. **[NOT CHECKED]** what a real model answers to that repair prompt.
+
+#### 9.2.7 Step 4b: from the reply's dictionary to Entity and Relationship objects
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 333-381
+    def _parse_extraction_result(
+        self,
+        result: dict[str, Any],
+        text_unit: TextUnit,
+    ) -> tuple[list[Entity], list[Relationship]]:
+        """Parse one chain output; raise ``DataProcessingError`` if malformed.
+
+        The output must carry an ``entities`` section. ``relationships`` may be
+        absent: the XML parser drops an empty section, so a unit whose entities
+        are unrelated has none.
+        """
+        entities: list[Entity] = []
+        relationships: list[Relationship] = []
+
+        if not isinstance(result, dict):
+            raise DataProcessingError(
+                f"extraction output is {type(result).__name__}, not a mapping"
+            )
+        raw_entities = result.get("entities")
+        raw_relationships = result.get("relationships", {})
+        if not isinstance(raw_entities, dict | list) or not isinstance(
+            raw_relationships, dict | list
+        ):
+            raise DataProcessingError(
+                "extraction output lacks well-formed entities/relationships "
+                f"sections (keys: {sorted(result)})"
+            )
+
+        entities_data = ensure_list(raw_entities, inner_key="entity")
+        for entity_data in entities_data:
+            if entity := self.parse_entity_data(entity_data, text_unit):
+                entities.append(entity)
+
+        entities, dropped_keys = self._apply_entity_grounding(entities, text_unit)
+
+        entity_name_to_id = self.build_entity_key_index(entities)
+        relationships_data = ensure_list(raw_relationships, inner_key="relationship")
+        for rel_data in relationships_data:
+            if relationship := self.parse_relationship_data(
+                rel_data, text_unit, entity_name_to_id
+            ):
+                relationships.append(relationship)
+
+        relationships = self._drop_relationships_to_dropped_entities(
+            relationships, dropped_keys, text_unit
+        )
+        relationships = self._apply_relationship_grounding(relationships, text_unit)
+
+        return entities, relationships
+```
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 475-529
+    def _apply_entity_grounding(
+        self, entities: list[Entity], text_unit: TextUnit
+    ) -> tuple[list[Entity], set[str]]:
+        """Drop or penalize entities not grounded in their source chunk.
+
+        Per-chunk (before merge), so each entity is checked against the exact
+        text it was extracted from. The verbatim evidence span lives in the
+        reserved ``_source_text`` attribute (stripped here so it is not
+        persisted). No-op when grounding is disabled.
+
+        Returns the kept entities and the ``entity_key`` of every entity dropped
+        in this chunk (excluding keys that also have a kept, grounded copy), so
+        relationships naming a dropped entity can be removed before stub
+        materialization would recreate it.
+        """
+        grounding = self.extraction_config.entity_grounding
+        chunk_text = self.get_text_for_processing(text_unit)
+
+        kept: list[Entity] = []
+        dropped_keys: set[str] = set()
+        for entity in entities:
+            source_text = (entity.attributes or {}).pop("_source_text", None)
+            grounded = (not grounding.enabled) or is_grounded(
+                source_text,
+                chunk_text,
+                min_span_tokens=grounding.min_span_tokens,
+                min_overlap_ratio=grounding.min_overlap_ratio,
+            )
+
+            if grounded:
+                kept.append(entity)
+                continue
+
+            # Ungrounded.
+            self.stats.entities_ungrounded += 1
+            if grounding.action == "penalize":
+                base = entity.confidence if entity.confidence is not None else 1.0
+                entity.confidence = base * grounding.penalty_factor
+                kept.append(entity)
+                logger.debug(
+                    "Ungrounded entity '%s' penalized to confidence %.2f (chunk '%s')",
+                    entity.name,
+                    entity.confidence,
+                    text_unit.short_id,
+                )
+            else:  # drop
+                dropped_keys.add(entity_key(entity.name))
+                logger.info(
+                    "Dropping ungrounded entity '%s' — source_text not found in "
+                    "chunk '%s' (likely hallucinated)",
+                    entity.name,
+                    text_unit.short_id,
+                )
+        dropped_keys -= {entity_key(e.name) for e in kept}
+        return kept, dropped_keys
+```
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 51-113
+    def parse_entity_data(
+        self, entity_data: dict[str, Any], text_unit: TextUnit
+    ) -> Entity | None:
+        try:
+            name = clean_display_name(coerce_llm_text(entity_data.get("name")))
+            if not name:
+                logger.warning(
+                    "Skipping entity with missing name in text unit '%s'",
+                    text_unit.short_id,
+                )
+                return None
+
+            # ``name`` keeps the display form ("$1,000 penalty", "C++") so
+            # answers can quote it verbatim; the id is derived from the
+            # identity key so case/whitespace variants still converge.
+            entity_id = self._generate_entity_id(name)
+            attributes = self._parse_attributes(
+                entity_data.get("attributes"), text_unit
+            )
+            # Stash the verbatim evidence span (when the model emits one) so the
+            # extractor can verify the entity is grounded in the source chunk.
+            # Reserved key; not persisted as a public attribute downstream.
+            source_text = entity_data.get("source_text")
+            if isinstance(source_text, str) and source_text.strip():
+                attributes["_source_text"] = source_text.strip()
+            confidence = self._parse_confidence(entity_data)
+
+            logger.debug(
+                "Successfully parsed entity: '%s' (id: %s, confidence: %.2f)",
+                name,
+                entity_id[:8],
+                confidence,
+            )
+            return Entity(
+                id=entity_id,
+                short_id=entity_id[:8],
+                name=name,
+                name_embedding=None,
+                type=coerce_llm_text(entity_data.get("type")),
+                description=coerce_llm_text(entity_data.get("description"), join=True),
+                description_embedding=None,
+                text_unit_ids=[text_unit.id],
+                community_ids=None,
+                rank=entity_data.get("rank", 1),
+                frequency=None,
+                confidence=confidence,
+                attributes=attributes,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to parse entity '%s' in text unit '%s': %s",
+                entity_data.get("name", "unknown"),
+                text_unit.short_id,
+                e,
+            )
+            return None
+
+    @staticmethod
+    def _generate_entity_id(name: str) -> str:
+        """Stable entity id from the name's identity key (see ``entity_key``)."""
+        return generate_stable_id(f"entity:{entity_key(name)}")
+```
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 136-240
+    def parse_relationship_data(
+        self,
+        rel_data: dict[str, Any],
+        text_unit: TextUnit,
+        entity_name_to_id: dict[str, str],
+    ) -> Relationship | None:
+        raw_source_name, raw_target_name = "", ""
+        try:
+            raw_source_name = coerce_llm_text(rel_data.get("source"))
+            raw_target_name = coerce_llm_text(rel_data.get("target"))
+            rel_type = coerce_llm_text(rel_data.get("type"))
+
+            source_name = clean_display_name(raw_source_name)
+            target_name = clean_display_name(raw_target_name)
+
+            if not all((source_name, target_name, rel_type)):
+                logger.warning(
+                    "Skipping relationship with missing data in text unit '%s': source='%s', target='%s', type='%s'",
+                    text_unit.short_id,
+                    raw_source_name,
+                    raw_target_name,
+                    rel_type,
+                )
+                return None
+            source_key = entity_key(source_name)
+            target_key = entity_key(target_name)
+
+            # ``entity_name_to_id`` is keyed by ``entity_key`` (callers build it
+            # with :meth:`build_entity_key_index`). Entity ids are deterministic
+            # from that key, so an endpoint id is recoverable even when the entity was not listed in
+            # THIS chunk's entity block (the LLM commonly omits it, or it was
+            # extracted in another chunk). Prefer the locally-extracted id, but
+            # fall back to deriving it from the name rather than dropping a valid
+            # relationship (the global merge + orphan filter still guard
+            # integrity; missing endpoints are materialized as stub entities).
+            source_id = entity_name_to_id.get(source_key) or self._generate_entity_id(
+                source_name
+            )
+            target_id = entity_name_to_id.get(target_key) or self._generate_entity_id(
+                target_name
+            )
+
+            rel_id = self._generate_relationship_id(source_key, target_key, rel_type)
+            attributes = self._parse_attributes(rel_data.get("attributes"), text_unit)
+            # Stash the verbatim evidence span (when emitted) for grounding; a
+            # reserved key, stripped before persistence.
+            source_text = rel_data.get("source_text")
+            if isinstance(source_text, str) and source_text.strip():
+                attributes["_source_text"] = source_text.strip()
+            weight = self._parse_weight(rel_data)
+
+            logger.debug(
+                "Successfully parsed relationship: '%s' -> '%s' (type: '%s', id: '%s')",
+                source_name,
+                target_name,
+                rel_type,
+                rel_id[:8],
+            )
+            return Relationship(
+                id=rel_id,
+                short_id=rel_id[:8],
+                source_id=source_id,
+                source_name=source_name,
+                target_id=target_id,
+                target_name=target_name,
+                type=rel_type,
+                weight=weight,
+                description=coerce_llm_text(rel_data.get("description"), join=True),
+                description_embedding=None,
+                rank=rel_data.get("rank", 1),
+                text_unit_ids=[text_unit.id],
+                attributes=attributes,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            )
+        except Exception as e:
+            logger.warning(
+                "Failed to parse relationship '%s' -> '%s' in text unit '%s': %s",
+                raw_source_name,
+                raw_target_name,
+                text_unit.short_id,
+                e,
+            )
+            return None
+
+    @staticmethod
+    def build_entity_key_index(entities: list[Entity]) -> dict[str, str]:
+        """Map each entity's identity key to its id, for endpoint resolution.
+
+        Keyed by ``entity_key`` (not the display name) so a relationship
+        endpoint spelled "ACME Corp." resolves to the entity named "Acme Corp",
+        including one renamed in place by a gleaner correction (whose id is no
+        longer derivable from its new name).
+        """
+        return {entity_key(entity.name): entity.id for entity in entities}
+
+    @staticmethod
+    def _generate_relationship_id(
+        source_name: str, target_name: str, rel_type: str
+    ) -> str:
+        rel_id_content = (
+            f"relationship:{entity_key(source_name)}:{entity_key(target_name)}:"
+            f"{rel_type}".lower()
+        )
+        return generate_stable_id(rel_id_content)
+```
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 242-285
+    @staticmethod
+    def _parse_weight(data: dict[str, Any], default: float = 1.0) -> float:
+        value = data.get("strength", data.get("weight"))
+        if value is None:
+            return default
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return default
+
+    @staticmethod
+    def _parse_confidence(data: dict[str, Any], default: float = 1.0) -> float:
+        """Normalize an extracted confidence to ``[0, 1]``.
+
+        The extraction prompt asks for an integer on a 1-10 scale, but models
+        (or custom prompts) sometimes answer with a 0-1 fraction. Rule:
+
+        * ``> 1``: 1-10 scale, divided by 10 (``8`` -> 0.8, ``8.5`` -> 0.85).
+        * exactly ``1`` written as an integer (``1`` / ``"1"``): the lowest
+          point of the 1-10 scale -> 0.1. Reading it as the fraction 1.0 would
+          turn the least confident answer into the most confident one.
+        * any other value in ``[0, 1]``, including ``1.0`` written with a
+          decimal point: already a fraction, kept as-is.
+
+        The result is clamped to ``[0, 1]``; unparseable values use ``default``.
+        """
+        value = data.get("confidence")
+        if value is None:
+            return default
+        try:
+            raw_confidence = float(value)
+            written_as_integer = isinstance(value, int) or (
+                isinstance(value, str) and value.strip().lstrip("+").isdigit()
+            )
+            if raw_confidence > 1.0 or (raw_confidence == 1.0 and written_as_integer):
+                normalized = raw_confidence / 10.0
+            else:
+                normalized = raw_confidence
+            return max(0.0, min(1.0, normalized))
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid confidence value '%s', using default %s", value, default
+            )
+            return default
+```
+
+```python
+# unified_kg_rag/shared/utils/common.py, lines 103-117
+def ensure_list(data: Any, inner_key: str | None = None) -> list[Any]:
+    if isinstance(data, dict):
+        data = data.get(inner_key, []) if inner_key else data
+
+    if not isinstance(data, list):
+        return [data] if data else []
+
+    return data
+
+
+def generate_stable_id(
+    content: str, namespace_key: str = "unified-kg-rag-on-aws"
+) -> str:
+    namespace = uuid.uuid5(uuid.NAMESPACE_DNS, namespace_key)
+    return str(uuid.uuid5(namespace, content))
+```
+
+```python
+# unified_kg_rag/shared/utils/common.py, lines 146-189
+# Quote marks and thousands separators carry no identity ("McDonald's" vs
+# "McDonalds", "1,000" vs "1000"), so entity_key drops them.
+_RE_KEY_DROP_CHARS = re.compile("[\"'`\u2018\u2019\u201c\u201d,]")
+# Sentence punctuation the LLM sometimes leaves on the end of a name
+# ("Acme Corp." vs "Acme Corp"). Only stripped at the end, so "4.2", ".NET"
+# and "C++" keep their symbols.
+_RE_KEY_TRAILING_PUNCT = re.compile(r"[.;:!?]+$")
+
+
+def clean_display_name(name: str | None) -> str:
+    """Return the display form of an entity name: trimmed, whitespace collapsed.
+
+    This is what ``Entity.name`` (and relationship ``source_name`` /
+    ``target_name``) carries, so retrieval context and community reports quote
+    the surface form the source used ("$1,000 penalty", "Section 4.2", "C++")
+    instead of a normalized key. Identity lives in :func:`entity_key`.
+    """
+    if not name:
+        return ""
+    return " ".join(name.split())
+
+
+def entity_key(name: str | None) -> str:
+    """Return the identity key of an entity name (used for ids and exact match).
+
+    NFKC + casefold, ``_``/``-`` treated as spaces, quote marks and commas
+    removed, whitespace collapsed, and trailing sentence punctuation stripped.
+    Unlike :func:`normalize_name` it keeps every other symbol, so names that
+    differ only in meaningful punctuation get distinct keys ("C++" vs "C#",
+    "Section 4.2" vs "Section 42") while case/whitespace/quote variants of one
+    name ("ACME  Corp." vs "Acme Corp") share a key. Falls back to the
+    casefolded input so a non-empty name never yields an empty key.
+
+    Entity and relationship ids are hashes of this key; changing it changes
+    every id, which requires a full re-index of existing graphs.
+    """
+    if not name:
+        return ""
+    folded = unicodedata.normalize("NFKC", name).casefold()
+    key = folded.replace("_", " ").replace("-", " ")
+    key = _RE_KEY_DROP_CHARS.sub("", key)
+    key = " ".join(key.split())
+    key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    return key or folded.strip()
+```
+
+The main function for chunk 1 (`stage5_step4b_parse.py main`): the start, one pass of the grounding loop, and the result [RAN]:
+
+```text
+[followup_out/stage5_step4b_main.out, lines 1-30 of 243]
+input: the parsed reply for 01_acme.txt; 5 entities, 3 relationships
+
+
+  >>> ENTER GraphExtractor._parse_extraction_result   (adapters/ingestion/graph_extractor.py)
+              result = dict with keys ['entities', 'relationships'] (the parsed reply)
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 344          entities: list[Entity] = []
+              entities = list of 0: []
+    line 345          relationships: list[Relationship] = []
+              relationships = list of 0: []
+    line 347          if not isinstance(result, dict):
+    line 351          raw_entities = result.get("entities")
+              raw_entities = {"entity": [{"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune that builds warehouse robots and has 120 employees.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Pune", "type": "LOCATION", "description": "The city where Acme Robotics is based.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Meera Shah", "type": "PERSON", "description": "The founder of Acme Robotics.", "confidence": "10", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "2015", "type": "TEMPORAL", "description": "The year Acme Robotics was founded.", "confidence": "9", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "warehouse robots", "type": "OBJECT", "description": "The products Acme Robotics builds.", "confidence": "8", "source_text": "Acme builds warehouse robots."}]}
+    line 352          raw_relationships = result.get("relationships", {})
+              raw_relationships = dict {'relationship': list of 3}
+    line 353          if not isinstance(raw_entities, dict | list) or not isinstance(
+    line 354              raw_relationships, dict | list
+    line 353          if not isinstance(raw_entities, dict | list) or not isinstance(
+    line 361          entities_data = ensure_list(raw_entities, inner_key="entity")
+
+  >>> ENTER ensure_list   (shared/utils/common.py)
+              data = {"entity": [{"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune that builds warehouse robots and has 120 employees.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Pune", "type": "LOCATION", "description": "The city where Acme Robotics is based.", "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}, {"name": "Meera Shah", "type": "PERSON", "description": "The founder of Acme Robotics.", "confidence": "10", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "2015", "type": "TEMPORAL", "description": "The year Acme Robotics was founded.", "confidence": "9", "source_text": "It was founded by Meera Shah in 2015."}, {"name": "warehouse robots", "type": "OBJECT", "description": "The products Acme Robotics builds.", "confidence": "8", "source_text": "Acme builds warehouse robots."}]}
+              inner_key = 'entity'
+    line 104      if isinstance(data, dict):
+    line 105          data = data.get(inner_key, []) if inner_key else data
+              data = list of 5 dicts, first: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune ...
+    line 107      if not isinstance(data, list):
+    line 110      return data
+  <<< ensure_list RETURNS list of 5 dicts, first: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "A company based in Pune ...
+
+```
+
+```text
+[followup_out/stage5_step4b_main.out, lines 63-86 of 243]
+    line 366          entities, dropped_keys = self._apply_entity_grounding(entities, text_unit)
+
+  >>> ENTER GraphExtractor._apply_entity_grounding   (adapters/ingestion/graph_extractor.py)
+              entities = list of 5: 'Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots'
+              text_unit = TextUnit(01_acme.txt, id 7625b4ab.., attributes keys ['file_name', 'file_path', 'chunk_id', 'total_chunks', 'chunking_method', 'pre_chunk_id'])
+    line 490          grounding = self.extraction_config.entity_grounding
+              grounding = EntityGroundingConfig(enabled=False, action='drop')
+    line 491          chunk_text = self.get_text_for_processing(text_unit)
+              chunk_text = 'Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds ware...
+    line 493          kept: list[Entity] = []
+              kept = list of 0: []
+    line 494          dropped_keys: set[str] = set()
+              dropped_keys = set
+    line 495          for entity in entities:
+              entity = Entity(name='Acme Robotics', type='ORGANIZATION', confidence=1.0, id=029c17c5..)
+    line 496              source_text = (entity.attributes or {}).pop("_source_text", None)
+              source_text = 'Acme Robotics is a company based in Pune.'
+    line 497              grounded = (not grounding.enabled) or is_grounded(
+              grounded = True
+    line 504              if grounded:
+    line 505                  kept.append(entity)
+              kept = list of 1: 'Acme Robotics'
+    line 506                  continue
+    line 495          for entity in entities:
+```
+
+```text
+[followup_out/stage5_step4b_main.out, lines 234-243 of 243]
+============================================================
+RESULT: 5 entities, 3 relationships
+  'Acme Robotics'      type='ORGANIZATION'  confidence=1.0  attributes={}
+  'Pune'               type='LOCATION'      confidence=1.0  attributes={}
+  'Meera Shah'         type='PERSON'        confidence=1.0  attributes={}
+  '2015'               type='TEMPORAL'      confidence=0.9  attributes={}
+  'warehouse robots'   type='OBJECT'        confidence=0.8  attributes={}
+  'Acme Robotics' -LOCATED_IN-> 'Pune'  weight=9.0  attributes={}
+  'Meera Shah' -FOUNDED-> 'Acme Robotics'  weight=10.0  attributes={}
+  'Acme Robotics' -CREATES-> 'warehouse robots'  weight=9.0  attributes={}
+```
+
+One entity through every helper (`stage5_step4b_parse.py entity`), from the ID onward, and the finished object [RAN]:
+
+```text
+[followup_out/stage5_step4b_entity.out, lines 33-60 of 173]
+    line 66               entity_id = self._generate_entity_id(name)
+
+  >>> ENTER BaseProcessor._generate_entity_id   (domain/ingestion/base_processor.py)
+              name = 'Acme Robotics'
+    line 113          return generate_stable_id(f"entity:{entity_key(name)}")
+
+  >>> ENTER entity_key   (shared/utils/common.py)
+              name = 'Acme Robotics'
+    line 182      if not name:
+    line 184      folded = unicodedata.normalize("NFKC", name).casefold()
+              folded = 'acme robotics'
+    line 185      key = folded.replace("_", " ").replace("-", " ")
+              key = 'acme robotics'
+    line 186      key = _RE_KEY_DROP_CHARS.sub("", key)
+    line 187      key = " ".join(key.split())
+              key = 'acme robotics'
+    line 188      key = _RE_KEY_TRAILING_PUNCT.sub("", key).rstrip()
+    line 189      return key or folded.strip()
+  <<< entity_key RETURNS 'acme robotics'
+
+
+  >>> ENTER generate_stable_id   (shared/utils/common.py)
+              content = 'entity:acme robotics'
+              namespace_key = 'unified-kg-rag-on-aws'
+    line 116      namespace = uuid.uuid5(uuid.NAMESPACE_DNS, namespace_key)
+              namespace = UUID
+    line 117      return str(uuid.uuid5(namespace, content))
+  <<< generate_stable_id RETURNS '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+```
+
+```text
+[followup_out/stage5_step4b_entity.out, lines 92-111 of 173]
+    line 76               confidence = self._parse_confidence(entity_data)
+
+  >>> ENTER BaseProcessor._parse_confidence   (domain/ingestion/base_processor.py)
+              data = dict with keys ['name', 'type', 'description', 'confidence', 'source_text']
+              default = 1.0
+    line 268          value = data.get("confidence")
+              value = '10'
+    line 269          if value is None:
+    line 271          try:
+    line 272              raw_confidence = float(value)
+              raw_confidence = 10.0
+    line 273              written_as_integer = isinstance(value, int) or (
+    line 274                  isinstance(value, str) and value.strip().lstrip("+").isdigit()
+    line 273              written_as_integer = isinstance(value, int) or (
+              written_as_integer = True
+    line 276              if raw_confidence > 1.0 or (raw_confidence == 1.0 and written_as_integer):
+    line 277                  normalized = raw_confidence / 10.0
+              normalized = 1.0
+    line 280              return max(0.0, min(1.0, normalized))
+  <<< BaseProcessor._parse_confidence RETURNS 1.0
+```
+
+```text
+[followup_out/stage5_step4b_entity.out, lines 157-173 of 173]
+============================================================
+RESULT: Entity
+  id                    = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+  short_id              = '029c17c5'
+  attributes            = {'_source_text': 'Acme Robotics is a company based in Pune.'}
+  created_at            = '(time of the run)'
+  updated_at            = '(time of the run)'
+  name                  = 'Acme Robotics'
+  name_embedding        = None
+  type                  = 'ORGANIZATION'
+  description           = 'A company based in Pune that builds warehouse robots and has 120 employees.'
+  description_embedding = None
+  text_unit_ids         = ['7625b4ab-91a2-55fb-abb8-321474c04dd0']
+  community_ids         = None
+  rank                  = 1
+  frequency             = None
+  confidence            = 1.0
+```
+
+One relationship (`stage5_step4b_parse.py relationship`): the IDs, and the finished object [RAN]:
+
+```text
+[followup_out/stage5_step4b_relationship.out, lines 105-110 of 252]
+    line 171              source_id = entity_name_to_id.get(source_key) or self._generate_entity_id(
+              source_id = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+    line 174              target_id = entity_name_to_id.get(target_key) or self._generate_entity_id(
+              target_id = 'ccf6b40c-b366-5c4a-8775-9cbd0808cde5'
+    line 178              rel_id = self._generate_relationship_id(source_key, target_key, rel_type)
+
+```
+
+```text
+[followup_out/stage5_step4b_relationship.out, lines 148-149 of 252]
+    line 236          rel_id_content = (
+              rel_id_content = 'relationship:acme robotics:pune:located_in'
+```
+
+```text
+[followup_out/stage5_step4b_relationship.out, lines 236-252 of 252]
+============================================================
+RESULT: Relationship
+  id                    = 'be2347b0-191f-5cc2-b756-13a696fe2450'
+  short_id              = 'be2347b0'
+  attributes            = {'_source_text': 'Acme Robotics is a company based in Pune.'}
+  created_at            = '(time of the run)'
+  updated_at            = '(time of the run)'
+  source_id             = '029c17c5-210f-568b-97a0-408e2c2f7ea4'
+  source_name           = 'Acme Robotics'
+  target_id             = 'ccf6b40c-b366-5c4a-8775-9cbd0808cde5'
+  target_name           = 'Pune'
+  type                  = 'LOCATED_IN'
+  weight                = 9.0
+  description           = 'Acme Robotics is based in Pune.'
+  description_embedding = None
+  text_unit_ids         = ['7625b4ab-91a2-55fb-abb8-321474c04dd0']
+  rank                  = 1
+```
+
+Edge cases (`stage5_step4b_parse.py edge`): the first entity with one field changed [RAN]:
+
+```text
+allowed types in the prompt: ['PERSON', 'ORGANIZATION', 'LOCATION', 'CONCEPT', 'OBJECT', 'EVENT', 'TEMPORAL']
+  input {"type": "COMPANY"}    -> type='COMPANY'        confidence=1.0
+  input {"confidence": "10"}   -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "9"}    -> type='ORGANIZATION'   confidence=0.9
+  input {"confidence": "1"}    -> type='ORGANIZATION'   confidence=0.1
+  input {"confidence": "1.0"}  -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "0.3"}  -> type='ORGANIZATION'   confidence=0.3
+  input {"confidence": "85"}   -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "high"} -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": null}   -> type='ORGANIZATION'   confidence=1.0
+```
+
+What this shows:
+
+- **[RAN]** The `entities` section must be present or the chunk fails (line 356); a missing `relationships` section is quietly read as empty (line 352). The docstring says the latter is deliberate.
+- **[RAN]** With grounding off (the default), `is_grounded` is never called, and the evidence quote is removed from the entity (`.pop`, line 496) either way, so stored entities keep no quote (`attributes={}`). The docstring says not storing it is intended.
+- **[RAN]** An entity's ID is a hash of its name's identity key only (lower case, quote marks, commas and a final full stop removed). A relationship's ID is a hash of source key, target key and type, so the same pair with two different type words gives two relationships.
+- **[RAN]** Confidence 1 to 10 becomes 0.1 to 1.0; an unreadable or missing confidence becomes 1.0: bug 14. Strength stays on the 1 to 10 scale (`weight=9.0`).
+- **[RAN]** A type outside the seven listed is kept as written: bug 15.
+- **[READ]** A relationship endpoint that is not in the chunk's entity list gets an ID derived from its name (lines 171 to 176); `_materialize_relationship_endpoints` later adds such names as entities.
+
+#### 9.2.8 Not yet traced in stage 5
+
+What happens after every chunk is parsed: `_process_extraction_results` (graph_extractor.py lines 263 to 331), that is merging entities across chunks, merging relationships, adding entities named only in relationships, and the confidence filter. It was run (run B: 23 entities became 16, 14 relationships stayed 14, all merged types became lower case) and read, but not traced line by line. This is the next step.
+
+### 9.3 Files behind the remaining stages
 
 **[READ]** Found by searching each stage class's own lines in `pipeline_stages.py` for the helper classes it constructs. File locations are from the map in Appendix A.
 
@@ -4295,11 +6965,11 @@ stand-alone enum, python 3.12.3 -> 'L.ES'
 
 **[NOT CHECKED]** This table says only which helper each stage constructs. None of these classes or files has been read, so what they do is unknown.
 
-### 9.3 Suggested order of work
+### 9.4 Suggested order of work
 
-1. Stage 4 is done (section 9.1).
-2. Read `GraphExtractionStage` and `adapters/ingestion/graph_extractor.py` in full, and the extraction prompt in `domain/prompts/graph_extraction.py`.
-3. Run stage 5 with the stand-in model: capture the prompts, answer them by hand, feed the answers back. The stand-in's placeholder reply is chunking XML, so it must be changed or made per-prompt first.
+1. Stages 4 and 5 are done up to section 9.2.8.
+2. Trace `_process_extraction_results` line by line on the run B replies (section 9.2.8): merging, endpoint materialization, confidence filter.
+3. Then stage 6, gleaning (`adapters/ingestion/gleaner.py`), with the same method: read in full, run with the stand-in model, answer the prompts by hand.
 4. Continue stage by stage. Stage 12 writes to Neptune and OpenSearch; decide with the person whether to use the in-memory fakes under `tests/fixtures/fakes/` (mentioned in the repo's `CLAUDE.md`, not yet looked at) or real services.
 
 ---
@@ -4320,7 +6990,11 @@ Full text is in `POTENTIAL_BUGS.md`. Summary:
 | 8 | The translation prompt names the language as `LanguageCode.ES` on Python 3.11 and 3.12 | Logged 12 October | **[RAN]** section 9.1 |
 | 9 | Any non-empty model reply is stored as the translation | Logged 12 October | **[RAN]** section 9.1 |
 | 10 | Stage 4 reports `completed` when every translation call failed | Logged 12 October | **[RAN]** section 9.1 |
-| 11 | The `ignore_errors` setting has no effect on chunks that fail in graph extraction | Logged 12 October | **[RAN]** `followup_out/step3b_ignore_off.out`, `step3b_ignore_on.out` |
+| 11 | The `ignore_errors` setting has no effect on chunks that fail in graph extraction | Logged 12 October | **[RAN]** section 9.2.5 |
+| 12 | A graph extraction reply that is cut off loses all its relationships, silently | Logged 13 October | **[RAN]** section 9.2.6, hand-cut reply |
+| 13 | The repair model for unreadable replies is given no source text and no instructions | Logged 13 October | **[RAN]** section 9.2.6; **[NOT CHECKED]** with a real model |
+| 14 | An unreadable confidence score becomes 1.0, the highest | Logged 13 October | **[RAN]** section 9.2.7 |
+| 15 | Entity types outside the allowed list are accepted | Logged 13 October | **[RAN]** section 9.2.7 |
 
 None of these has been reported to the maintainers, and none has been checked against the repo's issue tracker or its unit tests.
 
@@ -4342,6 +7016,11 @@ Collected from the sections above. All **[NOT CHECKED]** unless marked.
 10. Behaviour on Windows and on Python 3.10 or 3.12.
 11. Everything about the four other commands.
 12. **[INFERRED]** Is the batch processor's fixed 300-second call limit (`shared/utils/langchain.py` line 127, not settable from the config) long enough for a graph extraction reply? The prompt allows up to 32,768 output tokens. A call that legitimately takes longer would time out, be retried up to 5 times, and each abandoned call would keep running and be billed (lines 154 to 159). Real reply times have not been measured.
+13. What does a real model answer to the repair prompt of bug 13? Does it return an empty shell, or invent entities?
+14. How often are real extraction replies cut off (bug 12)?
+15. Does any later stage read the pipeline's failed-chunk list (bug 11) and react?
+16. Does the `ChatBedrock` (non-Converse) path pass Bedrock errors on unchanged, so that the retry rule recognises them (section 9.2.5)?
+17. Do the gleaning and claim stages, which use the same batch processor and reader, behave the same way as in bugs 11 to 13?
 
 ---
 
@@ -4366,6 +7045,8 @@ These are places where what was told to the person was imprecise, incomplete, or
 - They want code shown, with file names and line numbers, and then a plain-language reading of it.
 - When they say they are confused, go slower and smaller, and use a concrete story with the sample data.
 - They decide what goes in the bug log. Ask, then add.
+- When tracing, go line by line with checkpoints and show the code, the output and the flow. On 12 October they said a first pass at stage 5 went too fast.
+- Formatting on their screen: short code blocks, output in a separate block, plain-language meaning outside the blocks. Wide blocks that mix code, output and notes render badly for them.
 - The bug log was kept as a document in their personal Claude account. On the work machine, `POTENTIAL_BUGS.md` in this bundle is the copy to continue from.
 
 ---
@@ -4972,6 +7653,85 @@ sec "19 merge function called directly (scripts/merge_demo.py)"
 
 sec "20 end"
 echo done
+```
+
+`reproduce/run_stage5.sh`
+
+```bash
+#!/usr/bin/env bash
+# Re-runs every stage 5 (graph extraction) experiment from the tracing session, in order, against a
+# checkout of awslabs/unified-kg-rag-on-aws at commit 37ef4a7df28bdd19a5f277d30aff026ddf8cbd50.
+#
+#   usage:  bash run_stage5.sh /path/to/unified-kg-rag-on-aws OUTPUT_DIR [workdir]
+#
+# Every program output is written to OUTPUT_DIR as stage5_*.out (plus a few small extracts).
+# Nothing here needs AWS; the AWS variables are blanked on purpose, as in run_all.sh. The model is the
+# stand-in in scripts/fake_llm.py: it records each prompt and replies from answers.json.
+# Takes about 4 minutes.
+set -u
+REPO="$(cd "$1" && pwd)"; HERE="$(cd "$(dirname "$0")" && pwd)"; mkdir -p "$2"; OUT="$(cd "$2" && pwd)"
+WORK="${3:-$HERE/work_stage5}"
+PY="$REPO/.venv/bin/python"; [ -x "$PY" ] || PY="$REPO/.venv/Scripts/python.exe"
+unset AWS_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION
+export AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null AWS_EC2_METADATA_DISABLED=true AWS_DEFAULT_REGION=us-east-1
+export PYTHONWARNINGS=ignore
+SC="$HERE/scripts"
+quiet() { grep -v "Warning\|warn(\|it/s\]\|doc/s\]\|Chunking Documents\|Processing:\|Sequential Processing\|Graph Extraction" ; }
+run() { local name="$1"; shift; "$PY" "$@" 2>&1 | quiet > "$OUT/$name.out"; echo "$name: $(wc -l < "$OUT/$name.out") lines"; }
+
+# The five documents used from stage 4 on: the original five, with the sentence that scenario D of
+# step4.py appends to 01_acme.txt.
+rm -rf "$WORK"; mkdir -p "$WORK/docs5"; cd "$WORK"
+cp "$HERE"/docs_original/0[1-5]_*.txt docs5/
+printf 'Acme has 120 employees.\n' >> docs5/01_acme.txt
+cp "$SC"/fake_llm.py "$SC"/linetrace.py "$SC"/stage5*.py "$SC"/make_answers5.py .
+
+echo "== environment"; git -C "$REPO" rev-parse HEAD; "$PY" --version
+
+echo "== Claude's hand-written answers to the five extraction prompts"
+python3 -I make_answers5.py
+cmp answers_stage5.json "$SC/answers_stage5.json" && echo "answers_stage5.json identical to the copy in scripts/"
+
+echo "== run A: no answers on file (the stand-in replies with its placeholder)"
+rm -f answers.json prompts.jsonl; run stage5_A_capture stage5.py capture
+cp prompts.jsonl "$OUT/stage5_A_prompts.jsonl"
+"$PY" -I -c "
+import json
+d = json.loads(open('prompts.jsonl').readline())
+open('$OUT/stage5_prompt_system.txt', 'w').write(d['messages'][0]['text'])
+open('$OUT/stage5_prompt_human.txt', 'w').write(d['messages'][1]['text'])"
+
+echo "== run B: Claude's answers"
+cp answers_stage5.json answers.json; rm -f prompts.jsonl; run stage5_B_answered stage5.py answered
+
+echo "== step 1: construction"
+run stage5_step1_build stage5_step1_build.py
+run stage5_step1b_inside_setup stage5_step1b_inside_setup.py
+echo "== step 2: stage start to hand-over"
+run stage5_step2_inputs stage5_step2_inputs.py
+echo "== step 3a: batch processor, normal path"
+run stage5_step3a_batch stage5_step3a_batch.py
+echo "== step 3b: batch processor, failure paths"
+for m in throttle-once denied-always throttle-always hang-once; do run "stage5_step3b_$m" stage5_step3b_failures.py "$m"; done
+IGNORE_ERRORS=off run stage5_step3b_ignore_off stage5_step3b_failures.py denied-always
+IGNORE_ERRORS=on  run stage5_step3b_ignore_on  stage5_step3b_failures.py denied-always
+echo "== step 4a: reading a reply"
+for part in real cut prose; do run "stage5_step4a_$part" stage5_step4a_reader.py "$part"; done
+cp answers_stage5.json answers.json     # the prose run rewrote answers.json
+echo "== step 4b: from reply to objects"
+for part in main entity relationship edge; do run "stage5_step4b_$part" stage5_step4b_parse.py "$part"; done
+
+echo "== small extracts used as evidence in POTENTIAL_BUGS.md (cut from the outputs above, not retyped)"
+for v in off on; do
+  { grep "ignore_errors =" "$OUT/stage5_step3b_ignore_$v.out"; sed -n '/SUMMARY/,$p' "$OUT/stage5_step3b_ignore_$v.out"; } \
+    > "$OUT/stage5_bug11_ignore_${v}_summary.txt"
+done
+{ sed -n '1,/^$/p' "$OUT/stage5_step4a_cut.out"; sed -n '/^RESULT/,$p' "$OUT/stage5_step4a_cut.out"; } > "$OUT/stage5_bug12_cut_summary.txt"
+{ sed -n '1p' "$OUT/stage5_step4a_prose.out"; sed -n '/^model calls recorded/,/^  call 6/p' "$OUT/stage5_step4a_prose.out"
+  grep "^does it contain\|^stage 5:" "$OUT/stage5_step4a_prose.out"; } > "$OUT/stage5_bug13_repair_summary.txt"
+sed -n '/=== the repair prompt, in full/,/=== end ===/p' "$OUT/stage5_step4a_prose.out" > "$OUT/stage5_bug13_repair_prompt.txt"
+ls "$OUT"/stage5_bug*
+echo "== done"
 ```
 
 ### Appendix C. The chunking stage class
@@ -6399,13 +9159,230 @@ unit_file = {u.id: u.attributes["file_name"] for u in ctx.text_units}
 print("failed chunks:", [unit_file[i] for i in ctx.failed_text_unit_ids.get("graph_extraction", [])])
 ```
 
+`reproduce/scripts/stage5_step4a_reader.py`
+
+```python
+"""Stage 5, step 4a: how a model reply is read (the third station of the chain).
+Usage: python stage5_step4a_reader.py PART    (answers_stage5.json must be present)
+  real      our hand-written reply for 01_acme.txt, read by RobustXMLOutputParser, traced line by line
+  cut       the same reply cut off in the middle of the relationships section, read the same way, then
+            passed to _parse_extraction_result (needs cache5/stage5-answered from "python stage5.py answered")
+  prose     stages 1 to 5 run for real; the reply for 05_investor.txt is a sentence with no tags, so the
+            repair ("fixing") model is called. All prompts are recorded; the repair prompt is printed in full.
+"""
+import json, logging, sys
+from pathlib import Path
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.shared.utils.langchain import RobustXMLOutputParser as R
+from linetrace import trace, default_describe
+from fake_llm import HandAnsweredFactory, PROMPTS, ANSWERS
+
+PART = sys.argv[1]
+ALL = json.load(open("answers_stage5.json"))
+REPLY = ALL["481b2e4f4b"]   # the reply for 01_acme.txt
+
+def describe(v):
+    if isinstance(v, (bytes, str)) and len(v) > 100:
+        s = v.decode() if isinstance(v, bytes) else v
+        return f"{type(v).__name__} of {len(v)} chars: {s[:45]!r}...{s[-30:]!r}"
+    if isinstance(v, set): return f"set of {len(v)}: {sorted(v)}"
+    if isinstance(v, dict):
+        out = {}
+        for k, x in v.items():
+            if isinstance(x, dict) and len(x) == 1 and isinstance(next(iter(x.values())), list):
+                ik = next(iter(x)); out[k] = f"{{'{ik}': list of {len(x[ik])}}}"
+            elif isinstance(x, dict): out[k] = f"dict with keys {list(x)}"
+            elif isinstance(x, list): out[k] = f"list of {len(x)}"
+            else: out[k] = x if not isinstance(x, str) or len(x) < 40 else x[:37] + "..."
+        return f"dict {out}"
+    if isinstance(v, list) and v and isinstance(v[0], tuple): return f"list of {len(v)} (tag, content) pairs, tags {[t for t, _ in v][:8]}{'...' if len(v) > 8 else ''}"
+    return default_describe(v)
+
+tracer = trace([R.parse, R._sections_preserved, R._extract_xml_fallback], describe)
+
+def read(text):
+    parser = R()
+    sys.settrace(tracer)
+    try: out = parser.parse(text)
+    finally: sys.settrace(None)
+    ents = out.get("entities", {}).get("entity", []) if isinstance(out.get("entities"), dict) else []
+    rels = out.get("relationships", {}).get("relationship", []) if isinstance(out.get("relationships"), dict) else []
+    print("\nRESULT: top-level keys", list(out), "| entities:", len(ents if isinstance(ents, list) else [ents]),
+          "| relationships:", len(rels if isinstance(rels, list) else [rels]))
+    return out
+
+if PART == "real":
+    print(f"reply: {len(REPLY)} characters, two top-level sections <entities> and <relationships>\n")
+    read(REPLY)
+
+elif PART == "cut":
+    cut = REPLY[: REPLY.index("<relationship>", REPLY.index("<relationship>") + 1) + 60]
+    print(f"reply cut to {len(cut)} of {len(REPLY)} characters; it ends:\n{cut[-160:]}\n")
+    out = read(cut)
+    rels = out.get("relationships", {}).get("relationship") if isinstance(out.get("relationships"), dict) else None
+    print("relationships kept:", json.dumps(rels, indent=1)[:900] if rels else rels)
+    # What the extractor's next step does with this dict (step 4b covers that function line by line).
+    import glob
+    from unified_kg_rag.domain.models import TextUnit
+    from unified_kg_rag.adapters.ingestion.graph_extractor import GraphExtractor
+    from fake_llm import HandAnsweredFactory
+    f = sorted(glob.glob("cache5/stage5-answered/text_chunking/text_units-*.json"))[0]
+    data = json.load(open(f)); data = data.get("data", data) if isinstance(data, dict) else data
+    unit = TextUnit.model_validate([u for u in data if u["attributes"]["file_name"] == "01_acme.txt"][0])
+    config = get_config()
+    ex = GraphExtractor(config, providers=Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=HandAnsweredFactory(config)))
+    ents, rels = ex._parse_extraction_result(out, unit)
+    print("\n_parse_extraction_result on this dict (", f, "):")
+    print("  raised an error: no")
+    print("  entities:", [e.name for e in ents])
+    print("  relationships:", [(r.source_name, r.type, r.target_name) for r in rels])
+
+elif PART == "prose":
+    from unified_kg_rag.domain.models import PipelineConfig, PipelineStageType as T
+    from unified_kg_rag.application.ingestion.pipeline import DataIngestionPipeline as DIP
+    answers = dict(ALL); answers["e5a610dbad"] = "I could not find any entities in this text."   # 05_investor.txt
+    ANSWERS.write_text(json.dumps(answers)); PROMPTS.unlink(missing_ok=True)
+    print("reply for 05_investor.txt set to:", repr(answers["e5a610dbad"]))
+    config = get_config()
+    providers = Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=HandAnsweredFactory(config))
+    on = (T.DOCUMENT_PARSING, T.DOCUMENT_LOADING, T.TEXT_CHUNKING, T.TRANSLATION, T.GRAPH_EXTRACTION)
+    p = DIP(config=config, pipeline_config=PipelineConfig(stages_enabled={t: t in on for t in T}, local_directory=Path("cache5")),
+            source_directory=Path("docs5"), providers=providers)
+    sys.settrace(None)
+    ctx = p.run("docs5", pipeline_id="stage5-step4a-prose")
+    calls = [json.loads(l) for l in PROMPTS.open()]
+    print(f"\nmodel calls recorded: {len(calls)}")
+    for i, c in enumerate(calls, 1):
+        last = c["messages"][-1]["text"]
+        kind = "EXTRACTION prompt" if "Extract entities and relationships" in last else "OTHER prompt"
+        print(f"  call {i}: {kind}, roles {[m['role'] for m in c['messages']]}, reply used: {c['reply_used']}")
+    fix = [c for c in calls if "Extract entities and relationships" not in c["messages"][-1]["text"]]
+    for c in fix:
+        print("\n=== the repair prompt, in full (", len(c["messages"][-1]["text"]), "characters ) ===")
+        print(c["messages"][-1]["text"])
+        print("=== end ===")
+        print("does it contain the chunk's text ('Banyan Capital invested in Acme Robotics in 2019')?",
+              "Banyan Capital invested in Acme Robotics in 2019" in c["messages"][-1]["text"])
+        print("does it contain the extraction instructions ('Entity Categories')?", "Entity Categories" in c["messages"][-1]["text"])
+    r = [x for x in ctx.stage_results if x.stage_name == "graph_extraction"][0]
+    unit_file = {u.id: u.attributes["file_name"] for u in ctx.text_units}
+    print("\nstage 5:", r.status.value, "| failed_units:", r.metrics.get("failed_units"), "| entities:", len(ctx.entities),
+          "| failed chunks:", [unit_file[i] for i in ctx.failed_text_unit_ids.get("graph_extraction", [])])
+```
+
+`reproduce/scripts/stage5_step4b_parse.py`
+
+```python
+"""Stage 5, step 4b: _parse_extraction_result turns one parsed reply (a dict) into Entity and Relationship
+objects. Usage: python stage5_step4b_parse.py PART
+  main          the function itself on chunk 01_acme.txt, line by line (the per-item helpers run untraced)
+  entity        parse_entity_data and every helper it calls, for the first entity of that reply
+  relationship  parse_relationship_data and every helper it calls, for the first relationship of that reply
+  edge          parse_entity_data on edited copies of the first entity: a type not in the allowed list, and
+                several ways of writing the confidence
+Needs answers_stage5.json, and cache5/stage5-answered (from "python stage5.py answered") for the chunk.
+"""
+import glob, json, logging, sys
+import boto3
+logging.disable(logging.CRITICAL)
+from unified_kg_rag.shared import get_config
+from unified_kg_rag.shared.utils import common as C
+from unified_kg_rag.shared.utils.langchain import RobustXMLOutputParser
+from unified_kg_rag.adapters.providers import Providers
+from unified_kg_rag.adapters.ingestion.graph_extractor import GraphExtractor as GX
+from unified_kg_rag.domain.ingestion import base_processor as BPm
+from unified_kg_rag.domain.ingestion.base_processor import BaseProcessor as B
+from unified_kg_rag.domain.models import TextUnit
+from fake_llm import HandAnsweredFactory
+from linetrace import trace, default_describe
+
+PART = sys.argv[1]
+reply = json.load(open("answers_stage5.json"))["481b2e4f4b"]       # 01_acme.txt
+parsed = RobustXMLOutputParser().parse(reply)
+f = sorted(glob.glob("cache5/stage5-answered/text_chunking/text_units-*.json"))[0]
+units = json.load(open(f)); units = units.get("data", units) if isinstance(units, dict) else units
+unit = TextUnit.model_validate([u for u in units if u["attributes"]["file_name"] == "01_acme.txt"][0])
+config = get_config()
+ex = GX(config, providers=Providers(config, boto3.Session(region_name="us-east-1"), llm_factory=HandAnsweredFactory(config)))
+
+def describe(v):
+    n = type(v).__name__
+    if n == "TextUnit": return f"TextUnit(01_acme.txt, id {v.id[:8]}.., attributes keys {list(v.attributes or {})})"
+    if n == "Entity": return f"Entity(name={v.name!r}, type={v.type!r}, confidence={v.confidence}, id={v.id[:8]}..)"
+    if n == "Relationship": return f"Relationship({v.source_name!r} -{v.type}-> {v.target_name!r}, weight={v.weight}, id={v.id[:8]}..)"
+    if n == "GraphExtractionConfig": return "GraphExtractionConfig"
+    if n == "EntityGroundingConfig": return f"EntityGroundingConfig(enabled={v.enabled}, action={v.action!r})"
+    if isinstance(v, list) and v and type(v[0]).__name__ in ("Entity", "Relationship"):
+        return f"list of {len(v)}: " + ", ".join(repr(getattr(x, 'name', None) or f'{x.source_name}->{x.target_name}') for x in v)
+    if isinstance(v, list) and v and isinstance(v[0], dict): return f"list of {len(v)} dicts, first: {json.dumps(v[0])[:90]}..."
+    if isinstance(v, dict) and v and all(isinstance(x, str) for x in v.values()) and len(json.dumps(v)) < 200: return json.dumps(v)
+    if isinstance(v, dict) and set(v) == {"entities", "relationships"}: return "dict with keys ['entities', 'relationships'] (the parsed reply)"
+    if isinstance(v, dict) and len(v) <= 6 and all(isinstance(x, str) and len(x) <= 8 for x in v): return json.dumps(v)
+    if isinstance(v, dict) and set(v) <= {"entity", "relationship"}: return f"dict {{'{next(iter(v))}': list of {len(next(iter(v.values())))}}}"
+    if n == "Pattern": return f"pattern {v.pattern!r}"
+    if n == "datetime": return "datetime (now)"
+    return default_describe(v)
+
+if PART == "main":
+    funcs = [GX._parse_extraction_result, GX._apply_entity_grounding, GX._drop_relationships_to_dropped_entities,
+             GX._apply_relationship_grounding, B.build_entity_key_index, C.ensure_list]
+    print("input: the parsed reply for 01_acme.txt;", len(parsed["entities"]["entity"]), "entities,", len(parsed["relationships"]["relationship"]), "relationships\n")
+elif PART == "entity":
+    funcs = [B.parse_entity_data, BPm.coerce_llm_text, C.clean_display_name, C.entity_key, B._generate_entity_id,
+             C.generate_stable_id, B._parse_attributes, B._parse_confidence]
+    item = parsed["entities"]["entity"][0]
+    print("input:", json.dumps(item, indent=1), "\n")
+elif PART == "relationship":
+    funcs = [B.parse_relationship_data, BPm.coerce_llm_text, C.clean_display_name, C.entity_key, B._generate_entity_id,
+             B._generate_relationship_id, C.generate_stable_id, B._parse_attributes, B._parse_weight]
+    item = parsed["relationships"]["relationship"][0]
+    index = {C.entity_key(e["name"]): B._generate_entity_id(C.clean_display_name(e["name"])) for e in parsed["entities"]["entity"]}
+    print("input:", json.dumps(item, indent=1))
+    print("entity_name_to_id (built from this chunk's 5 entities):", {k: v[:8] + ".." for k, v in index.items()}, "\n")
+
+if PART == "edge":
+    base = parsed["entities"]["entity"][0]
+    print("allowed types in the prompt:", [x.split(":")[0] for x in config.processing.graph_extraction.entity_types])
+    for change in [{"type": "COMPANY"}, {"confidence": "10"}, {"confidence": "9"}, {"confidence": "1"}, {"confidence": "1.0"},
+                   {"confidence": "0.3"}, {"confidence": "85"}, {"confidence": "high"}, {"confidence": None}]:
+        item = dict(base); item.update(change)
+        e = ex.parse_entity_data(item, unit)
+        print(f"  input {json.dumps(change):<22} -> type={e.type!r:<16} confidence={e.confidence}")
+    sys.exit(0)
+
+tracer = trace(funcs, describe)
+sys.settrace(tracer)
+try:
+    if PART == "main": out = ex._parse_extraction_result(parsed, unit)
+    elif PART == "entity": out = ex.parse_entity_data(item, unit)
+    else: out = ex.parse_relationship_data(item, unit, index)
+finally:
+    sys.settrace(None)
+
+print("=" * 60)
+if PART == "main":
+    ents, rels = out
+    print(f"RESULT: {len(ents)} entities, {len(rels)} relationships")
+    for e in ents: print(f"  {e.name!r:<20} type={e.type!r:<15} confidence={e.confidence}  attributes={e.attributes}")
+    for r in rels: print(f"  {r.source_name!r} -{r.type}-> {r.target_name!r}  weight={r.weight}  attributes={r.attributes}")
+else:
+    d = out.model_dump()
+    print("RESULT:", type(out).__name__)
+    for k, v in d.items():
+        if k in ("created_at", "updated_at"): v = "(time of the run)"
+        print(f"  {k:<22}= {v!r}"[:150])
+```
+
 ### Appendix H. Self-extraction test
 
 **[RAN]** Every file was extracted from this document by the rules in section 0.5 and compared with the original.
 
 ```text
 $ python build/extract.py HANDOFF.md extract_test
-42 files written
+45 files written
 $ diff -r reproduce extract_test/reproduce
-(no differences: all 42 files identical, byte for byte)
+(no differences: all 45 files identical, byte for byte)
 ```

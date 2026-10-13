@@ -1,4 +1,6 @@
+config.processing.ignore_errors = False
 batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_wait': 2, 'call_timeout_seconds': 300, 'max_attempts': 5}
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.process_chunk   (shared/utils/langchain.py)
               chunk_num = 1
               chunk_items = list of 5 TextUnit
@@ -21,13 +23,16 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 259                  results: list[Any] = list(
               results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
     line 283              failed = self._failed_indices(results)
+
   >>> ENTER BatchProcessor._failed_indices   (shared/utils/langchain.py)
               results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
     line 346          return [i for i, res in enumerate(results) if isinstance(res, BaseException)]
   <<< BatchProcessor._failed_indices RETURNS [4]
+
               failed = [4]
     line 284              if not failed:
     line 287              self._log_partial_failure(task_name, chunk_num, results, failed)
+
   >>> ENTER BatchProcessor._log_partial_failure   (shared/utils/langchain.py)
               chunk_num = 1
               results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
@@ -41,12 +46,14 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 359              results[failed[0]],
     line 352          logger.warning(
   <<< BatchProcessor._log_partial_failure RETURNS None
+
     line 288              retried = self._process_sequentially_with_fallback(
     line 289                  [chunk_inputs[i] for i in failed],
     line 290                  retrying_sequential_func,
     line 291                  f"{task_name} (chunk {chunk_num} retry)",
     line 292                  show_progress=show_progress,
     line 288              retried = self._process_sequentially_with_fallback(
+
   >>> ENTER BatchProcessor._process_sequentially_with_fallback   (shared/utils/langchain.py)
               inputs = list of 1 prompt-inputs
               sequential_func = function timed_sequential_func
@@ -62,6 +69,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
               single_input = prompt-input for 'Banyan Capital investe'...
     line 429              try:
     line 430                  result = sequential_func(single_input)
+
   >>> ENTER BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func   (shared/utils/langchain.py)
               single_input = prompt-input for 'Banyan Capital investe'...
               sequential_func = function invoke
@@ -71,6 +79,7 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 222                  f"{task_name} item",
     line 219              return self._run_with_timeout(
   <<< BatchProcessor.execute_with_fallback.<locals>.timed_sequential_func RETURNS parsed reply dict
+
               result = parsed reply dict
     line 431                  results.append(result)
               results = [parsed reply dict]
@@ -85,8 +94,10 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 442          logger.info(
     line 448          return results
   <<< BatchProcessor._process_sequentially_with_fallback RETURNS [parsed reply dict]
+
               retried = [parsed reply dict]
     line 294              return self._splice_retried(results, failed, retried)
+
   >>> ENTER BatchProcessor._splice_retried   (shared/utils/langchain.py)
               results = [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, ClientError: An error occurred (ThrottlingException) when calling the Converse oper]
               failed = [4]
@@ -100,10 +111,13 @@ batch processor timing used for this run: {'retry_multiplier': 1.0, 'retry_max_w
     line 367          for idx, res in zip(failed, retried, strict=True):
     line 369          return merged
   <<< BatchProcessor._splice_retried RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+
   <<< BatchProcessor.execute_with_fallback.<locals>.process_chunk RETURNS [parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict, parsed reply dict]
+
+
 ========== SUMMARY ==========
 model calls for chunk 05: 2 | model calls for the other four chunks: 4
-  t= 0.07s  model called for chunk 05, call #1
-  t= 0.09s  model called for chunk 05, call #2
+  t= 0.05s  model called for chunk 05, call #1
+  t= 0.06s  model called for chunk 05, call #2
 stage 5 status: completed | failed_units: 0 | entities: 16 | relationships: 14
 failed chunks: []

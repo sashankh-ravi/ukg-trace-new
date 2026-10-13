@@ -23,6 +23,18 @@ def sub(line):
     if m: return fence((H / m.group(1)).read_text().rstrip("\n"), m.group(2))
     m = re.fullmatch(r"@@txt (\S+)@@", line)
     if m: return fence((H / m.group(1)).read_text().rstrip("\n"), "text")
+    # @@lines file a-b@@: lines a to b of a file in this repository, copied as they are.
+    m = re.fullmatch(r"@@lines (\S+) (\d+)-(\d+)@@", line)
+    if m:
+        src = (H / m.group(1)).read_text().splitlines(); a, b = int(m.group(2)), int(m.group(3))
+        assert 1 <= a <= b <= len(src), (m.group(1), a, b, len(src))
+        return fence(f"[{m.group(1)}, lines {a}-{b} of {len(src)}]\n" + "\n".join(src[a-1:b]), "text")
+    # @@from file REGEX@@: from the first line matching REGEX to the end of the file.
+    m = re.fullmatch(r"@@from (\S+) (.+)@@", line)
+    if m:
+        src = (H / m.group(1)).read_text().rstrip("\n").splitlines()
+        i = next(k for k, l in enumerate(src) if re.search(m.group(2), l))
+        return fence(f"[{m.group(1)}, lines {i+1}-{len(src)} of {len(src)}]\n" + "\n".join(src[i:]), "text")
     if line == "@@check@@": return fence(check, "text")
     if line == "@@selftest@@": return fence((H / "build" / "selftest.txt").read_text().rstrip("\n") if (H / "build" / "selftest.txt").exists() else "(pending)", "text")
     assert "@@" not in line, line

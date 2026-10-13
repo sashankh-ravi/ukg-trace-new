@@ -2,7 +2,7 @@
 
 A running log of possible bugs found while tracing [awslabs/unified-kg-rag-on-aws](https://github.com/awslabs/unified-kg-rag-on-aws) step by step.
 
-Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document. Entry 11 (stage 5, graph extraction) was found and approved on 12 October 2026 and is also in their log document.
+Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document. Entry 11 (stage 5, graph extraction) was found and approved on 12 October 2026, and entries 12 to 15 (also stage 5) on 13 October 2026; all are also in their log document. The stage 5 outputs quoted here come from `reproduce/run_stage5.sh`, run on 13 October 2026; `HANDOFF.md` section 9.2 has the full trace.
 
 ## About this log
 
@@ -622,7 +622,20 @@ The formatting call on three Python versions (`lang_format_demo.sh`; the 3.10 an
 - Capture pass, target Spanish: the stand-in model replied with leftover chunking XML (`<chunk_boundaries><single_chunk>true</single_chunk></chunk_boundaries>`). It was stored as the Spanish translation of all five chunks, and the stage reported `units_translated: 5`.
 - Claude, writing the answers by hand, matched two translations to the wrong prompts on the first try. The chunk about Meera Shah received the translation of the chunk about Orbit Logistics. It was accepted without complaint.
 
-**Why it matters [NOT CHECKED].** From a search of the code, later stages read the translation instead of the original when one exists. If so, a wrong or unrelated translation is what the graph is built from.
+**Why it matters.** From a search of the code, later stages read the translation instead of the original when one exists. If so, a wrong or unrelated translation is what the graph is built from.
+
+**Update, 13 October [READ].** The stage 5 trace shows where graph extraction picks its text: per chunk, `get_text_for_processing` returns the chunk's translation into the target language when there is one, and the original text otherwise (`HANDOFF.md` section 9.2.3):
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 45-49
+    def get_text_for_processing(self, text_unit: TextUnit) -> str:
+        if text_unit.translated_texts:
+            target_language = self.config.processing.translation.target_language.value
+            return text_unit.translated_texts.get(target_language, text_unit.text)
+        return text_unit.text
+```
+
+The stage 5 runs had translation off, so the translation branch was read, not executed. **[NOT CHECKED]** with translation switched on.
 
 ---
 
@@ -769,8 +782,8 @@ The batch processor does not raise for a chunk that fails every attempt. It reco
 config.processing.ignore_errors = False
 ========== SUMMARY ==========
 model calls for chunk 05: 2 | model calls for the other four chunks: 4
-  t= 0.33s  model called for chunk 05, call #1
-  t= 0.35s  model called for chunk 05, call #2
+  t= 0.03s  model called for chunk 05, call #1
+  t= 0.03s  model called for chunk 05, call #2
 stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
 failed chunks: ['05_investor.txt']
 ```
@@ -781,16 +794,408 @@ The same run with `IGNORE_ERRORS=on` (sets `processing.ignore_errors = True`):
 config.processing.ignore_errors = True
 ========== SUMMARY ==========
 model calls for chunk 05: 2 | model calls for the other four chunks: 4
-  t= 0.05s  model called for chunk 05, call #1
-  t= 0.07s  model called for chunk 05, call #2
+  t= 0.04s  model called for chunk 05, call #1
+  t= 0.05s  model called for chunk 05, call #2
 stage 5 status: completed | failed_units: 1 | entities: 12 | relationships: 10
 failed chunks: ['05_investor.txt']
 ```
 
-With every chunk answered normally the stage gives 16 entities and 14 relationships (`followup_out/stage5_B_answered.out`). The full line traces are in `followup_out/step3b_ignore_off.out` and `followup_out/step3b_ignore_on.out`.
+With every chunk answered normally the stage gives 16 entities and 14 relationships (`followup_out/stage5_B_answered.out`). The full line traces are in `followup_out/stage5_step3b_ignore_off.out` and `followup_out/stage5_step3b_ignore_on.out`.
 
 The loss is not hidden: it is counted in the stage's `failed_units` and in the pipeline's failed-chunk list. The run stops only when every chunk fails, because the stage then produces no output and the zero-output check fails it (`followup_out/stage5_A_capture.out`).
 
 **Not yet checked.** Whether any later stage reads the failed-chunk list and reacts. Whether the other stages that use the same batch processor (gleaning, claim extraction) behave the same way.
 
 **Possible fix.** After the batch call, if any result is `BATCH_ITEM_FAILED` and `ignore_errors` is off, raise an error.
+
+---
+
+## Bug 12: A graph extraction reply that is cut off loses all its relationships, silently
+
+If the model's reply stops before `</relationships>`, every relationship is lost, including ones that arrived complete. No error is raised, the chunk counts as a success, and the repair model is not called. Found and logged 13 October 2026.
+
+**Cause.** The reply reader takes each complete top-level `<tag>...</tag>` it can find:
+
+```python
+# unified_kg_rag/shared/utils/langchain.py, lines 687-707
+    @staticmethod
+    def _extract_xml_fallback(text: str) -> dict[str, Any] | None:
+        result = {}
+
+        try:
+            section_pattern = r"<([a-zA-Z0-9_]+)>(.*?)</\1>"
+            section_matches = re.findall(section_pattern, text, re.DOTALL)
+
+            for section_name, section_content in section_matches:
+                section_result = RobustXMLOutputParser._parse_xml_section(
+                    section_content
+                )
+                # An empty section is an empty answer (e.g. a chunk with no
+                # relationships), kept as {} like the lxml path does, so a
+                # response of only empty sections still parses.
+                result[section_name] = {} if section_result is None else section_result
+
+            return result if result else None
+
+        except Exception:
+            return None
+```
+
+Without the closing `</relationships>`, it finds the inner tags instead (`relationship`, `source`) and returns them as top-level keys. The extractor asks for `relationships` and, when that key is missing, uses an empty value; the docstring says a missing section is allowed on purpose:
+
+```python
+# unified_kg_rag/adapters/ingestion/graph_extractor.py, lines 333-359
+    def _parse_extraction_result(
+        self,
+        result: dict[str, Any],
+        text_unit: TextUnit,
+    ) -> tuple[list[Entity], list[Relationship]]:
+        """Parse one chain output; raise ``DataProcessingError`` if malformed.
+
+        The output must carry an ``entities`` section. ``relationships`` may be
+        absent: the XML parser drops an empty section, so a unit whose entities
+        are unrelated has none.
+        """
+        entities: list[Entity] = []
+        relationships: list[Relationship] = []
+
+        if not isinstance(result, dict):
+            raise DataProcessingError(
+                f"extraction output is {type(result).__name__}, not a mapping"
+            )
+        raw_entities = result.get("entities")
+        raw_relationships = result.get("relationships", {})
+        if not isinstance(raw_entities, dict | list) or not isinstance(
+            raw_relationships, dict | list
+        ):
+            raise DataProcessingError(
+                "extraction output lacks well-formed entities/relationships "
+                f"sections (keys: {sorted(result)})"
+            )
+```
+
+So the code cannot tell "the model found no relationships" from "the relationships section was broken".
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step4a_reader.py cut`: Claude's hand-written reply for `01_acme.txt` cut off in the middle of its second relationship, read by the real reader, then passed to the real `_parse_extraction_result`:
+
+```text
+reply cut to 1495 of 1983 characters; it ends:
+h>9</strength>
+<source_text>Acme Robotics is a company based in Pune.</source_text>
+</relationship>
+<relationship>
+<source>Meera Shah</source>
+<target>Acme Robo
+
+RESULT: top-level keys ['entities', 'relationship', 'source'] | entities: 5 | relationships: 0
+relationships kept: None
+
+_parse_extraction_result on this dict ( cache5/stage5-answered/text_chunking/text_units-9fcbd193c678.json ):
+  raised an error: no
+  entities: ['Acme Robotics', 'Pune', 'Meera Shah', '2015', 'warehouse robots']
+  relationships: []
+```
+
+The reply's first relationship (Acme Robotics to Pune, `LOCATED_IN`) was complete, and was lost. The full trace is in `followup_out/stage5_step4a_cut.out`.
+
+**Not yet checked.** How often real replies get cut off. The prompt asks for up to 50 entities and 50 relationships, each with a description and a quote, and the chain asks the model for at least 32,768 output tokens (`GraphExtractionPrompt.min_output_tokens`).
+
+**Possible fix.** Treat a reply that opens `<relationships>` but never closes it as broken, so the chunk is retried or counted as failed; or read relationships item by item.
+
+---
+
+## Bug 13: The repair model for unreadable replies is given no source text and no instructions
+
+When a reply cannot be read at all, a second model call is made to repair it. Its prompt has the broken reply, the error and generic XML advice, with the tags given as `None`. It has neither the chunk's text nor the extraction instructions. Found and logged 13 October 2026.
+
+**Cause.** Repair is on by default (`config.fixing.enabled`, see `HANDOFF.md` section 9.2.2). The reader is wrapped with LangChain's `OutputFixingParser` and its default repair prompt:
+
+```python
+# unified_kg_rag/adapters/aws/chain_factory.py, lines 244-257
+    base_parser = RobustXMLOutputParser()
+    if not enable_output_fixing:
+        return base_parser
+
+    try:
+        fixing_llm = factory.get_model(
+            model_id=output_fixing_model_id,
+            model_purpose=model_purpose,
+            min_output_tokens=min_output_tokens,
+        )
+        logger.info(
+            "Created OutputFixingParser with model: '%s'", output_fixing_model_id
+        )
+        return OutputFixingParser.from_llm(parser=base_parser, llm=fixing_llm)
+```
+
+The repair loop, from the repo's virtual environment (langchain-classic 1.0.8). The prompt is filled with the reader's own format instructions, the broken reply and the error:
+
+```python
+# .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/fix.py, lines 69-105
+    @override
+    def parse(self, completion: str) -> T:
+        retries = 0
+
+        while retries <= self.max_retries:
+            try:
+                return self.parser.parse(completion)
+            except OutputParserException as e:
+                if retries == self.max_retries:
+                    raise
+                retries += 1
+                if self.legacy and hasattr(self.retry_chain, "run"):
+                    completion = self.retry_chain.run(
+                        instructions=self.parser.get_format_instructions(),
+                        completion=completion,
+                        error=repr(e),
+                    )
+                else:
+                    try:
+                        completion = self.retry_chain.invoke(
+                            {
+                                "instructions": self.parser.get_format_instructions(),
+                                "completion": completion,
+                                "error": repr(e),
+                            },
+                        )
+                    except (NotImplementedError, AttributeError):
+                        # Case: self.parser does not have get_format_instructions
+                        completion = self.retry_chain.invoke(
+                            {
+                                "completion": completion,
+                                "error": repr(e),
+                            },
+                        )
+
+        msg = "Failed to parse"
+        raise OutputParserException(msg)
+```
+
+```python
+# .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/prompts.py, lines 1-21
+from langchain_core.prompts.prompt import PromptTemplate
+
+NAIVE_FIX = """Instructions:
+--------------
+{instructions}
+--------------
+Completion:
+--------------
+{completion}
+--------------
+
+Above, the Completion did not satisfy the constraints given in the Instructions.
+Error:
+--------------
+{error}
+--------------
+
+Please try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:"""  # noqa: E501
+
+
+NAIVE_FIX_PROMPT = PromptTemplate.from_template(NAIVE_FIX)
+```
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step4a_reader.py prose`: stages 1 to 5 on the five sample files; the reply for `05_investor.txt` is a sentence with no tags. All prompts were recorded:
+
+```text
+reply for 05_investor.txt set to: 'I could not find any entities in this text.'
+model calls recorded: 6
+  call 1: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 2: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 3: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 4: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 5: EXTRACTION prompt, roles ['system', 'human'], reply used: hand-written answer
+  call 6: OTHER prompt, roles ['human'], reply used: PLACEHOLDER
+does it contain the chunk's text ('Banyan Capital invested in Acme Robotics in 2019')? False
+does it contain the extraction instructions ('Entity Categories')? False
+stage 5: completed | failed_units: 1 | entities: 12 | failed chunks: ['05_investor.txt']
+```
+
+The repair prompt as sent:
+
+````text
+=== the repair prompt, in full ( 1138 characters ) ===
+Instructions:
+--------------
+The output should be formatted as a XML file.
+1. Output should conform to the tags below.
+2. If tags are not given, make them on your own.
+3. Remember to always open and close all the tags.
+
+As an example, for the tags ["foo", "bar", "baz"]:
+1. String "<foo>
+   <bar>
+      <baz></baz>
+   </bar>
+</foo>" is a well-formatted instance of the schema.
+2. String "<foo>
+   <bar>
+   </foo>" is a badly-formatted instance.
+3. String "<foo>
+   <tag>
+   </tag>
+</foo>" is a badly-formatted instance.
+
+Here are the output tags:
+```
+None
+```
+--------------
+Completion:
+--------------
+I could not find any entities in this text.
+--------------
+
+Above, the Completion did not satisfy the constraints given in the Instructions.
+Error:
+--------------
+OutputParserException("Failed to parse XML after multiple attempts. Content preview: 'I could not find any entities in this text....'\nFor troubleshooting, visit: https://docs.langchain.com/oss/python/langchain/errors/OUTPUT_PARSING_FAILURE ")
+--------------
+
+Please try again. Please only respond with an answer that satisfies the constraints laid out in the Instructions:
+=== end ===
+````
+
+The stand-in answered the repair prompt with its placeholder, which is readable but has no entity list, so the chunk then failed and was counted as failed.
+
+**Why it matters.** The repair model can reshape the text it is given, but it cannot recover content it never sees. If it fills the gap from general knowledge, the result is not checked against the chunk, because the hallucination guard (`graph_extraction.entity_grounding.enabled`) is off by default.
+
+**Not yet checked.** What a real model answers to this prompt. Whether other stages that build their reader with the same function (for example chunking, see bug 7) send the same kind of repair prompt.
+
+**Possible fix.** Give the repair step the original prompt and chunk (the installed LangChain also has `RetryOutputParser` in `langchain_classic/output_parsers/retry.py`, whose `parse_with_prompt` takes the original prompt), or turn repair off for extraction and count the chunk as failed.
+
+---
+
+## Bug 14: An unreadable confidence score becomes 1.0, the highest
+
+If the model writes a confidence the code cannot read as a number, or leaves it out, the entity gets confidence 1.0. Found and logged 13 October 2026.
+
+**Cause.**
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 252-285
+    @staticmethod
+    def _parse_confidence(data: dict[str, Any], default: float = 1.0) -> float:
+        """Normalize an extracted confidence to ``[0, 1]``.
+
+        The extraction prompt asks for an integer on a 1-10 scale, but models
+        (or custom prompts) sometimes answer with a 0-1 fraction. Rule:
+
+        * ``> 1``: 1-10 scale, divided by 10 (``8`` -> 0.8, ``8.5`` -> 0.85).
+        * exactly ``1`` written as an integer (``1`` / ``"1"``): the lowest
+          point of the 1-10 scale -> 0.1. Reading it as the fraction 1.0 would
+          turn the least confident answer into the most confident one.
+        * any other value in ``[0, 1]``, including ``1.0`` written with a
+          decimal point: already a fraction, kept as-is.
+
+        The result is clamped to ``[0, 1]``; unparseable values use ``default``.
+        """
+        value = data.get("confidence")
+        if value is None:
+            return default
+        try:
+            raw_confidence = float(value)
+            written_as_integer = isinstance(value, int) or (
+                isinstance(value, str) and value.strip().lstrip("+").isdigit()
+            )
+            if raw_confidence > 1.0 or (raw_confidence == 1.0 and written_as_integer):
+                normalized = raw_confidence / 10.0
+            else:
+                normalized = raw_confidence
+            return max(0.0, min(1.0, normalized))
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid confidence value '%s', using default %s", value, default
+            )
+            return default
+```
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step4b_parse.py edge`: the first entity of the `01_acme.txt` reply, with one field changed each time, passed to the real `parse_entity_data`:
+
+```text
+allowed types in the prompt: ['PERSON', 'ORGANIZATION', 'LOCATION', 'CONCEPT', 'OBJECT', 'EVENT', 'TEMPORAL']
+  input {"type": "COMPANY"}    -> type='COMPANY'        confidence=1.0
+  input {"confidence": "10"}   -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "9"}    -> type='ORGANIZATION'   confidence=0.9
+  input {"confidence": "1"}    -> type='ORGANIZATION'   confidence=0.1
+  input {"confidence": "1.0"}  -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "0.3"}  -> type='ORGANIZATION'   confidence=0.3
+  input {"confidence": "85"}   -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": "high"} -> type='ORGANIZATION'   confidence=1.0
+  input {"confidence": null}   -> type='ORGANIZATION'   confidence=1.0
+```
+
+**Why it matters.** Only when a confidence cut-off is set. The setting and its default (0.0, no cut-off):
+
+```python
+# unified_kg_rag/domain/models/config.py, lines 876-884
+    entity_confidence_threshold: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Minimum confidence score for filtering entities. "
+        "Entities below this threshold are excluded. Set to 0.0 to disable filtering. "
+        "Compared against the normalized confidence: the prompt's 1-10 score / 10 "
+        "(an integer 1 -> 0.1; decimal values <= 1 are taken as fractions).",
+    )
+```
+
+With a cut-off, a garbled or missing score always passes, while an honest low score is removed.
+
+**Possible fix.** Use a low default, or the cut-off value itself, for scores that cannot be read, and count them.
+
+---
+
+## Bug 15: Entity types outside the allowed list are accepted
+
+The prompt tells the model to use only seven entity types, under the heading "Entity Categories (STRICT - use only these types)", but the code keeps whatever type the model writes. Found and logged 13 October 2026.
+
+**Cause.** The type is copied as written (line 89); nothing compares it with the configured list:
+
+```python
+# unified_kg_rag/domain/ingestion/base_processor.py, lines 84-100
+            return Entity(
+                id=entity_id,
+                short_id=entity_id[:8],
+                name=name,
+                name_embedding=None,
+                type=coerce_llm_text(entity_data.get("type")),
+                description=coerce_llm_text(entity_data.get("description"), join=True),
+                description_embedding=None,
+                text_unit_ids=[text_unit.id],
+                community_ids=None,
+                rank=entity_data.get("rank", 1),
+                frequency=None,
+                confidence=confidence,
+                attributes=attributes,
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+            )
+```
+
+The configured list:
+
+```python
+# unified_kg_rag/domain/models/config.py, lines 885-900
+    entity_types: list[str] = Field(
+        default_factory=lambda: [
+            "PERSON: Names, individuals, roles, titles",
+            "ORGANIZATION: Companies, institutions, departments, groups",
+            "LOCATION: Places, addresses, geographic areas, facilities",
+            "CONCEPT: Ideas, theories, methodologies, frameworks, principles",
+            "OBJECT: Documents, tools, products, systems, technologies",
+            "EVENT: Meetings, projects, activities, processes, incidents",
+            "TEMPORAL: Dates, time periods, schedules, deadlines",
+        ],
+        description="Domain entity categories the extractor may use, injected "
+        "into the extraction prompt's {entity_types} slot. Override this to adapt "
+        "to a domain (e.g. ['GENE: ...', 'DISEASE: ...']) WITHOUT rewriting the "
+        "whole prompt. Each item is 'LABEL: short description' (description "
+        "optional). Empty list lets the model choose any relevant types.",
+    )
+```
+
+**Evidence [RAN].** Same run as bug 14 (`followup_out/stage5_step4b_edge.out`): type `COMPANY` was kept as `COMPANY`. In the full run with Claude's answers (`followup_out/stage5_B_answered.out`), every entity's type also came out in lower case (`organization`, `location`) after the merge across chunks.
+
+**Not yet checked.** Whether any later stage relies on the type list. It may be intended leniency; no comment in the code says either way.

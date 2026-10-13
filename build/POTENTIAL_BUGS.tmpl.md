@@ -2,7 +2,7 @@
 
 A running log of possible bugs found while tracing [awslabs/unified-kg-rag-on-aws](https://github.com/awslabs/unified-kg-rag-on-aws) step by step.
 
-Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document. Entry 11 (stage 5, graph extraction) was found and approved on 12 October 2026 and is also in their log document.
+Entries 1 to 4 were agreed with the person during the 9 October 2026 session and carry the same content as the log document kept in their personal Claude account (last changed 9 October 2026). Entries 5 and 6 are **candidates**: 5 was proposed to the person and not yet answered, and 6 was found on 11 October 2026 and the person has not seen it. Entry 7 was approved by the person on 11 October 2026 and is also in their log document. Entries 8, 9 and 10 (stage 4, translation) were shown to the person on 12 October 2026, approved by them the same day, and added to their log document. Entry 11 (stage 5, graph extraction) was found and approved on 12 October 2026, and entries 12 to 15 (also stage 5) on 13 October 2026; all are also in their log document. The stage 5 outputs quoted here come from `reproduce/run_stage5.sh`, run on 13 October 2026; `HANDOFF.md` section 9.2 has the full trace.
 
 ## About this log
 
@@ -318,7 +318,13 @@ The formatting call on three Python versions (`lang_format_demo.sh`; the 3.10 an
 - Capture pass, target Spanish: the stand-in model replied with leftover chunking XML (`<chunk_boundaries><single_chunk>true</single_chunk></chunk_boundaries>`). It was stored as the Spanish translation of all five chunks, and the stage reported `units_translated: 5`.
 - Claude, writing the answers by hand, matched two translations to the wrong prompts on the first try. The chunk about Meera Shah received the translation of the chunk about Orbit Logistics. It was accepted without complaint.
 
-**Why it matters [NOT CHECKED].** From a search of the code, later stages read the translation instead of the original when one exists. If so, a wrong or unrelated translation is what the graph is built from.
+**Why it matters.** From a search of the code, later stages read the translation instead of the original when one exists. If so, a wrong or unrelated translation is what the graph is built from.
+
+**Update, 13 October [READ].** The stage 5 trace shows where graph extraction picks its text: per chunk, `get_text_for_processing` returns the chunk's translation into the target language when there is one, and the original text otherwise (`HANDOFF.md` section 9.2.3):
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 45-49@@
+
+The stage 5 runs had translation off, so the translation branch was read, not executed. **[NOT CHECKED]** with translation switched on.
 
 ---
 
@@ -367,10 +373,108 @@ The same run with `IGNORE_ERRORS=on` (sets `processing.ignore_errors = True`):
 
 @@txt followup_out/stage5_bug11_ignore_on_summary.txt@@
 
-With every chunk answered normally the stage gives 16 entities and 14 relationships (`followup_out/stage5_B_answered.out`). The full line traces are in `followup_out/step3b_ignore_off.out` and `followup_out/step3b_ignore_on.out`.
+With every chunk answered normally the stage gives 16 entities and 14 relationships (`followup_out/stage5_B_answered.out`). The full line traces are in `followup_out/stage5_step3b_ignore_off.out` and `followup_out/stage5_step3b_ignore_on.out`.
 
 The loss is not hidden: it is counted in the stage's `failed_units` and in the pipeline's failed-chunk list. The run stops only when every chunk fails, because the stage then produces no output and the zero-output check fails it (`followup_out/stage5_A_capture.out`).
 
 **Not yet checked.** Whether any later stage reads the failed-chunk list and reacts. Whether the other stages that use the same batch processor (gleaning, claim extraction) behave the same way.
 
 **Possible fix.** After the batch call, if any result is `BATCH_ITEM_FAILED` and `ignore_errors` is off, raise an error.
+
+---
+
+## Bug 12: A graph extraction reply that is cut off loses all its relationships, silently
+
+If the model's reply stops before `</relationships>`, every relationship is lost, including ones that arrived complete. No error is raised, the chunk counts as a success, and the repair model is not called. Found and logged 13 October 2026.
+
+**Cause.** The reply reader takes each complete top-level `<tag>...</tag>` it can find:
+
+@@code unified_kg_rag/shared/utils/langchain.py 687-707@@
+
+Without the closing `</relationships>`, it finds the inner tags instead (`relationship`, `source`) and returns them as top-level keys. The extractor asks for `relationships` and, when that key is missing, uses an empty value; the docstring says a missing section is allowed on purpose:
+
+@@code unified_kg_rag/adapters/ingestion/graph_extractor.py 333-359@@
+
+So the code cannot tell "the model found no relationships" from "the relationships section was broken".
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step4a_reader.py cut`: Claude's hand-written reply for `01_acme.txt` cut off in the middle of its second relationship, read by the real reader, then passed to the real `_parse_extraction_result`:
+
+@@txt followup_out/stage5_bug12_cut_summary.txt@@
+
+The reply's first relationship (Acme Robotics to Pune, `LOCATED_IN`) was complete, and was lost. The full trace is in `followup_out/stage5_step4a_cut.out`.
+
+**Not yet checked.** How often real replies get cut off. The prompt asks for up to 50 entities and 50 relationships, each with a description and a quote, and the chain asks the model for at least 32,768 output tokens (`GraphExtractionPrompt.min_output_tokens`).
+
+**Possible fix.** Treat a reply that opens `<relationships>` but never closes it as broken, so the chunk is retried or counted as failed; or read relationships item by item.
+
+---
+
+## Bug 13: The repair model for unreadable replies is given no source text and no instructions
+
+When a reply cannot be read at all, a second model call is made to repair it. Its prompt has the broken reply, the error and generic XML advice, with the tags given as `None`. It has neither the chunk's text nor the extraction instructions. Found and logged 13 October 2026.
+
+**Cause.** Repair is on by default (`config.fixing.enabled`, see `HANDOFF.md` section 9.2.2). The reader is wrapped with LangChain's `OutputFixingParser` and its default repair prompt:
+
+@@code unified_kg_rag/adapters/aws/chain_factory.py 244-257@@
+
+The repair loop, from the repo's virtual environment (langchain-classic 1.0.8). The prompt is filled with the reader's own format instructions, the broken reply and the error:
+
+@@code .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/fix.py 69-105@@
+
+@@code .venv/lib/python3.11/site-packages/langchain_classic/output_parsers/prompts.py 1-21@@
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step4a_reader.py prose`: stages 1 to 5 on the five sample files; the reply for `05_investor.txt` is a sentence with no tags. All prompts were recorded:
+
+@@txt followup_out/stage5_bug13_repair_summary.txt@@
+
+The repair prompt as sent:
+
+@@txt followup_out/stage5_bug13_repair_prompt.txt@@
+
+The stand-in answered the repair prompt with its placeholder, which is readable but has no entity list, so the chunk then failed and was counted as failed.
+
+**Why it matters.** The repair model can reshape the text it is given, but it cannot recover content it never sees. If it fills the gap from general knowledge, the result is not checked against the chunk, because the hallucination guard (`graph_extraction.entity_grounding.enabled`) is off by default.
+
+**Not yet checked.** What a real model answers to this prompt. Whether other stages that build their reader with the same function (for example chunking, see bug 7) send the same kind of repair prompt.
+
+**Possible fix.** Give the repair step the original prompt and chunk (the installed LangChain also has `RetryOutputParser` in `langchain_classic/output_parsers/retry.py`, whose `parse_with_prompt` takes the original prompt), or turn repair off for extraction and count the chunk as failed.
+
+---
+
+## Bug 14: An unreadable confidence score becomes 1.0, the highest
+
+If the model writes a confidence the code cannot read as a number, or leaves it out, the entity gets confidence 1.0. Found and logged 13 October 2026.
+
+**Cause.**
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 252-285@@
+
+**Evidence [RAN].** `reproduce/scripts/stage5_step4b_parse.py edge`: the first entity of the `01_acme.txt` reply, with one field changed each time, passed to the real `parse_entity_data`:
+
+@@txt followup_out/stage5_step4b_edge.out@@
+
+**Why it matters.** Only when a confidence cut-off is set. The setting and its default (0.0, no cut-off):
+
+@@code unified_kg_rag/domain/models/config.py 876-884@@
+
+With a cut-off, a garbled or missing score always passes, while an honest low score is removed.
+
+**Possible fix.** Use a low default, or the cut-off value itself, for scores that cannot be read, and count them.
+
+---
+
+## Bug 15: Entity types outside the allowed list are accepted
+
+The prompt tells the model to use only seven entity types, under the heading "Entity Categories (STRICT - use only these types)", but the code keeps whatever type the model writes. Found and logged 13 October 2026.
+
+**Cause.** The type is copied as written (line 89); nothing compares it with the configured list:
+
+@@code unified_kg_rag/domain/ingestion/base_processor.py 84-100@@
+
+The configured list:
+
+@@code unified_kg_rag/domain/models/config.py 885-900@@
+
+**Evidence [RAN].** Same run as bug 14 (`followup_out/stage5_step4b_edge.out`): type `COMPANY` was kept as `COMPANY`. In the full run with Claude's answers (`followup_out/stage5_B_answered.out`), every entity's type also came out in lower case (`organization`, `location`) after the merge across chunks.
+
+**Not yet checked.** Whether any later stage relies on the type list. It may be intended leniency; no comment in the code says either way.
