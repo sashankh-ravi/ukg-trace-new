@@ -12,7 +12,8 @@ Mechanical rules, nothing else is changed:
 import html, re, sys
 
 REDACT = sys.argv[2:]
-PREFIXES = ["/home/claude/awslabs/unified-kg-rag-on-aws/", "/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/"]
+PREFIXES = ["/home/claude/awslabs/unified-kg-rag-on-aws/", "/tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/",
+            "/tmp/claude-0/-home-claude-ukg-trace-new/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/"]
 NAMES = {"mcp__Claude_Docs__batch": "Claude Docs batch", "mcp__Claude_Docs__update": "Claude Docs update",
          "mcp__Claude_Docs__create": "Claude Docs create", "mcp__Claude_Docs__guide": "Claude Docs guide",
          "mcp__Claude_Docs__export": "Claude Docs export", "mcp__Claude_Docs__read": "Claude Docs read",
@@ -68,5 +69,5 @@ for m in re.finditer(r'<turn n="(\d+)">(Human|Assistant): (.*?)</turn>', raw, re
         tail = body[pos:].strip()
         if tail: parts.append(tail)
         out.append(f"## Turn {n}, Claude\n")
-        out.append("\n\n".join(parts) + "\n")
+        out.append(("\n\n".join(parts) if parts else "*(This turn is empty in the chat history.)*") + "\n")
 print("\n".join(out))

@@ -1,6 +1,6 @@
 # Chat transcript
 
-The conversation of 9 to 12 October 2026, as recorded in the chat's history: turns 0 to 66, copied on 12 October 2026.
+The conversation of 9 to 13 October 2026, as recorded in the chat's history: turns 0 to 66 copied on 12 October 2026, turns 67 to 94 copied on 13 October 2026, and turn 95 copied from the message as received.
 
 How this copy was made, and how far to trust it:
 
@@ -2006,6 +2006,1639 @@ Two things aren't in it. The bug log in your personal Claude account still has o
 
 Yes please update bug log and aren't you able to add this chat session ?
 
+## Turn 67, Claude
+
+`[tool: read chat history]`
+`[tool: Claude Docs update]`
+`[tool: read chat history]`
+`[tool: Bash] Start the chat transcript file with the first five turns`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 5 and 6 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 7 and 8 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 9 and 10 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 11 and 12 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 13 to 15 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 16 to 20 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 21 and 22 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 23 and 24 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 25 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 26 to 28 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 29 to 32 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 33 to 36 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 37 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 38 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Look at the format of the saved conversation page`
+`[tool: Bash]`
+
+', body, re.S):
+            text = body[pos:t.start()].strip()
+            if text:
+                if pending: parts.append("\n".join(pending)); pending = []
+                parts.append(text)
+            pending.append(tool_line(t.group(0))); pos = t.end()
+        if pending: parts.append("\n".join(pending))
+        tail = body[pos:].strip()
+        if tail: parts.append(tail)
+        out.append(f"## Turn {n}, Claude\n")
+        out.append("\n\n".join(parts) + "\n")
+print("\n".join(out))
+EOF
+F=/root/.claude/projects/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/tool-results/mcp-claude_ai-read_conversation-1791793920235.txt
+python3 -I /home/claude/ukg-trace-new/build/transcript_from_history.py $F > /tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/t39.md; wc -l /tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/t39.md; head -60 /tmp/claude-0/-home-claude/bc133111-51e4-5491-aaed-c6588835038c/scratchpad/t39.md</parameter>
+<parameter name="description">Write a converter that turns a saved chat-history page into transcript text, and try it on turn 39</parameter>
+</tool>
+
+`[tool: Bash] Append the converted turn 39 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 40 to 42 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 43 to 46 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 47 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 48 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 49 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 50 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 51 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turns 52 to 54 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Check repo state and end of transcript`
+`[tool: read chat history]`
+`[tool: Bash] Append turn 55 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Check how non-shell tool calls are written in the transcript`
+`[tool: Bash] Append turns 56 to 64 to the transcript`
+`[tool: read chat history]`
+`[tool: Bash] Finish the transcript and check it is complete and redacted`
+`[tool: Bash] Find every place that lists bugs 8 to 10 as candidates`
+`[tool: Bash] Show the status lines and bug heading style`
+`[tool: Bash] Mark bugs 8 to 10 as logged in both document templates`
+
+Now the README, the session log, and the handoff's pointer to the chat.
+
+`[tool: Bash] Update README and session log for the transcript and new bugs`
+`[tool: Bash] Rebuild the documents, re-run the byte-for-byte test, and check for leaks`
+
+The converter script itself lists the other repo names it redacts, which would leak them. Fixing that before committing.
+
+`[tool: Bash] Find the redaction list in the converter script`
+`[tool: Bash] Take redaction names as arguments instead of storing them`
+`[tool: Bash] Commit the changes and push them to GitHub`
+`[tool: Bash] Check the commit and push status`
+
+Both are done and pushed to GitHub.
+
+**The chat is in the repo.** `chat/TRANSCRIPT.md` has every turn, 0 to 66.
+- Your messages and my written replies are copied word for word.
+- Each tool call is cut down to one line, saying which tool ran and what it was for. The full scripts and their outputs are already elsewhere in the repo.
+- Three times, I listed your other GitHub repos by name in my replies. Since this repo is public, I replaced those names with "[other repository]".
+
+Earlier I told you I couldn't export the chat. That was wrong: I can read this chat's history one page at a time, and that's how I made the copy. I've added the mistake to the corrections table in `SESSION_LOG.md`.
+
+**Bugs 8, 9 and 10 are logged.** They're now in the bug log in your Claude account and in `POTENTIAL_BUGS.md`, and `HANDOFF.md` and the README show them as logged too. That makes eight logged bugs: 1 to 4 and 7 to 10. Two candidates are still waiting for your decision:
+- **5:** when chunk pieces are merged, the space or line break between them is lost.
+- **6:** a force rebuild of an existing run ID also stops at the integrity prompt. You haven't seen this one yet.
+
+I rebuilt both documents. The check that the scripts and sample documents can be rebuilt from `HANDOFF.md` alone still passes: all 33 files come out byte for byte the same.
+
+The next step in the trace is stage 5, graph extraction, whenever you want to pick it up.
+
+## Turn 68, Claude
+
+*(This turn is empty in the chat history.)*
+
+## Turn 69, person
+
+*The current date is Monday, October 12, 2026.*
+
+lets go. to step-5.
+
+## Turn 70, Claude
+
+Starting stage 5, graph extraction. First I'll read the stage and the code it calls, then show you where it starts before running anything.
+
+`[tool: Bash] List the stage classes and their main methods`
+`[tool: Read] unified_kg_rag/application/ingestion/pipeline_stages.py`
+`[tool: Bash] Find the extractor class and list its methods`
+`[tool: Read] unified_kg_rag/adapters/ingestion/graph_extractor.py`
+`[tool: Read] unified_kg_rag/adapters/ingestion/graph_extractor.py`
+
+Read the whole extractor. Now the settings it uses and their defaults.
+
+`[tool: Bash] Find the extraction and grounding settings`
+`[tool: Read] unified_kg_rag/domain/models/config.py`
+
+Now the prompt and the parsing helpers in the base class.
+
+`[tool: Bash] Locate the prompt and list base class helpers`
+`[tool: Read] unified_kg_rag/domain/ingestion/base_processor.py`
+`[tool: Read] unified_kg_rag/domain/prompts/graph_extraction.py`
+`[tool: Bash] Show the stage 4 script and the old work folder`
+`[tool: Bash] Show the stand-in model and the 5-document folder`
+
+I'll write the stage 5 script now: same setup as stage 4, with checkpoints on each step of the extractor.
+
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5.py`
+`[tool: Bash] Run stages 1 to 5 with no answers on file, capturing the prompts`
+`[tool: Read] unified_kg_rag/application/ingestion/pipeline_stages.py`
+`[tool: Bash] Add the error message to the printout and list the five captured chunks`
+`[tool: Bash] Write hand answers for the five prompts and replay them through stage 5`
+
+The answered run works end to end. Let me re-record the capture run with the error message showing, and save both outputs into the repo's folders.
+
+`[tool: Bash] Re-record the no-answer run and save stage 5 outputs to the repo`
+
+Stage 5 works on our 5 sample documents. With my hand-written answers it found 16 entities and 14 relationships. With no usable answers, the stage failed.
+
+**What stage 5 does.** It sends each chunk to the AI model with one prompt: "list the people, companies, places and so on in this text, and how they are connected." The model replies in a fixed tag format. Each item comes with a type (person, organization, location, and so on), a 1 to 10 confidence score, and a word-for-word quote from the chunk as evidence. The code then combines the replies from all chunks into one list of entities and one list of relationships.
+
+**The path through the code, in the order the checkpoints fired:**
+1. `GraphExtractionStage._execute_core` (`pipeline_stages.py` 770–807). It takes the translated chunks if there are any, otherwise the originals (line 777), and hands them to the extractor.
+2. `_prepare_extraction_inputs` (`graph_extractor.py` 204–261) fills the prompt for each chunk: the chunk's text, the 7 allowed entity types, and a cap of 50 entities and 50 relationships per chunk.
+3. The model is called once per chunk: 5 calls.
+4. `_parse_extraction_result` (333–381) runs once per chunk. It turns each reply into Python objects:
+   - **Confidence:** 10 becomes 1.0 and 9 becomes 0.9.
+   - **ID:** each entity's ID is made from its name, so "Chennai" gets the same ID in every chunk.
+5. `_merge_entities` (383–413) combines entities that have the same ID: 23 went in, 16 came out.
+   - "Acme Robotics" showed up in 4 chunks and became one entity, with the 4 descriptions joined by "; ".
+   - Its **frequency** is simply how many chunks it came from: 4.
+6. `_merge_relationships`: 14 went in, 14 came out, because no relationship was repeated.
+7. `_materialize_relationship_endpoints` adds an entity for any name that appears only inside a relationship. Nothing was added here.
+8. `_filter_entities_by_confidence` removed nothing, because the cut-off is 0 by default.
+
+**Run A: no answers on file.** The stand-in model replied with leftover chunking text to all 5 prompts. Each reply was rejected because it had no entity list, so 0 entities came out. The stage was then marked `failed`, with this message: *"Critical stage 'graph_extraction' processed 5 inputs but produced 0 outputs."* That rule is in `pipeline_stages.py` 193–200. This is the opposite of stage 4, which reported "completed" even when every call failed (bug 10). The difference is that stage 5 counts what it actually produced.
+
+**Things I noticed but haven't tested yet:**
+- **The hallucination guard is off by default.** The prompt makes the model quote its evidence word for word, but the check that the quote really appears in the chunk only runs if `entity_grounding.enabled` is switched on (`config.py` 828–833). By default the quotes are ignored.
+- **Types are lower-cased when merged.** The prompt asks for "ORGANIZATION", but every entity comes out as "organization", even ones seen only once.
+- **Relationship strength isn't scaled.** Confidence is divided by 10, but strength stays on the 1 to 10 scale ("weight=9.0"). When the same relationship shows up in two chunks, the two strengths are added together (line 419).
+- **"Acme board" and "Acme Robotics" are separate entities.** That's because I named them that way in my answers. It shows that the code's merge only joins items whose names match after clean-up. It doesn't recognise two different names for the same thing.
+
+The script (`stage5.py`), my answers and both outputs are saved in the repo folder but not committed yet.
+
+**Next step options:**
+- feed it some bad answers (an invented entity, one chunk failing while the others work), first with the guard off and then on;
+- or look at how names count as "the same", meaning what `entity_key` does to "Acme Robotics" vs "ACME Robotics Pvt Ltd".
+
+Which first?
+
+`[tool: Bash] Commit and push the stage 5 files`
+
+The stage 5 files are now committed and pushed to GitHub. That's the script, my hand-written answers, the two run outputs and the captured prompt, in commit `43de226`. `HANDOFF.md` doesn't have stage 5 yet; I'll add it once we've finished the stage.
+
+The question from before still stands: which do you want next? One option is to feed it bad answers, such as an invented entity or one chunk failing, with the hallucination check off and then on. The other is to look at how names count as "the same".
+
+## Turn 71, person
+
+*The current date is Monday, October 12, 2026.*
+
+one question first - whats the repo link ?
+
+## Turn 72, Claude
+
+It's https://github.com/sashankh-ravi/ukg-trace-new
+
+It's public, and the latest commit there is the stage 5 one (`43de226`).
+
+## Turn 73, person
+
+*The current date is Monday, October 12, 2026.*
+
+not mine. the aws repo
+
+## Turn 74, Claude
+
+It's https://github.com/awslabs/unified-kg-rag-on-aws
+
+Everything in our trace was checked against commit `37ef4a7df28bdd19a5f277d30aff026ddf8cbd50`, and all the line numbers I quote refer to that commit. To see the code exactly as we traced it, use https://github.com/awslabs/unified-kg-rag-on-aws/tree/37ef4a7df28bdd19a5f277d30aff026ddf8cbd50
+
+## Turn 75, person
+
+*The current date is Monday, October 12, 2026.*
+
+you rushed stage-5. this is super critical part of the code. go linne by line slowly and show me code and outputs and code flow. again remember like as though I am checkpointing the code.
+
+## Turn 76, Claude
+
+Understood. I'll go one small step at a time and stop after each. Step 1 is what gets built before any chunk is processed: the stage's constructor and the extractor's constructor. I'll read the two helper functions it calls first.
+
+`[tool: Bash] List functions in the chain factory file`
+`[tool: Read] unified_kg_rag/adapters/aws/chain_factory.py`
+
+I've read the two helpers. Now a small checkpoint script that builds only the stage 5 object and prints each thing as it is created.
+
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step1_build.py`
+`[tool: Bash] Build the stage 5 object with checkpoints`
+`[tool: Bash] Save the step 1 output and push it to GitHub`
+
+You're right, I went too fast. Starting over, one step at a time. **Step 1 is only what gets built when the stage is created.** No chunk is read and no model is called yet.
+
+### 1a. The stage's constructor
+`application/ingestion/pipeline_stages.py`, lines 758–768:
+
+```python
+class GraphExtractionStage(PipelineStage):
+    def __init__(self, config, boto_session=None, providers=None):
+        super().__init__(PipelineStageType.GRAPH_EXTRACTION, config, boto_session, providers)
+        self.extractor = GraphExtractor(self.config, providers=self.providers)
+```
+
+The stage itself is just a thin shell. All the real work is in `GraphExtractor`.
+
+### 1b. The extractor's constructor
+`adapters/ingestion/graph_extractor.py`, lines 109–141:
+
+```python
+116        super().__init__(config)                       # stores config, picks out the graph_extraction settings
+117        self.providers = Providers.resolve(config, providers, boto_session)
+119        self.ignore_errors = self.config.processing.ignore_errors
+120        self.factory = self.providers.llm_factory      # the thing that hands out AI models
+121        self.batch_processor = BatchProcessor(is_transient_error=is_transient_bedrock_error)
+125        robust_xml_output_parser = create_robust_xml_output_parser(
+126            model_purpose=ModelPurpose.INGESTION,
+127            enable_output_fixing=self.config.fixing.enabled,
+128            output_fixing_model_id=self.config.fixing.fixing_model_id, ...)
+132        self.graph_extractor = setup_chain(
+135            model_id=self.extraction_config.extraction_model_id,
+136            prompt_class=GraphExtractionPrompt,
+137            parser=robust_xml_output_parser, ...)
+141        self.stats = ExtractionStats()                 # all counters at zero
+```
+
+### What the checkpoints showed
+(Script: `reproduce/scripts/stage5_step1_build.py`. Output: `followup_out/stage5_step1_build.out`.)
+
+```
+settings read by the constructor:
+  config.processing.ignore_errors             = False
+  config.fixing.enabled                       = True
+  config.fixing.fixing_model_id               = anthropic.claude-sonnet-5-5
+  graph_extraction.extraction_model_id        = anthropic.claude-sonnet-5-5
+
+>>> GraphExtractionStage(config, providers=providers)
+CHECKPOINT -> create_robust_xml_output_parser  called with {... 'enable_output_fixing': True ...}
+CHECKPOINT -> factory.get_model  called with {'model_id': 'anthropic.claude-sonnet-5-5', ...}
+           returned: HandAnsweredModel
+           returned: OutputFixingParser
+CHECKPOINT -> setup_chain  called with {... 'prompt_class': 'GraphExtractionPrompt', 'parser': 'OutputFixingParser' ...}
+CHECKPOINT -> factory.get_model  called with {'model_id': 'anthropic.claude-sonnet-5-5', ...}
+           returned: HandAnsweredModel
+           returned: RunnableBinding
+
+after construction:
+  extractor.graph_extractor  = RunnableBinding named 'GraphExtractionPrompt'
+     step 1: ChatPromptTemplate
+     step 2: HandAnsweredModel
+     step 3: OutputFixingParser
+  prompt variables to fill   = ['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chunk']
+```
+
+### In plain words: what exists after step 1
+The extractor now holds a **chain**, a three-step conveyor belt that each chunk will travel down later:
+
+1. **Prompt template** (`ChatPromptTemplate`). This is the system message and human message from `GraphExtractionPrompt`, with 4 blanks still to fill in.
+2. **The model.** The stand-in here; normally Bedrock's `claude-sonnet-5-5`.
+3. **The reply reader** (`OutputFixingParser`). This one matters most, and it's new to us. Its two parts:
+   - Inside it is the same XML reader as in stage 3, `RobustXMLOutputParser`.
+   - It is wrapped in a **"fixer"**, because `config.fixing.enabled` is `True` by default (lines 244–257 of `chain_factory.py`). If the model's reply can't be read as XML, the fixer sends the broken reply to a **second model call** and asks it to repair the reply.
+
+That's why the factory was asked for a model **twice**: once for the extractor and once for the fixer.
+
+Two more things exist after construction:
+- **`batch_processor`**: the piece that will send all the chunks to the model, retrying failures that look temporary. We'll open it in step 3.
+- **`ignore_errors = False`**: if the whole batch blows up, the error is raised rather than swallowed (lines 165–167). We'll see this in step 3 too.
+
+**One thing to flag now and test later [READ, NOT RUN YET].** The fixer is a second AI rewriting the first AI's answer. In our earlier run it never fired, because the stand-in's junk reply was still valid XML. It was only rejected later, for having no entity list. I'll make it fire on purpose when we reach the reply-reading step.
+
+**Step 2, if you're happy with step 1:** `extract_from_text_units` starts. That covers which chunks go in (line 777: translated or original), and how `_prepare_extraction_inputs` fills the 4 blanks for each chunk. I'll show you the exact filled-in prompt for one chunk.
+
+## Turn 77, person
+
+*The current date is Monday, October 12, 2026.*
+
+you havent shown me still inside setup chunk code, why output xml parser is called ertc
+
+## Turn 78, Claude
+
+Going inside both functions now, line by line. First I'll read the XML reader class itself, since you asked why it's there.
+
+`[tool: Bash] Locate the XML reader class and its methods`
+`[tool: Read] unified_kg_rag/shared/utils/langchain.py`
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step1b_inside_setup.py`
+`[tool: Bash] Step through the two builder functions line by line`
+`[tool: Bash] Save the line trace output and push it`
+
+This time I ran the real code under a line tracer: each line is printed as it executes, and below it any variable that line created or changed. (Script: `reproduce/scripts/stage5_step1b_inside_setup.py`. Full output: `followup_out/stage5_step1b_inside_setup.out`.)
+
+## First, why is an XML reader created here at all?
+
+The model never hands back Python data. It hands back **one long piece of text**. The bottom of the trace shows this for chunk 1 (`01_acme.txt`), fed through the finished chain one station at a time:
+
+```
+step 1, prompt template -> returns ChatPromptValue with 2 messages
+step 2, model           -> returns AIMessage ; its .content is a str of 1983 characters, starting:
+    <entities>
+    <entity>
+    <name>Acme Robotics</name>
+    <type>ORGANIZATION</type>
+step 3, reader          -> returns dict with keys ['entities', 'relationships']
+    parsed['entities']['entity'] is a list of 5
+    first entity: {"name": "Acme Robotics", "type": "ORGANIZATION", "description": "...",
+                   "confidence": "10", "source_text": "Acme Robotics is a company based in Pune."}
+```
+
+Later code asks for things like `result.get("entities")` (`graph_extractor.py` line 351). That only works on a Python dictionary, not on a 1,983-character string. **The reader's job is to turn the reply text into a dictionary.** Note that `"confidence": "10"` is still text at this point; it gets turned into a number much later.
+
+In the constructor the reader is only **built and slotted in** as the chain's third station. It actually reads anything only later, once per chunk.
+
+## 1b-i. Inside `create_robust_xml_output_parser`
+`adapters/aws/chain_factory.py`. These are the lines that executed, in order:
+
+```
+  arrived with: enable_output_fixing = True, output_fixing_model_id = 'anthropic.claude-sonnet-5-5'
+  244     base_parser = RobustXMLOutputParser()
+          base_parser = RobustXMLOutputParser
+  245     if not enable_output_fixing:          -> False, so it does NOT return here
+  249         fixing_llm = factory.get_model(model_id=output_fixing_model_id, ...)
+          fixing_llm = HandAnsweredModel
+  254         logger.info("Created OutputFixingParser with model: ...")
+  257         return OutputFixingParser.from_llm(parser=base_parser, llm=fixing_llm)
+  RETURNS OutputFixingParser(parser=RobustXMLOutputParser, max_retries=1, retry_chain=prompt|HandAnsweredModel|...)
+```
+
+In plain words:
+- **Line 244** makes the plain XML reader, the same kind as in stage 3.
+- **Line 245** asks whether fixing is switched on. It is by default, so the function carries on instead of returning the plain reader.
+- **Line 249** gets a second model, just for repairs.
+- **Line 257** wraps the reader in a "fixer". The plan: try to read the reply; if reading fails, send the broken reply to the repair model **once** (`max_retries=1`) and read what comes back.
+
+## 1b-ii. Inside `setup_chain`
+
+```
+  arrived with: model_id = 'anthropic.claude-sonnet-5-5', prompt_class = GraphExtractionPrompt,
+                parser = OutputFixingParser(...), model_purpose = INGESTION
+  288         llm = factory.get_model(model_id=..., min_output_tokens=prompt_class.min_output_tokens)
+          llm = HandAnsweredModel
+  294         model_info = factory.get_model_info(model_id)
+          model_info = None
+  295         resolved = prompt_class.resolve(custom_prompts=custom_prompts)
+          resolved = ResolvedPrompt(system_prompt_template: 4526 chars, human_prompt_template: 1085 chars)
+  296         prompt = _build_chat_prompt(resolved, _prompt_cache_marker(llm, model_info, resolved))
+          prompt = ChatPromptTemplate(messages=['SystemMessagePromptTemplate', 'HumanMessagePromptTemplate'],
+                   input_variables=['entity_types', 'input_text', 'max_entities_per_chunk', 'max_relationships_per_chunk'])
+  301         chain = (prompt | llm | parser).with_config(run_name=prompt_class.__name__)
+          chain = RunnableBinding(bound=ChatPromptTemplate | HandAnsweredModel | OutputFixingParser,
+                  config={'run_name': 'GraphExtractionPrompt'})
+  305         retry = (... if model_purpose is ModelPurpose.QUERY ... else None)
+          retry = None
+  311         return with_transient_retry(chain, operation=..., retry=retry)
+  RETURNS RunnableBinding(bound=ChatPromptTemplate | HandAnsweredModel | OutputFixingParser, ...)
+```
+
+Line by line:
+- **288**: gets the main model, the one that will do the extracting. That makes two models in total: this one, plus the repair model from line 249.
+- **294**: asks for facts about the model, such as whether it supports prompt caching. The stand-in has none, so this is `None`.
+- **295**: fetches the prompt text. We set no custom prompts, so it's the built-in `GraphExtractionPrompt`: a 4,526-character system message and a 1,085-character human message.
+- **296–297**: turns that text into a template with **4 blanks**: `entity_types`, `input_text`, `max_entities_per_chunk`, `max_relationships_per_chunk`.
+  - The inner call `_prompt_cache_marker` decides whether to mark the system message for caching on AWS. It returned "no", because `model_info` is `None` (lines 67–68).
+  - **[NOT CHECKED]** With the real Bedrock model, caching depends on what Bedrock reports about the model, which I can't see from here.
+- **301**: `prompt | llm | parser`. The `|` symbol joins the three stations into one conveyor belt: fill blanks, then ask the model, then read the reply. It's given the name `GraphExtractionPrompt` for logs.
+- **305**: the retry-on-temporary-AWS-error wrapper is only for question answering (`QUERY`). This is ingestion, so `retry = None`.
+- **311**: so the chain is returned unwrapped. The comment at lines 282–285 says why: for ingestion, retries are handled by the batch processor instead. We'll see that in step 3.
+
+**Not traced:** I haven't shown the insides of `_prompt_cache_marker`, `_build_chat_prompt`, `prompt_class.resolve` or `OutputFixingParser.from_llm` line by line. The first two are short and quoted above; I can step into any of them if you want.
+
+**Also, a detail about the reader itself.** Our reply has two top-level sections, `<entities>` and `<relationships>`. The reader's first method (lxml, lines 612–615) normally keeps only the first top-level section. When it notices one is missing, it falls back to a second method (line 625). I'll trace exactly which path it takes when we reach the step where replies are read.
+
+Next is step 2, `extract_from_text_units` begins: which chunks go in, and the 4 blanks filled for one real chunk. OK to continue?
+
+## Turn 79, person
+
+*The current date is Monday, October 12, 2026.*
+
+lets go
+
+## Turn 80, Claude
+
+Step 2 covers everything from the moment stage 5 starts until the chunks are handed to the batch processor. I'll make the line tracer reusable, then point it at the four functions involved.
+
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/linetrace.py`
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step2_inputs.py`
+
+That draft got cluttered. Rewriting it more simply: tracing switches on when stage 5 starts and off at the hand-over, then the filled-in prompt for one chunk is printed.
+
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step2_inputs.py`
+`[tool: Bash] Trace stage 5 line by line up to the hand-over`
+`[tool: Bash] Trace the input-filling function on its own`
+`[tool: Bash] Save the step 2 trace and push it`
+
+**Step 2 covers everything from "stage 5 starts" up to "chunks handed to the batch processor."** This is the real pipeline (stages 1 to 5 on our 5 documents), with the line tracer switched on when stage 5 begins and off at the hand-over. (Script: `reproduce/scripts/stage5_step2_inputs.py`. Full output: `followup_out/stage5_step2_inputs.out`.)
+
+## 2a. The stage starts
+`pipeline_stages.py`, `GraphExtractionStage._execute_core`:
+
+```
+  >>> ENTER GraphExtractionStage._execute_core
+              context = PipelineContext(text_units: 5, translated_units: 0, entities: 0)
+    line 773-775      logger.info(...)  (three log lines: "GRAPH EXTRACTION STAGE - STARTED")
+    line 777          text_units = context.translated_units or context.text_units
+              text_units = list of 5 TextUnit
+    line 779          entities, relationships, stats = self.extractor.extract_from_text_units(text_units)
+```
+
+**Line 777** decides which chunks are used. `translated_units` is an empty list here, because stage 4 skipped itself (English to English). An empty list counts as "nothing", so the `or` falls through to `context.text_units`: the 5 original chunks from stage 3.
+
+## 2b. Into the extractor
+`graph_extractor.py`, `extract_from_text_units`:
+
+```
+  >>> ENTER GraphExtractor.extract_from_text_units
+              text_units = list of 5 TextUnit
+    line 146          start_time = time.time()
+    line 148          if not text_units:                 -> there are 5, so it carries on
+    line 152          self.stats = ExtractionStats(num_total_units=len(text_units))   -> counter set to 5
+    line 153          logger.info("Starting graph extraction from %s text units", ...)
+    line 155          try:
+    line 156          extraction_results = self.batch_processor.execute_with_fallback(
+    line 157              items_to_process=text_units,
+    line 158              prepare_inputs_func=self._prepare_extraction_inputs,
+    line 159              batch_func=self.graph_extractor.batch,
+    line 160              sequential_func=self.graph_extractor.invoke,
+    line 162              run_config=self.config.processing.model_dump(), ...
+
+  ========== HAND-OVER TO THE BATCH PROCESSOR: step 3 starts here ==========
+      items_to_process   = list of 5 TextUnit
+      prepare_inputs_func = GraphExtractor._prepare_extraction_inputs
+      batch_func          = RunnableBindingBase.batch      (the chain from step 1: send many at once)
+      sequential_func     = RunnableBindingBase.invoke     (the same chain: send one at a time)
+```
+
+**A correction to what I said I'd show you.** I expected the blanks to be filled here. They aren't. Line 158 doesn't call `_prepare_extraction_inputs`; it **hands the function itself** to the batch processor, and the batch processor calls it later. The same goes for lines 159 and 160: both are the step 1 chain, given as "send all at once" and as "send one at a time". Which one gets used is the batch processor's decision, in step 3.
+
+## 2c. The function that fills the blanks, traced on its own
+I called it directly with the same 5 chunks, so you can see it line by line. The first chunk is shown in full; the other four go through exactly the same lines.
+
+```
+  >>> ENTER GraphExtractor._prepare_extraction_inputs
+    line 207          inputs = []
+    line 208          graph_extraction_config = self.extraction_config
+              -> max_entities_per_chunk=50, max_relationships_per_chunk=50, entity_types: 7 items
+    line 209          failed_preparations = 0
+    line 210          entity_types_block = self._format_entity_types(graph_extraction_config.entity_types)
+
+      >>> ENTER _format_entity_types        (loops 7 times, once per type; first pass:)
+        line 197      label, sep, desc = item.partition(":")
+                  label = 'PERSON'   sep = ':'   desc = ' Names, individuals, roles, titles'
+        line 201      lines.append(f"- **{label}**:{desc.rstrip()}" ...)
+                  lines = ['- **PERSON**: Names, individuals, roles, titles']
+        ... same for ORGANIZATION, LOCATION, CONCEPT, OBJECT, EVENT, TEMPORAL ...
+        line 202      return "\n".join(lines)
+
+    line 214          for text_unit in text_units:
+              text_unit = TextUnit(id=7625b4ab.., file=01_acme.txt, translated_texts=None)
+    line 218              "input_text": self.get_text_for_processing(text_unit),
+          >>> ENTER get_text_for_processing   (domain/ingestion/base_processor.py)
+            line 46   if text_unit.translated_texts:       -> None, so skip
+            line 49   return text_unit.text                -> 'Acme Robotics is a company based in Pune. ...'
+    line 219-225          "max_entities_per_chunk": "50", "max_relationships_per_chunk": "50",
+                          "entity_types": entity_types_block
+    line 216              inputs.append({...})              -> inputs = 1 dict
+    ... 02_meera, 03_orbit, 04_product, 05_investor: same lines ...  -> inputs = 5 dicts
+    line 256          if failed_preparations > 0:          -> 0, nothing to warn about
+    line 261          return inputs
+  <<< RETURNS list of 5 prompt-input dicts
+```
+
+Two things to note:
+- **The text is chosen in two places.** Line 777 picks the list of chunks. Then, per chunk, `get_text_for_processing` (lines 46–49) uses the chunk's translation if it has one in the target language, and the original otherwise. This is where bug 9 bites: if translation is on, whatever text stage 4 stored is what gets sent here.
+- **The `except` branch (lines 228–254) did not run.** If filling in a chunk's blanks fails, the code adds a dict with **empty text** instead of skipping that chunk. Per the comment, this keeps one input per chunk, so results still line up with chunks later.
+
+## 2d. The result: the prompt for chunk 1, blanks filled
+In the system message (4,946 characters), `{entity_types}` became:
+
+```
+## Entity Categories (STRICT - use only these types):
+- **PERSON**: Names, individuals, roles, titles
+- **ORGANIZATION**: Companies, institutions, departments, groups
+- **LOCATION**: Places, addresses, geographic areas, facilities
+- **CONCEPT**: Ideas, theories, methodologies, frameworks, principles
+- **OBJECT**: Documents, tools, products, systems, technologies
+- **EVENT**: Meetings, projects, activities, processes, incidents
+- **TEMPORAL**: Dates, time periods, schedules, deadlines
+```
+
+The human message (1,157 characters) starts:
+
+```
+## SOURCE TEXT:
+Acme Robotics is a company based in Pune. It was founded by Meera Shah in 2015. Acme builds warehouse robots.
+Acme has 120 employees.
+
+## EXTRACTION LIMITS:
+- Maximum Entities: 50
+- Maximum Relationships: 50
+```
+
+The rest is fixed instructions; the full message is in the output file.
+
+The "50" limit is only a request written into the prompt. I haven't yet seen any code that counts entities against it; I'll watch for that in the later steps.
+
+**Step 3 next:** inside the batch processor, `execute_with_fallback` in `shared/utils/langchain.py`, lines 191–335. It's where `_prepare_extraction_inputs` actually gets called, where it chooses between "all at once" and "one at a time", and what it does when a call fails. It's long, so I'll go through it in parts. OK?
+
+## Turn 81, person
+
+*The current date is Monday, October 12, 2026.*
+
+lets go.
+
+## Turn 82, Claude
+
+Reading the batch processor in full first, from the start of the class to the end of its fallback path.
+
+`[tool: Read] unified_kg_rag/shared/utils/langchain.py`
+`[tool: Bash] Let the tracer follow nested functions and find the batch settings`
+`[tool: Read] unified_kg_rag/domain/models/config.py`
+
+That gives me the batch settings. Now the step 3a script.
+
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step3a_batch.py`
+`[tool: Bash] Trace the batch processor on the normal path`
+`[tool: Bash] Fix the nested-function lookup and rerun the trace`
+`[tool: Bash] Save the step 3a trace and push it`
+
+**Step 3a: inside the batch processor, when every model call succeeds.** I traced `BatchProcessor.execute_with_fallback` in `shared/utils/langchain.py` line by line, including the small helper functions defined inside it. (Script: `reproduce/scripts/stage5_step3a_batch.py`. Output: `followup_out/stage5_step3a_batch.out`.)
+
+**Watch out for the word "chunk" here.** In this file it doesn't mean a piece of text. It means **a group of up to 10 text chunks sent together**. I'll call those **groups**.
+
+## 3a-1. Settings are loaded (lines 201–212)
+
+```
+BatchProcessor fields before the call: max_concurrency 5, batch_size 10, chunk_concurrency 4, max_attempts 5,
+                                       retry_multiplier 30.0, retry_max_wait 120, call_timeout_seconds 300
+    line 201          if not items_to_process:          -> 5 items, so it carries on
+    line 204          if run_config:
+    line 205          self.max_concurrency = run_config.get("max_concurrency", ...)    -> 5 becomes 20
+    line 208          self.batch_size = run_config.get("batch_size", ...)              -> 10
+    line 209          self.chunk_concurrency = run_config.get("chunk_concurrency", ...) -> 4
+    line 212          self.max_attempts = run_config.get("max_attempts", ...)          -> 5
+```
+
+The batch processor has its own defaults, but four of them are overwritten here by the `processing` settings in the config.
+
+**[READ]** Three settings are *not* overwritten, so their values in the batch processor's own code always win: `retry_multiplier` (30), `retry_max_wait` (120 seconds) and `call_timeout_seconds` (300 seconds). As far as I can see, they can't be changed through the config file.
+
+## 3a-2. The tools are prepared (lines 214–227)
+
+```
+    line 214  prepared_batch_func = self._create_batch_func(batch_func)
+      >>> _batch_kwargs
+        line 340  "config": RunnableConfig(max_concurrency=self.max_concurrency),
+        line 341  "return_exceptions": True,
+      <<< RETURNS {'config': {'max_concurrency': 20}, 'return_exceptions': True}
+    line 218  def timed_sequential_func(single_input): ...       (one-at-a-time sender with a 300 s time limit)
+    line 225  retrying_sequential_func = self._create_retry_decorator(task_name)(timed_sequential_func)
+```
+
+Two senders are prepared:
+
+- **The "all at once" sender** (`prepared_batch_func`). It sends a group's chunks to the model, up to 20 at the same time. `return_exceptions=True` means that if one chunk's call fails, the error comes back **in that chunk's place in the list** instead of stopping the others.
+- **The "one at a time, with retries" sender** (`retrying_sequential_func`). It's only a backup and isn't used on this run.
+  - It is the one-at-a-time sender wrapped in a retry rule (lines 390–398): up to 5 attempts, waiting a random time between attempts that can grow to 120 seconds.
+  - The trace prints the same name, `timed_sequential_func`, because the retry wrapper copies the original function's name.
+
+## 3a-3. Chunks are split into groups (lines 229–245)
+
+```
+    line 229  num_items = 5
+    line 230  num_chunks = math.ceil(5 / 10)  -> 1
+    line 242  chunk_specs = [(1, [all 5 text chunks])]
+```
+
+Our 5 text chunks fit into **one group**. With 25 chunks there would be 3 groups (10, 10, 5).
+
+## 3a-4. Groups are processed (lines 301–310)
+
+```
+    line 303  if self.chunk_concurrency <= 1 or len(chunk_specs) <= 1:   -> only 1 group, so the simple loop
+    line 309      chunk_results_by_idx[1] = process_chunk(1, [5 text chunks])
+```
+
+With more than one group, lines 311–327 would run up to 4 groups at the same time in separate threads. Our run took the simple one-group loop.
+
+## 3a-5. Inside `process_chunk`, for our single group (lines 247–294)
+
+```
+    line 248  chunk_inputs = prepare_inputs_func(chunk_items)       <- step 2's function is called HERE
+              chunk_inputs = list of 5 prompt-input dicts
+    line 249  if not chunk_inputs:                                  -> 5, so it carries on
+    line 256  def run_batch(inputs=chunk_inputs): return prepared_batch_func(inputs)
+    line 260  results = list(self._run_with_timeout(run_batch, 300, "Graph Extraction batch chunk 1"))
+      >>> _run_with_timeout
+        line 161  if timeout_seconds <= 0:                         -> 300, so a time limit applies
+        line 169  pool = ContextThreadPoolExecutor(max_workers=1)  (a separate worker thread)
+        line 170  future = pool.submit(func)                       (run_batch starts in that thread)
+        line 172  result = future.result(timeout=300)              (main thread waits, at most 300 s)
+            [worker thread] line 257  return prepared_batch_func(inputs)
+            [worker thread] line 375  return batch_func(inputs, **batch_kwargs)   <- the chain's .batch()
+            [worker thread] RETURNS list of 5 parsed reply dicts (keys ['entities', 'relationships'])
+        line 188  pool.shutdown(wait=False)
+        line 189  return result
+    line 283  failed = self._failed_indices(results)
+        line 346  [i for i, res in enumerate(results) if isinstance(res, BaseException)]  -> []
+    line 284  if not failed:
+    line 286      return results
+```
+
+(In the saved output file, a few lines from the two threads are printed interleaved, because they ran at the same time. Above I've separated them out.)
+
+Three things to take from this:
+
+1. **This is where step 2's function is really called**: line 248, once per group.
+2. **Everything happens inside line 375**: filling the blanks, calling the model and reading the reply. `batch_func` is the step 1 conveyor belt (prompt → model → reader), run for all 5 inputs. So what comes back is already **5 Python dictionaries**, not 5 reply texts.
+3. **The 300-second limit is for the whole group.** If the group's calls together take longer, lines 173–183 give up waiting and the group falls back to one-at-a-time sending. The abandoned calls may keep running and costing money in the background; the comment at lines 154–159 admits this.
+
+## 3a-6. Results are put back in order (lines 329–334)
+
+```
+    line 331  all_results.extend(chunk_results_by_idx.get(1, []))   -> 5 parsed dicts
+    line 334  return all_results
+  <<< RETURNS list of 5 parsed reply dicts
+```
+
+The final list is in the same order as the chunks went in. That matters, because the next step pairs result 1 with chunk 1, result 2 with chunk 2, and so on.
+
+**Step 3b next: the failure paths.** I'll make it go wrong on purpose in three ways, one at a time:
+- one chunk's call fails, then succeeds on retry;
+- one chunk fails every time;
+- the whole group call breaks.
+
+Each will show which lines run (266–278, 287–294, 413–448) and what ends up in that chunk's place, for example the `BATCH_ITEM_FAILED` marker.
+
+One practical issue: the retry waits are random and can grow up to 120 seconds, and they can't be changed through the config. For the test I'll shorten the waits inside my script only, without touching the repo's code, and I'll say so in the output. OK?
+
+## Turn 83, person
+
+*The current date is Monday, October 12, 2026.*
+
+you are not processing the code blocks very nicely and it shows weirdly on screen here
+
+## Turn 84, Claude
+
+Sorry about that. My blocks mixed code, trace output and my own notes, and the lines were too wide, so they wrapped badly. From now on each step will use the same layout:
+
+- **Code**: the real lines, short, as a `python` block.
+- **Checkpoint output**: what the run printed, in a separate block with nothing added.
+- **Meaning**: plain words, outside the blocks.
+
+Here's step 3a again in that layout.
+
 ---
 
-*End of the copy. Claude's reply to turn 66 is the commit that added this file: it logged candidates 8, 9 and 10 as bugs (in the person's bug log document and in `POTENTIAL_BUGS.md`) and added this transcript. Turn 66 was not yet in the chat's history when the rest was copied; it is copied from the message as received.*
+### 3a-1. Settings are loaded
+`shared/utils/langchain.py`, lines 204–212
+
+```python
+if run_config:
+    self.max_concurrency = run_config.get(
+        "max_concurrency", self.max_concurrency)
+    self.batch_size = run_config.get(
+        "batch_size", self.batch_size)
+    self.chunk_concurrency = run_config.get(
+        "chunk_concurrency", self.chunk_concurrency)
+    self.max_attempts = run_config.get(
+        "max_attempts", self.max_attempts)
+```
+
+Checkpoint output:
+
+```
+before:  max_concurrency 5
+after:   max_concurrency 20
+         batch_size 10
+         chunk_concurrency 4
+         max_attempts 5
+not changed:
+         retry_multiplier 30.0
+         retry_max_wait 120
+         call_timeout_seconds 300
+```
+
+**Meaning:** four settings come from the config file. The last three always keep the batch processor's own defaults and can't be set from the config.
+
+---
+
+### 3a-2. Two senders are prepared
+Lines 214–227 and 339–342
+
+```python
+prepared_batch_func = self._create_batch_func(
+    batch_func)
+
+def timed_sequential_func(single_input):
+    return self._run_with_timeout(...)
+
+retrying_sequential_func = (
+    self._create_retry_decorator(task_name)(
+        timed_sequential_func))
+```
+
+Checkpoint output:
+
+```
+batch_kwargs = {'config': {'max_concurrency': 20},
+                'return_exceptions': True}
+```
+
+**Meaning:**
+- **Sender 1 (all at once)** sends a group's chunks together, up to 20 at a time. `return_exceptions=True` means a failed chunk comes back as an error object in its own slot, and the other chunks are unaffected.
+- **Sender 2 (one at a time)** is a backup: up to 5 attempts per chunk, with waits of up to 120 seconds. It's not used on this run.
+
+---
+
+### 3a-3. Chunks are split into groups
+Lines 229–245
+
+```python
+num_items = len(items_to_process)
+num_chunks = math.ceil(num_items / self.batch_size)
+chunk_specs = [
+    (idx + 1, items_to_process[i : i + self.batch_size])
+    for idx, i in enumerate(
+        range(0, num_items, self.batch_size))
+]
+```
+
+Checkpoint output:
+
+```
+num_items   = 5
+num_chunks  = 1
+chunk_specs = [(1, 5 text chunks)]
+```
+
+**Meaning:** in this file, "chunk" means a **group** of up to 10 text chunks. Our 5 make one group.
+
+---
+
+### 3a-4. The group is processed
+Lines 303–309
+
+```python
+if self.chunk_concurrency <= 1 or len(chunk_specs) <= 1:
+    for chunk_num, chunk_items in tqdm(chunk_specs, ...):
+        chunk_results_by_idx[chunk_num] = process_chunk(
+            chunk_num, chunk_items)
+```
+
+**Meaning:** there's only one group, so it takes the simple loop. Several groups would run in parallel threads (lines 311–327).
+
+---
+
+### 3a-5. Inside `process_chunk`
+Lines 248–286
+
+```python
+chunk_inputs = prepare_inputs_func(chunk_items)
+
+def run_batch(inputs=chunk_inputs):
+    return prepared_batch_func(inputs)
+
+results = list(self._run_with_timeout(
+    run_batch, self.call_timeout_seconds, ...))
+
+failed = self._failed_indices(results)
+if not failed:
+    return results
+```
+
+Checkpoint output:
+
+```
+chunk_inputs = list of 5 prompt-input dicts
+_run_with_timeout: timeout_seconds = 300
+  worker thread: batch_func(inputs, ...)
+  returned: list of 5 parsed reply dicts
+results = list of 5 dicts,
+          keys ['entities', 'relationships']
+failed  = []
+```
+
+**Meaning:**
+1. Line 248 is where step 2's function is actually called.
+2. The call `batch_func(...)` runs the whole step 1 conveyor belt (prompt, then model, then reader) for all 5 chunks. So the results are already Python dictionaries.
+3. The 300-second limit covers the whole group, not each chunk.
+4. `failed` is empty, so the results are returned as they are.
+
+---
+
+### 3a-6. Results are put back in order
+Lines 329–334
+
+```python
+all_results = []
+for chunk_num, _ in chunk_specs:
+    all_results.extend(
+        chunk_results_by_idx.get(chunk_num, []))
+return all_results
+```
+
+Checkpoint output:
+
+```
+all_results = list of 5 parsed reply dicts
+```
+
+**Meaning:** the results come out in the same order as the chunks went in. The next step relies on this when it pairs result 1 with chunk 1, and so on.
+
+---
+
+Is this layout easier to read on your screen? If it is, I'll use it for step 3b, the failure paths.
+
+## Turn 85, person
+
+*The current date is Monday, October 12, 2026.*
+
+yes this is easy
+
+## Turn 86, Claude
+
+I'll use the same layout for 3b. First I need to read the rule that decides whether a failed call is worth retrying, because it decides which failure path runs.
+
+`[tool: Bash] List what is in the retry rules file`
+`[tool: Read] unified_kg_rag/adapters/aws/bedrock_retry.py`
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step3b_failures.py`
+`[tool: Bash] Run the four failure scenarios and show their summaries`
+
+All four ran. Now I'll read the line traces themselves, starting with B1.
+
+`[tool: Bash] Show the B1 line trace`
+`[tool: Bash] Show the B2 trace and the B3 retry decisions`
+`[tool: Bash] Show B3 wait times and ending, and the B4 trace`
+`[tool: Bash] Save the four failure traces and push them`
+
+**Step 3b: what the batch processor does when calls fail.** In every run below only chunk 5 (`05_investor.txt`) misbehaves; the other four get their normal answers. (Script: `reproduce/scripts/stage5_step3b_failures.py`. Outputs: `followup_out/stage5_step3b_*.out`.)
+
+**One thing my script changes, so the runs finish quickly.** It sets the retry waits to at most 2 seconds (the repo's own limit is 120 seconds). For B4 only, it also sets the group time limit to 2 seconds (the repo uses 300). I didn't change any of the repo's code.
+
+---
+
+### The retry rule
+`shared/utils/langchain.py`, lines 379–383
+
+```python
+def _is_retryable(self, exc):
+    if isinstance(exc, OutputParserException
+                       | TimeoutError):
+        return True
+    return (self.is_transient_error is None
+            or self.is_transient_error(exc))
+```
+
+And `adapters/aws/bedrock_retry.py`, lines 41–58:
+
+```python
+TRANSIENT_BEDROCK_ERROR_CODES = {
+    "ModelErrorException",
+    "ModelNotReadyException",
+    "ServiceUnavailableException",
+    "InternalServerException",
+    "ThrottlingException",
+}
+```
+
+**Meaning:** an error is worth retrying in three cases: the reply couldn't be read, the call timed out, or AWS returned one of these five "temporary" error codes. Anything else, such as "access denied", is not retried.
+
+---
+
+### B1. "Too busy" once, then it works
+
+The group call comes back with an error in slot 4 (chunk 5):
+
+```
+results = [dict, dict, dict, dict,
+           ClientError (ThrottlingException)]
+```
+
+Lines 283–294:
+
+```python
+failed = self._failed_indices(results)
+if not failed:
+    return results
+self._log_partial_failure(...)
+retried = self._process_sequentially_with_fallback(
+    [chunk_inputs[i] for i in failed], ...)
+return self._splice_retried(results, failed, retried)
+```
+
+Checkpoint output:
+
+```
+failed  = [4]
+retried = [parsed reply dict]
+splice: merged[4] = parsed reply dict
+returns [dict, dict, dict, dict, dict]
+```
+
+Summary:
+
+```
+calls for chunk 05: 2
+calls for other chunks: 4
+stage 5: completed, failed_units 0
+entities 16, relationships 14
+```
+
+**Meaning:** only the failed chunk is re-sent, on its own, and the answer is put back into slot 4. The other four are not called again.
+
+---
+
+### B2. "Access denied", every time
+
+Lines 429–440, inside the one-at-a-time sender:
+
+```python
+try:
+    result = sequential_func(single_input)
+    results.append(result)
+    successful_count += 1
+except Exception as e:
+    logger.error(...)
+    results.append(BATCH_ITEM_FAILED)
+```
+
+Checkpoint output:
+
+```
+_is_retryable(AccessDeniedException)
+  -> False
+except branch: results = [BATCH_ITEM_FAILED]
+returns [dict, dict, dict, dict,
+         BATCH_ITEM_FAILED]
+```
+
+Summary:
+
+```
+calls for chunk 05: 2
+stage 5: completed, failed_units 1
+entities 12, relationships 10
+failed chunks: ['05_investor.txt']
+```
+
+**Meaning:**
+- It's not on the retry list, so there's no waiting and no repeat attempts. It's still sent once more on its own, because the one-at-a-time path always tries once. That makes 2 calls in total.
+- After that, slot 4 holds the `BATCH_ITEM_FAILED` marker. Everything chunk 5 would have contributed is missing from the graph: Banyan Capital, Ravi Menon, the 2019 investment.
+- The stage still reports `completed`, but this time the loss **is counted** (`failed_units: 1`, plus the chunk's ID in the failed list). That's better than stage 4, which hid its failures (bug 10).
+
+---
+
+### B3. "Too busy", every time
+
+Checkpoint output (the retry log ran 4 times):
+
+```
+_is_retryable -> True   (5 times)
+wait_time = 0.36
+wait_time = 0.93
+wait_time = 0.29
+wait_time = 1.51
+after attempt 5: except branch
+returns [dict, dict, dict, dict,
+         BATCH_ITEM_FAILED]
+```
+
+Summary:
+
+```
+calls for chunk 05: 6
+  t=0.07s #1 (group call)
+  t=0.09s #2 (attempt 1)
+  t=0.45s #3
+  t=1.39s #4
+  t=1.68s #5
+  t=3.2s  #6 (attempt 5)
+stage 5: completed, failed_units 1
+```
+
+**Meaning:** 1 group call plus 5 one-at-a-time attempts, then it gives up and leaves the same marker as B2. The waits are random, which is why they go up and down. **[READ, not run]** With the repo's real settings, each wait can be up to 120 seconds. So one stubborn chunk can hold things up for several minutes before it's given up.
+
+---
+
+### B4. The group call hangs
+
+Lines 254–278:
+
+```python
+try:
+    results = list(self._run_with_timeout(
+        run_batch, self.call_timeout_seconds, ...))
+except Exception as e:
+    logger.warning("Batch processing failed ...")
+    return self._process_sequentially_with_fallback(
+        chunk_inputs, retrying_sequential_func, ...)
+```
+
+Checkpoint output:
+
+```
+line 260  _run_with_timeout(...)
+line 266  except Exception as e:
+line 273  return self._process_sequentially_with_fallback(
+              chunk_inputs, ...)     <- all 5
+successful_count = 1, 2, 3, 4, 5
+returns [dict, dict, dict, dict, dict]
+```
+
+Summary:
+
+```
+calls for chunk 05: 2
+calls for other chunks: 8
+  t=0.08s  chunk 05 call #1 starts (hangs)
+  t=2.06s  chunk 05 call #2 (re-sent)
+  t=4.08s  call #1 finishes in the
+           abandoned thread
+stage 5: completed, failed_units 0
+```
+
+**Meaning:**
+- When the whole group call breaks, **all 5 chunks are re-sent one at a time**, including the 4 that were fine. That's why the other chunks were called 8 times instead of 4.
+- The hung call wasn't stopped. It kept running and finished at 4.08 s, and its answer was thrown away.
+- With real AWS, both the hung call and the duplicates are paid for. The code's comment at lines 154–159 says so.
+
+---
+
+### What step 3 hands on
+
+Every path ends the same way: one result per chunk, in chunk order. Each result is either a parsed reply dictionary or the `BATCH_ITEM_FAILED` marker.
+
+**[NOT CHECKED]** Whether any later stage looks at the failed-chunk list, or retries those chunks.
+
+**Step 4 next: reading each reply.** There are two parts:
+- **4a:** the XML reader path for our real reply, and the "fixer" model firing on a reply that can't be read.
+- **4b:** `_parse_extraction_result` for chunk 1, line by line, turning the dictionary into Entity and Relationship objects.
+
+OK to go on?
+
+## Turn 87, person
+
+*The current date is Monday, October 12, 2026.*
+
+did we encounter any bugs here ? like the fail retried if only it belngs to one case ?
+
+## Turn 88, Claude
+
+Good question. I'll answer from evidence rather than impressions, which means checking two things first. What does the `ignore_errors` setting promise? And does the real AWS model library hand back AWS errors in the form the retry rule can recognise?
+
+`[tool: Bash] Check the ignore_errors setting and how the AWS library raises errors`
+`[tool: Bash] Read how the AWS chat model handles AWS errors`
+`[tool: Bash] Read the AWS library's error handler`
+`[tool: Bash] Check which AWS chat class is built and where ingestion uses ignore_errors`
+`[tool: Bash] Find which AWS chat class the model factory creates`
+
+The rule recognises AWS errors correctly, at least on the main path. One more check: whether the "ignore errors" switch changes what happened in B2. Running B2 again with it switched on.
+
+`[tool: Bash] Run the access-denied case with ignore_errors off and on`
+`[tool: Bash] Commit and push the comparison run`
+
+Short answer: retrying only some kinds of error is **not** a bug, it's deliberate. But checking it turned up one real candidate bug: the `ignore_errors` setting doesn't do anything here.
+
+---
+
+### 1. "Retry only for certain errors": correct, by design
+
+The idea is to retry only problems that clear up on their own, like "too busy", and to give up straight away on problems that won't, like "access denied". Retrying an access-denied error five times, with waits of up to 2 minutes each, would just waste time.
+
+One thing could have broken this: if the AWS library repackaged AWS errors into some other form, the rule wouldn't recognise them and nothing would ever be retried. So I read the library's code. `langchain_aws` 1.8.0, `bedrock_converse.py`:
+
+```python
+try:
+    response = self.client.converse(...)
+except ClientError as e:
+    _handle_bedrock_error(e)
+```
+
+And in `_handle_bedrock_error`:
+
+```python
+if (error_code == "AccessDeniedException"
+        and "InvokeTool" in error_message):
+    raise ValueError(...)
+# Re-raise other errors unchanged
+raise error
+```
+
+**Meaning:** a "too busy" error reaches the rule as an unchanged AWS error, so it is recognised and retried. [READ]
+
+**[NOT CHECKED]** The repo can also use the older AWS chat class, `ChatBedrock` (`bedrock.py` line 543). I haven't read how that one passes errors on.
+
+---
+
+### 2. Candidate bug: `ignore_errors` has no effect on failed chunks
+
+The setting (`config.py`, lines 998–1001):
+
+```python
+ignore_errors: bool = Field(
+    default=False,
+    description="Ignore errors and "
+                "continue processing")
+```
+
+Where the extractor uses it (`graph_extractor.py`, lines 155–171):
+
+```python
+try:
+    extraction_results = (
+        self.batch_processor.execute_with_fallback(...))
+except Exception as e:
+    if not self.ignore_errors:
+        raise
+    ...
+```
+
+The default is `False`, meaning "don't ignore errors". You'd expect a failed chunk to stop the run. But the batch processor never raises for a failed chunk: it puts a `BATCH_ITEM_FAILED` marker in that chunk's slot instead. So the `except` above never runs, and the setting is never read.
+
+I ran B2 (chunk 5 gets "access denied") with the setting off, then on:
+
+```
+### ignore_errors off
+stage 5 status: completed
+failed_units: 1
+entities: 12, relationships: 10
+failed chunks: ['05_investor.txt']
+
+### ignore_errors on
+stage 5 status: completed
+failed_units: 1
+entities: 12, relationships: 10
+failed chunks: ['05_investor.txt']
+```
+
+**Meaning:** the results are identical. Whatever the setting says, a chunk that fails is dropped and the run carries on. The only thing that stops it is **every** chunk failing, which trips the "0 outputs" check we saw earlier.
+
+**[NOT CHECKED]** Whether a later stage reads the failed-chunk list and reacts to it.
+
+(Outputs: `followup_out/step3b_ignore_off.out` and `step3b_ignore_on.out`.)
+
+---
+
+### 3. Things that cost time or money, but aren't bugs
+
+- **Access denied is still sent twice.** That's one group call plus one call on its own (B2). It's a small waste, and only once per chunk.
+- **A hang re-sends the whole group.** The 4 healthy chunks were sent again, and the hung call kept running and was still paid for (B4). The code's own comment admits this.
+- **The retry timings can't be set from the config.** The 30 s retry base, the 120 s maximum wait and the 300 s time limit are fixed in the code (step 3a).
+- **[INFERRED, not tested] The 300 s limit may be too tight for a long reply.** The prompt allows replies of up to 32,768 tokens. If a model really took longer than 300 s to write one, the call would time out. It would then be retried up to 5 times, timing out each time, with every abandoned call still running and costing money. I haven't measured how long real replies take, so this is a question, not a finding.
+
+---
+
+Should I add #2 to the bug log as **candidate 11**? And should the 300-second question be listed as an open question, or left out?
+
+## Turn 89, person
+
+*The current date is Monday, October 12, 2026.*
+
+yes
+
+## Turn 90, Claude
+
+Adding it as bug 11 in both places: the bug log document in your Claude account, and `POTENTIAL_BUGS.md` in the repo. I'll also put the 300-second question in the handoff's open questions, not in the bug log, since it hasn't been tested.
+
+`[tool: Skill] anthropic-skills:docs`
+`[tool: ToolSearch] select:mcp__Claude_Docs__read`
+`[tool: Claude Docs guide]`
+`[tool: Claude Docs read]`
+`[tool: Claude Docs read]`
+`[tool: Claude Docs update]`
+
+The bug log document is updated. Now the repo copies: `POTENTIAL_BUGS.md` and the handoff, which get rebuilt from their templates.
+
+`[tool: Bash] Find the places in the templates to update`
+`[tool: Bash] Show the status, bug table and open questions sections`
+`[tool: Bash] Extract the run summaries into small evidence files`
+`[tool: Bash] Add bug 11 and the open question to the templates and rebuild`
+`[tool: Bash] Add the stage 5 scripts to the handoff appendix and rerun the self-test`
+`[tool: Bash] Commit and push the bug 11 changes`
+
+Bug 11 is now in the bug log document in your Claude account and in `POTENTIAL_BUGS.md` on GitHub. The log now has nine entries: 1 to 4 and 7 to 11. Candidates 5 and 6 are still waiting for you.
+
+- **The 300-second question** is open question 12 in `HANDOFF.md`, marked as inferred, not as a bug.
+- **The handoff also shows stage 5 as in progress**, with steps 1 to 3 traced. It hasn't been written up there yet.
+- **All the stage 5 scripts are now inside `HANDOFF.md`**, so it can rebuild every script on its own again. I re-ran the check: all 42 files come out identical.
+
+Next is step 4: reading each reply.
+- **4a** is the XML reader on our real reply, plus making the repair model fire on a reply that can't be read.
+- **4b** is `_parse_extraction_result` for chunk 1, line by line.
+
+## Turn 91, person
+
+*The current date is Monday, October 12, 2026.*
+
+we can go to next step\
+
+## Turn 92, Claude
+
+Step 4a covers how a reply is read. I'll read the repair wrapper's own code first. It comes from the LangChain library, not this repo.
+
+`[tool: Bash] Locate the repair wrapper's source in the installed library`
+`[tool: Bash] Read the repair wrapper and its repair prompt`
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step4a_reader.py`
+`[tool: Bash] Trace the reader on our real reply`
+`[tool: Bash] Trace the reader on a reply cut off halfway`
+`[tool: Bash] Run the pipeline with a tagless reply so the repair model fires`
+`[tool: Bash] Check what the extractor keeps from the cut-off reply`
+`[tool: Bash] Save the step 4a outputs and push them`
+
+**Step 4a: how a reply is read.** I ran three cases. (Script: `reproduce/scripts/stage5_step4a_reader.py`. Outputs: `followup_out/stage5_step4a_real.out`, `..._cut.out` and `..._prose.out`.)
+
+Two of them turned up new problems, which are at the end.
+
+---
+
+### 4a-1. Our real reply (chunk 1, 1,983 characters)
+`shared/utils/langchain.py`, lines 608–627
+
+```python
+original_sections = self._detect_xml_sections(text)
+try:
+    cleaned_text = self._clean_xml_for_lxml(text)
+    result = self._try_lxml_recover_parse(cleaned_text)
+    if self._sections_preserved(original_sections,
+                                result):
+        return result
+    raise ValueError("Missing sections in lxml result")
+except Exception as e:
+    logger.debug(...)
+try:
+    fallback_result = self._extract_xml_fallback(text)
+    if fallback_result:
+        return fallback_result
+```
+
+Checkpoint output:
+
+```
+line 609  original_sections = {entities, relationships}
+line 613  result = {'entities': {'entity': list of 5}}
+_sections_preserved:
+  missing_sections = {relationships}
+  RETURNS False
+line 616  raise ValueError(...)
+line 625  _extract_xml_fallback(text)
+  section_matches: entities, relationships
+  entities      -> {'entity': list of 5}
+  relationships -> {'relationship': list of 3}
+line 627  return fallback_result
+```
+
+**Meaning:**
+1. Line 609 first lists the top-level sections in the reply: `entities` and `relationships`.
+2. Method 1 is a standard XML library (lxml). XML is only allowed one outer tag, so it read `<entities>` and **dropped `<relationships>`**.
+3. Lines 678–684 notice that a section is missing and reject method 1's result.
+4. Method 2 (line 625) finds each top-level `<tag>...</tag>` with a pattern search, and gets both sections.
+
+Result: 5 entities and 3 relationships, correct. Every well-formed reply that follows the prompt's format will take this same detour, because the prompt itself asks for two outer sections.
+
+---
+
+### 4a-2. The same reply, cut off halfway
+This is what happens when a model runs out of room. The reply ends:
+
+```
+</relationship>
+<relationship>
+<source>Meera Shah</source>
+<target>Acme Robo
+```
+
+Checkpoint output:
+
+```
+original_sections = {entities, relationship, source}
+lxml result       = {'entities': ...}  -> rejected
+fallback result keys:
+  'entities'     -> {'entity': list of 5}
+  'relationship' -> the one complete relationship
+  'source'       -> {'#text': 'Meera Shah'}
+```
+
+Then the extractor's next step:
+
+```
+_parse_extraction_result:
+  raised an error: no
+  entities: ['Acme Robotics', 'Pune',
+             'Meera Shah', '2015',
+             'warehouse robots']
+  relationships: []
+```
+
+**Meaning:**
+- Because `</relationships>` never arrives, the pattern search can't see the relationships section as a whole. So it picks up the pieces inside it as if they were top-level sections: `relationship` (singular) and `source`.
+- The extractor then asks for the key `"relationships"` (`graph_extractor.py`, line 352). That key doesn't exist, so it gets nothing.
+- **All relationships are lost, including the one that arrived complete (Acme Robotics → Pune).**
+- No error is raised and the chunk counts as a success. The repair model is never called, because the reader didn't fail.
+
+---
+
+### 4a-3. A reply with no tags at all
+Stages 1 to 5 run for real. The reply for chunk 5 was set to:
+
+```
+I could not find any entities in this text.
+```
+
+The repair wrapper's code (from the LangChain library, `langchain_classic` 1.0.8, `output_parsers/fix.py`):
+
+```python
+while retries <= self.max_retries:
+    try:
+        return self.parser.parse(completion)
+    except OutputParserException as e:
+        if retries == self.max_retries:
+            raise
+        retries += 1
+        completion = self.retry_chain.run(
+            instructions=self.parser
+                .get_format_instructions(),
+            completion=completion,
+            error=repr(e))
+```
+
+Checkpoint output:
+
+```
+model calls recorded: 6
+  calls 1-5: EXTRACTION prompt
+  call 6:    OTHER prompt  (the repair call)
+```
+
+The repair prompt as sent, start and middle (1,138 characters in full in the output file):
+
+```
+Instructions:
+--------------
+The output should be formatted as a XML file.
+1. Output should conform to the tags below.
+2. If tags are not given, make them on your own.
+...
+Here are the output tags:
+None
+--------------
+Completion:
+--------------
+I could not find any entities in this text.
+```
+
+The checks in the script, and the stage result:
+
+```
+contains the chunk's text?            False
+contains the extraction instructions? False
+
+stage 5: completed | failed_units: 1
+failed chunks: ['05_investor.txt']
+```
+
+**Meaning:**
+1. All four reading methods failed, so the reader raised an error and the repair wrapper stepped in. That's call 6.
+2. **The repair model is told almost nothing.** It doesn't see the chunk's text, the extraction instructions or the tag names (the prompt literally says `None`), and it's told "if tags are not given, make them on your own." It can reformat a reply, but it has no way to check or recover the actual content.
+3. My stand-in answered the repair prompt with leftover text, which was readable XML but had no entity list. So the chunk then failed one step later and was counted as failed. The repair call happened and was wasted.
+
+**[NOT CHECKED]** What a real model would answer to that repair prompt. With the instruction to "make tags on your own" and no source text, it could return anything from an empty shell to invented entities. Because the hallucination guard is off by default, invented entities would not be filtered.
+
+---
+
+### Possible bugs from 4a
+
+- **A. A cut-off reply loses all its relationships, silently.** Complete relationships are dropped too. The chunk counts as a success and nothing is logged as a failure. [RAN] *Not yet checked:* how often real replies get cut off. The prompt asks for up to 50 entities plus 50 relationships, each with a description and a quote.
+- **B. The repair step can't do its job for this prompt.** It gets no source text, no extraction instructions and no tag names. At best it reshapes the text. At worst a real model fills the gap from general knowledge, which [NOT CHECKED].
+
+Should I log A and/or B as bugs 12 and 13? Or keep them as candidates until we've seen 4b, where `_parse_extraction_result` turns the dictionary into Entity and Relationship objects line by line?
+
+## Turn 93, person
+
+*The current date is Monday, October 12, 2026.*
+
+we can see 4b and then decide
+
+## Turn 94, Claude
+
+Step 4b turns the dictionary into Entity and Relationship objects. First I'll read the small helper functions it calls, which live in the `shared/utils` folder.
+
+`[tool: Bash] Find the helper functions used when building entities`
+`[tool: Read] unified_kg_rag/shared/utils/common.py`
+
+Read them. Now the step 4b script. It traces the main function for chunk 1, then one entity and one relationship through every helper.
+
+`[tool: Write] /home/claude/ukg-trace-new/reproduce/scripts/stage5_step4b_parse.py`
+`[tool: Bash] Trace the main parse function for chunk 1`
+`[tool: Bash] Show the end of the main trace`
+`[tool: Bash] Trace one entity through every helper`
+`[tool: Bash] Show the relationship trace without repeated helper detail`
+`[tool: Bash] Test an off-list type and several confidence spellings`
+`[tool: Bash] Rerun the edge cases cleanly and push the step 4b outputs`
+
+**Step 4b: turning a reply into Entity and Relationship objects.** (Script: `reproduce/scripts/stage5_step4b_parse.py`. Outputs: `followup_out/stage5_step4b_*.out`.)
+
+---
+
+### 4b-1. The main function, for chunk 1
+`adapters/ingestion/graph_extractor.py`, lines 351–381
+
+```python
+raw_entities = result.get("entities")
+raw_relationships = result.get("relationships", {})
+if not isinstance(raw_entities, dict | list) or ...:
+    raise DataProcessingError(...)
+
+entities_data = ensure_list(raw_entities,
+                            inner_key="entity")
+for entity_data in entities_data:
+    if entity := self.parse_entity_data(
+            entity_data, text_unit):
+        entities.append(entity)
+```
+
+Checkpoint output:
+
+```
+raw_entities      = {'entity': list of 5}
+raw_relationships = {'relationship': list of 3}
+entities_data     = list of 5 dicts
+entities = 'Acme Robotics', 'Pune',
+           'Meera Shah', '2015',
+           'warehouse robots'
+```
+
+**Meaning:**
+- The `"entities"` section **must** be there, or the chunk fails (line 356). That's what happened to the leftover-text replies earlier.
+- The `"relationships"` section is **optional**: if it's missing, line 352 quietly uses an empty `{}`. The docstring says this is deliberate, so that a chunk with no relationships still works.
+- This is exactly why the cut-off reply in 4a lost its relationships without any error. The code can't tell "the model found no relationships" from "the relationships section got broken."
+
+---
+
+### 4b-2. The hallucination check, switched off
+Lines 490–506
+
+```python
+grounding = self.extraction_config.entity_grounding
+for entity in entities:
+    source_text = (entity.attributes or {}).pop(
+        "_source_text", None)
+    grounded = (not grounding.enabled) or is_grounded(...)
+    if grounded:
+        kept.append(entity)
+        continue
+```
+
+Checkpoint output:
+
+```
+grounding = enabled=False, action='drop'
+entity 'Acme Robotics'
+  source_text = 'Acme Robotics is a company based in Pune.'
+  grounded = True
+(same for all 5)
+```
+
+Final entities:
+
+```
+'Acme Robotics' ... attributes={}
+'Pune'          ... attributes={}
+```
+
+**Meaning:**
+- The check is off, so `grounded` is `True` straight away, and the actual check (`is_grounded`) is never called.
+- The quote the model was required to give is **removed** (`.pop`) and thrown away either way. The saved entities keep no trace of their evidence (`attributes={}`). The docstring says this is intended ("not persisted"), but it means that later you can't look up why an entity was believed.
+- The same happens for relationships (lines 573–588).
+
+---
+
+### 4b-3. One entity, through every helper
+`domain/ingestion/base_processor.py`, lines 55–99
+
+```python
+name = clean_display_name(
+    coerce_llm_text(entity_data.get("name")))
+entity_id = self._generate_entity_id(name)
+...
+confidence = self._parse_confidence(entity_data)
+return Entity(id=entity_id, name=name,
+    type=coerce_llm_text(entity_data.get("type")), ...)
+```
+
+Checkpoint output:
+
+```
+name = 'Acme Robotics'
+entity_key -> 'acme robotics'
+generate_stable_id('entity:acme robotics')
+  -> '029c17c5-210f-568b-...'
+confidence: value '10'
+  written_as_integer = True
+  10.0 / 10 -> 1.0
+type = 'ORGANIZATION'
+```
+
+**Meaning:**
+- **The ID is made from the name only.** It's lower-cased, with spaces tidied and quote marks and a final full stop removed. So "Acme Robotics" in any chunk gets the same ID, and that's how the 4 mentions were later merged into one.
+- **Confidence:** 1 to 10 becomes 0.1 to 1.0.
+- **The type is copied as written.** It isn't checked against anything.
+
+---
+
+### 4b-4. One relationship, through every helper
+`base_processor.py`, lines 144–209
+
+```python
+source_key = entity_key(source_name)
+target_key = entity_key(target_name)
+source_id = (entity_name_to_id.get(source_key)
+             or self._generate_entity_id(source_name))
+rel_id = self._generate_relationship_id(
+    source_key, target_key, rel_type)
+weight = self._parse_weight(rel_data)
+```
+
+Checkpoint output:
+
+```
+source_key = 'acme robotics'
+target_key = 'pune'
+source_id  = '029c17c5-...'
+rel_id from 'relationship:acme robotics:pune:located_in'
+weight: '9' -> 9.0
+```
+
+**Meaning:**
+- **The relationship ID includes its type.** "Acme → Pune, LOCATED_IN" and "Acme → Pune, BASED_IN" become two separate relationships.
+- **Strength is not scaled.** It stays at 9.0, unlike confidence.
+- **Endpoints don't have to be in the entity list.** If an endpoint isn't in this chunk's list, its ID is worked out from the name instead (lines 171–176).
+
+---
+
+### 4b-5. Edge cases (quick run)
+
+```
+allowed types: PERSON, ORGANIZATION, LOCATION,
+  CONCEPT, OBJECT, EVENT, TEMPORAL
+
+type "COMPANY"      -> type='COMPANY'
+confidence "10"     -> 1.0
+confidence "9"      -> 0.9
+confidence "1"      -> 0.1
+confidence "1.0"    -> 1.0
+confidence "0.3"    -> 0.3
+confidence "85"     -> 1.0
+confidence "high"   -> 1.0
+confidence missing  -> 1.0
+```
+
+**Meaning:**
+- **The type list isn't enforced.** The prompt calls it "STRICT", but a type that isn't on the list is kept as-is.
+- **A confidence that can't be read becomes 1.0, the highest score.** This is the written rule (`default=1.0`, line 253). It only matters if someone switches on the confidence cut-off, which is 0 by default. Then a garbled score would always pass, while a careful "3" would be cut.
+
+---
+
+### Deciding: what's worth logging
+
+| | Finding | Evidence | My view |
+|---|---|---|---|
+| **A** | A cut-off reply loses all its relationships, including complete ones, and counts as a success | [RAN] 4a + 4b-1 | Bug. Confirmed now. |
+| **B** | The repair model gets no chunk text, no instructions and no tag names | [RAN] 4a | Bug. The repair step can't do its job for this prompt. |
+| **C** | A confidence that can't be read becomes 1.0, the highest | [RAN] 4b-5 | Minor. Only matters with the cut-off switched on. |
+| **D** | Types not on the "STRICT" list are accepted | [RAN] 4b-5 | Minor. Possibly intended leniency. |
+| | The evidence quote is thrown away | [RAN] 4b-2 | Not a bug: the docstring says it's deliberate. |
+
+Which should I log: A and B only, or all four as bugs 12 to 15?
+
+## Turn 95, person
+
+*The current date is Tuesday, October 13, 2026.*
+
+All four and update the GitHub repo. With chat bugs sample code runs etc etc . Everything zero hallucination. Full details. Fully grounded.
+
+---
+
+*End of the copy. Turns 67 to 94 were taken from the chat's history on 13 October 2026, from the same history pages Claude read (pages too large to return directly were saved to files and converted by `build/transcript_from_history.py`; smaller pages were taken from the session's own record of those reads, not retyped). Turn 68 is empty in the history. In turn 70, after the question "Which first?", an automatic check in Claude's workspace asked for uncommitted files to be committed and pushed; the commit and the paragraph after it are Claude's response to that check, which itself is not part of the chat's history. Turn 95 was not yet in the chat's history; it is copied from the message as received. Claude's reply to turn 95 is the commit that brought this file up to date: it logged bugs 12 to 15, wrote stage 5 into `HANDOFF.md` section 9.2, and re-ran every stage 5 experiment with `reproduce/run_stage5.sh`.*
